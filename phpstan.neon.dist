@@ -315,8 +315,8 @@ parameters:
             settings:
                 prefix: mwpd_content_freshness_
                 constants: []
-                # Option groups of WordPress's own settings pages, which a
-                # setting may join. The option name still needs the prefix.
+                # Core settings pages use their page slug as the option group;
+                # a field on a core page must join that group.
                 allowed:
                     - general
                     - writing

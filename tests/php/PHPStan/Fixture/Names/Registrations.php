@@ -44,5 +44,6 @@ final class Registrations {
 		register_setting( 'reading', 'acme_plugin_max_age' );
 		register_setting( 'reading', 'max_age' );
 		register_setting( 'discussion', 'acme_plugin_max_age' );
+		register_setting( 'reading', 'reading' );
 	}
 }

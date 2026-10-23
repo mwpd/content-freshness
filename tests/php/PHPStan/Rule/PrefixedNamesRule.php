@@ -53,10 +53,10 @@ final class PrefixedNamesRule implements Rule {
 
 	/**
 	 * The functions checked: kind of name, positions of the names, and whether
-	 * the call only reads a name, so that names WordPress owns may be allowed.
-	 * A list instead of a boolean names the positions that only read: adding
-	 * a setting to the option group of one of WordPress's own settings pages
-	 * uses that group, but still creates the option name.
+	 * all names are only read (a boolean) or which positions only read a name
+	 * (a list), so that names WordPress owns may be allowed.
+	 *
+	 * @var array<string, array{string, list<int>, bool|list<int>}>
 	 */
 	private const FUNCTIONS = [
 		'do_action'                => [ 'hooks', [ 0 ], true ],
