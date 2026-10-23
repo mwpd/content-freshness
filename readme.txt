@@ -4,7 +4,7 @@ Tags: outdated content, content audit, editorial, posts, email digest
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -51,22 +51,34 @@ Only on single posts of the "post" type, and only in the post's main content. Pa
 
 = Can I change how the notice looks? =
 
-The notice has the class `mwpd-content-freshness-notice` for styling. To change its markup, copy `views/outdated-post-notice.php` from the plugin into your theme, at the same path, and edit it there.
+The notice has the class `mwpd-content-freshness-notice` for styling. To change its markup, copy `views/outdated-post-notice.php` from the plugin into your theme as `content-freshness/views/outdated-post-notice.php`, and edit it there.
 
 = Can I change the rule for what counts as outdated? =
 
 Yes, with a little code. The notice, the column and the digest all ask one `FreshnessPolicy` interface. Bind your own implementation through the `mwpd.content_freshness.bindings` filter, and all three use it. The plugin's README on GitHub shows how.
 
+= Does it work on multisite? =
+
+Yes. Activate it on single sites, or for a whole network: network activation sets the weekly digest up in every site of the network, and in sites created on it later. Each site has its own setting and its own digest.
+
 = What happens when I deactivate or delete the plugin? =
 
-Deactivating stops the digest and hides the notice and the column, and keeps your setting. Deleting the plugin also removes the setting.
+Deactivating stops the digest and hides the notice and the column, and keeps your setting. Deleting the plugin also removes the setting, from every site of a network.
 
 == Changelog ==
+
+= 1.0.1 =
+* Multisite: network activation sets the weekly digest up in every site of the network, and in sites created on it later. Deactivating clears it in every site it reaches.
+* Deleting the plugin removes the setting, and any weekly digest left behind, from every site of every network, not only the current site.
+* The plugin is built on the current Modern WordPress Plugin Development scaffold. Themes now override the plugin's templates in a `content-freshness/` directory, for example `content-freshness/views/outdated-post-notice.php`.
 
 = 1.0.0 =
 * First release: the outdated post notice, the "Last updated" column in the Posts list, the "Posts become outdated after" setting under Settings › Reading, and the weekly digest of stale posts.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Deleting the plugin now cleans up every site of a network. Theme overrides of the plugin's templates move into a `content-freshness/` directory of the theme.
 
 = 1.0.0 =
 First release.
