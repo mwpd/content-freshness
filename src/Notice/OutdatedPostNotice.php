@@ -138,9 +138,16 @@ final class OutdatedPostNotice implements Service, Registerable, Conditional, De
 				return $content;
 			}
 
-			return $this->view_factory->create( self::VIEW )
-				->render( [ 'age' => $this->policy->age_of( $post ) ] )
-				. $content;
+			$notice = $this->view_factory->create( self::VIEW )
+				->render( [ 'age' => $this->policy->age_of( $post ) ] );
+
+			// Content filtered twice, by a theme or another plugin, gets
+			// the notice once.
+			if ( false !== \strpos( $content, $notice ) ) {
+				return $content;
+			}
+
+			return $notice . $content;
 		} catch ( ContentFreshnessException $exception ) {
 			if ( $this->debug_mode->is_debug_mode() ) {
 				throw $exception;

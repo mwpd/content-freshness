@@ -26,8 +26,9 @@ interface StalePosts {
 	 *
 	 * @param DateTimeImmutable $moment Moment the posts were last updated before.
 	 * @param int               $limit  Largest number of posts to return.
+	 * @param int               $offset Number of posts to skip, to page through them.
 	 *
 	 * @return list<WP_Post> Posts, the one updated longest ago first.
 	 */
-	public function last_updated_before( DateTimeImmutable $moment, int $limit ): array;
+	public function last_updated_before( DateTimeImmutable $moment, int $limit, int $offset ): array;
 }

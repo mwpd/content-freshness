@@ -21,6 +21,7 @@ use MWPD\ContentFreshness\Tests\Unit\TestCase;
 use stdClass;
 use WP_Error;
 use WP_Post;
+use WP_User;
 
 /**
  * The digest on its own, with test doubles for the policy, the stale posts and
@@ -62,11 +63,17 @@ final class StaleContentDigestTest extends TestCase {
 		);
 		Functions\when( 'get_users' )->justReturn(
 			[
-				$this->user( 'editor@example.com' ),
-				$this->user( 'admin@example.com' ),
-				$this->user( 'not an address' ),
-				$this->user( 'editor@example.com' ),
+				$this->user( 1, 'editor@example.com' ),
+				$this->user( 2, 'admin@example.com' ),
+				$this->user( 3, 'not an address' ),
+				$this->user( 1, 'editor@example.com' ),
+				// Has the role, but the capability was taken away from them.
+				$this->user( 4, 'denied@example.com' ),
 			]
+		);
+		Functions\when( 'user_can' )->alias(
+			static fn( WP_User $user, string $capability ): bool => 'edit_others_posts' === $capability
+				&& 4 !== $user->ID
 		);
 		Functions\when( 'wp_mail' )->alias(
 			function ( string $to, string $subject, string $body, array $headers ): bool {
@@ -158,6 +165,47 @@ final class StaleContentDigestTest extends TestCase {
 		$this->assertStringContainsString( 'https://example.com/wp-admin/edit.php?orderby=modified&order=asc', $body );
 	}
 
+	public function test_it_follows_a_policy_that_leaves_old_posts_out(): void {
+		$posts       = array_map(
+			fn( int $id ): WP_Post => $this->post( $id, "Post {$id}" ),
+			range( 1, 30 )
+		);
+		$stale_posts = new FixedStalePosts( $posts );
+		// An evergreen rule: the oldest 15 posts never count as outdated.
+		$policy = new FixedFreshnessPolicy( true, range( 1, 15 ) );
+
+		$this->make_digest( $stale_posts, $policy )->send();
+
+		[ , , $body ] = $this->sent[0];
+		$this->assertStringNotContainsString( '>Post 15<', $body );
+		$this->assertStringContainsString( '>Post 16<', $body );
+		$this->assertStringContainsString( '>Post 30<', $body );
+		$this->assertSame( [ 0, 20 ], $stale_posts->offsets );
+	}
+
+	public function test_it_lists_at_most_a_digest_full_of_posts(): void {
+		$posts       = array_map(
+			fn( int $id ): WP_Post => $this->post( $id, "Post {$id}" ),
+			range( 1, 30 )
+		);
+		$stale_posts = new FixedStalePosts( $posts );
+
+		$this->make_digest( $stale_posts )->send();
+
+		[ , , $body ] = $this->sent[0];
+		$this->assertSame( StaleContentDigest::SIZE, substr_count( $body, '<li>' ) );
+		$this->assertSame( [ 0 ], $stale_posts->offsets );
+	}
+
+	public function test_it_sends_nothing_when_the_policy_leaves_every_candidate_out(): void {
+		$this->make_digest(
+			new FixedStalePosts( [ $this->post( 7, 'Old news' ) ] ),
+			new FixedFreshnessPolicy( true, [ 7 ] )
+		)->send();
+
+		$this->assertSame( [], $this->sent );
+	}
+
 	public function test_it_sends_nothing_when_nothing_is_stale(): void {
 		$this->make_digest( new FixedStalePosts( [] ) )->send();
 
@@ -229,8 +277,9 @@ final class StaleContentDigestTest extends TestCase {
 		return new WP_Post( $fields );
 	}
 
-	private function user( string $email ): stdClass {
-		$user             = new stdClass();
+	private function user( int $id, string $email ): WP_User {
+		$user             = new WP_User();
+		$user->ID         = $id;
 		$user->user_email = $email;
 
 		return $user;

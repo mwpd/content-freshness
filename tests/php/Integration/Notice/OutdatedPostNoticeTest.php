@@ -37,6 +37,8 @@ final class OutdatedPostNoticeTest extends TestCase {
 		// The main loop is rendering post 42, the queried post.
 		Functions\when( 'in_the_loop' )->justReturn( true );
 		Functions\when( 'is_main_query' )->justReturn( true );
+		Functions\when( 'is_feed' )->justReturn( false );
+		Functions\when( 'doing_filter' )->justReturn( false );
 		Functions\when( 'get_the_ID' )->justReturn( 42 );
 		Functions\when( 'get_queried_object_id' )->justReturn( 42 );
 		Functions\when( 'get_queried_object' )->justReturn( $this->post( '2023-10-23 12:00:00' ) );

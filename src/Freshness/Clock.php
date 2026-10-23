@@ -25,7 +25,10 @@ use DateTimeImmutable;
 interface Clock {
 
 	/**
-	 * Get the current moment.
+	 * Get the current moment, to the second.
+	 *
+	 * WordPress stores dates to the second, so a clock with microseconds
+	 * would make a post updated at the same second count as older.
 	 *
 	 * @return DateTimeImmutable Current moment.
 	 */

@@ -21,11 +21,14 @@ use DateTimeImmutable;
 final class WordPressClock implements Clock {
 
 	/**
-	 * Get the current moment, in the site's timezone.
+	 * Get the current moment, to the second, in the site's timezone.
 	 *
 	 * @return DateTimeImmutable Current moment.
 	 */
 	public function now(): DateTimeImmutable {
-		return \current_datetime();
+		$now = \current_datetime();
+
+		// Setting the timestamp again drops the microseconds.
+		return $now->setTimestamp( $now->getTimestamp() );
 	}
 }

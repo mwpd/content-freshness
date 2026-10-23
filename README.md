@@ -74,8 +74,10 @@ add_filter(
 ```
 
 The notice, the column and the digest all use it from then on; none of them
-changes. The plugin's tests do the same with a fixed policy
-(`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:76-98`).
+changes. The digest asks the database for the posts last updated before the
+policy's `outdated_before()`, then lets `is_outdated()` decide about each
+one, so a rule that leaves some old posts out applies to the email too. The plugin's tests do the same with a fixed policy
+(`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:78-100`).
 
 ### Changing the markup
 
@@ -128,9 +130,9 @@ Look at what each service does *not* do:
 - The setting is not `Conditional` either: waiting for `admin_init` already
   keeps it out of front-end requests, and a condition would keep it from
   cleaning up when the plugin is uninstalled through WP-CLI.
-- No service reads the option. They all depend on `FreshnessPolicy`, and the
-  one implementation, `OptionFreshnessPolicy`, reads the option once and turns
-  it into a `MaxAge` value object, or fails with `InvalidMaxAge`
+- No feature decides from the option itself. They all ask `FreshnessPolicy`,
+  and its one implementation, `OptionFreshnessPolicy`, reads the option once
+  and turns it into a `MaxAge` value object, or fails with `InvalidMaxAge`
   (`src/Freshness/OptionFreshnessPolicy.php:103-108`). The policy is shared,
   so a request reads the option at most once.
 - No service fetches the current post when it is built. The notice asks
@@ -162,7 +164,7 @@ Inside the plugin, every failure is an exception with a name, such as
 before control goes back to WordPress: with `WP_DEBUG` on, the exception
 surfaces; with it off, the notice is left out, the column cell stays empty,
 or the digest waits for next week, and the rest of the page works
-(`src/Notice/OutdatedPostNotice.php:144-149`).
+(`src/Notice/OutdatedPostNotice.php:151-156`).
 
 ### One thing the scaffold did not have
 

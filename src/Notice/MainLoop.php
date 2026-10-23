@@ -29,7 +29,8 @@ interface MainLoop {
 
 	/**
 	 * Check whether WordPress is rendering the queried post in the main loop
-	 * right now.
+	 * right now, as the content of the page: not in a feed, and not to build
+	 * an excerpt.
 	 *
 	 * @return bool Whether the main loop is rendering the queried post.
 	 */

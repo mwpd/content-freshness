@@ -30,10 +30,13 @@ final class WordPressStalePosts implements StalePosts {
 	 *
 	 * @param DateTimeImmutable $moment Moment the posts were last updated before.
 	 * @param int               $limit  Largest number of posts to return.
+	 * @param int               $offset Number of posts to skip.
 	 *
 	 * @return list<WP_Post> Posts, the one updated longest ago first.
 	 */
-	public function last_updated_before( DateTimeImmutable $moment, int $limit ): array {
+	public function last_updated_before( DateTimeImmutable $moment, int $limit, int $offset ): array {
+		$timestamp = $moment->getTimestamp();
+
 		$posts = \get_posts(
 			[
 				'post_type'           => 'post',
@@ -41,13 +44,23 @@ final class WordPressStalePosts implements StalePosts {
 				'orderby'             => 'modified',
 				'order'               => 'ASC',
 				'posts_per_page'      => \max( 1, $limit ),
+				'offset'              => \max( 0, $offset ),
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
 				'date_query'          => [
 					[
-						// Compare in UTC, whatever the site's timezone.
+						// Compare in UTC, whatever the site's timezone. A date
+						// given as a string would be read in the site's
+						// timezone, so it is given in parts.
 						'column'    => 'post_modified_gmt',
-						'before'    => \gmdate( 'Y-m-d H:i:s', $moment->getTimestamp() ),
+						'before'    => [
+							'year'   => (int) \gmdate( 'Y', $timestamp ),
+							'month'  => (int) \gmdate( 'n', $timestamp ),
+							'day'    => (int) \gmdate( 'j', $timestamp ),
+							'hour'   => (int) \gmdate( 'G', $timestamp ),
+							'minute' => (int) \gmdate( 'i', $timestamp ),
+							'second' => (int) \gmdate( 's', $timestamp ),
+						],
 						'inclusive' => false,
 					],
 				],

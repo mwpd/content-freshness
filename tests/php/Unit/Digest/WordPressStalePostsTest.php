@@ -27,11 +27,19 @@ final class WordPressStalePostsTest extends TestCase {
 						&& 'modified' === $query['orderby']
 						&& 'ASC' === $query['order']
 						&& 20 === $query['posts_per_page']
+						&& 40 === $query['offset']
 						&& true === $query['no_found_rows']
 						&& [
 							[
 								'column'    => 'post_modified_gmt',
-								'before'    => '2025-10-23 10:00:00',
+								'before'    => [
+									'year'   => 2025,
+									'month'  => 10,
+									'day'    => 23,
+									'hour'   => 10,
+									'minute' => 0,
+									'second' => 0,
+								],
 								'inclusive' => false,
 							],
 						] === $query['date_query']
@@ -41,7 +49,8 @@ final class WordPressStalePostsTest extends TestCase {
 
 		$posts = ( new WordPressStalePosts() )->last_updated_before(
 			new DateTimeImmutable( '2025-10-23 12:00:00 +02:00' ),
-			20
+			20,
+			40
 		);
 
 		$this->assertSame( [ $post ], $posts );
@@ -53,7 +62,7 @@ final class WordPressStalePostsTest extends TestCase {
 
 		$this->assertSame(
 			[ $post ],
-			( new WordPressStalePosts() )->last_updated_before( new DateTimeImmutable(), 20 )
+			( new WordPressStalePosts() )->last_updated_before( new DateTimeImmutable(), 20, 0 )
 		);
 	}
 }

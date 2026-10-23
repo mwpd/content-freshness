@@ -197,7 +197,7 @@ another part of the plugin depends on:
   `ServiceContainer`, `ViewFactory`, `DebugMode`, `FreshnessPolicy`, `Clock`)
   can stand in for another without its callers noticing. The tests swap
   `FreshnessPolicy` for a fixed one and no service changes
-  (`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:76-98`).
+  (`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:78-100`).
 - **Interface segregation:** small capability interfaces (`Registerable`,
   `Conditional`, `Delayed`, `HasDependencies`, `Activateable`,
   `Deactivateable`, `Uninstallable`) that a service implements only when it
@@ -210,7 +210,7 @@ another part of the plugin depends on:
 **Implementation details may take shortcuts.** Inside a class, behind its
 interface, it is fine to call WordPress functions, use the plugin API and read
 WordPress state directly. `WordPressClock` asks WordPress for the time
-(`src/Freshness/WordPressClock.php:28-30`) behind the `Clock` interface the rest of the
+(`src/Freshness/WordPressClock.php:28-33`) behind the `Clock` interface the rest of the
 code depends on, and `WordPressStalePosts` runs a post query behind
 `StalePosts`. Hooks are the integration mechanism: use actions and filters
 rather than building a parallel event system over them.
@@ -389,12 +389,15 @@ In the code:
 - The maximum age is stored as an option, which may hold anything. The policy
   reads it once and turns it into a `MaxAge`, or fails with `InvalidMaxAge`
   (`src/Freshness/OptionFreshnessPolicy.php:103-108`). The settings form goes through
-  the same value object (`src/Settings/FreshnessSetting.php:131-148`).
+  the same value object (`src/Settings/FreshnessSetting.php:140-157`).
 - Filters hand over whatever the last callback returned. The notice and the
   column only change a value of the type they expect, and pass anything else
   on (`src/Notice/OutdatedPostNotice.php:130-131`).
-- The digest checks that the query returned posts and that each recipient is
-  an email address (`src/Digest/StaleContentDigest.php:247-264`).
+- The digest keeps only the posts the query returned
+  (`src/Digest/WordPressStalePosts.php:70-75`), and only the users who really have the
+  capability and a valid email address
+  (`src/Digest/StaleContentDigest.php:292-308`): the user query matches roles
+  and stored capabilities, not a capability taken away from one user.
 - The infrastructure does the same for its own extension points: the service
   list passes through a filter that any plugin can hook, so
   `ServiceBasedPlugin` checks that it is an array of identifiers mapped to
@@ -424,12 +427,12 @@ the boundary, in the same place as principle 9:
 - **Coming in:** a `WP_Error` or a falsy failure value returned by a WordPress
   function is turned into an exception right where the call is made. The
   digest does that with the result of scheduling
-  (`src/Digest/StaleContentDigest.php:162-163`), and the policy with a post that has
+  (`src/Digest/StaleContentDigest.php:172-173`), and the policy with a post that has
   no date (`src/Freshness/OptionFreshnessPolicy.php:125-126`).
 - **Going out:** where WordPress expects a `WP_Error` (a REST callback, for
   example) or a user-facing message, the edge code catches the exception and
   converts it. The setting turns an invalid maximum age into a settings error
-  (`src/Settings/FreshnessSetting.php:134-146`). Internal code never does that conversion itself.
+  (`src/Settings/FreshnessSetting.php:143-155`). Internal code never does that conversion itself.
 
 The exceptions follow a fixed shape (`src/Exception/`):
 
@@ -469,7 +472,7 @@ the code falls back to how WordPress works:
 
 Each of the plugin's hook callbacks is such an edge. The notice catches its
 failures and returns the content as it was
-(`src/Notice/OutdatedPostNotice.php:144-149`); the column leaves its cell empty;
+(`src/Notice/OutdatedPostNotice.php:151-156`); the column leaves its cell empty;
 the digest ends the run and tries again next week. The end-to-end tests break
 the stored setting on purpose and check both modes.
 
@@ -487,7 +490,7 @@ registration when it has already happened
 (`src/Infrastructure/ServiceBasedPlugin.php:347-349`), and never registers the
 same service twice (`src/Infrastructure/ServiceBasedPlugin.php:750-753`).
 The digest only schedules its weekly event when none is scheduled
-(`src/Digest/StaleContentDigest.php:150-152`), so activating twice does not send two
+(`src/Digest/StaleContentDigest.php:160-162`), so activating twice does not send two
 digests a week. A step that runs a second time must leave the plugin exactly
 as the first run did.
 
@@ -523,7 +526,7 @@ synchronization between plugins.
 built from the scaffold can run side by side without clashing. That covers
 hook names and service identifiers (`src/ContentFreshnessPlugin.php:240-242`), the
 option (`src/Freshness/OptionFreshnessPolicy.php:32`), the cron hook
-(`src/Digest/StaleContentDigest.php:46`), the column key and the CSS classes the views
+(`src/Digest/StaleContentDigest.php:47`), the column key and the CSS classes the views
 print. The paths a theme uses to override the plugin's views are not prefixed
 yet, as in the scaffold
 ([mwpd/basic-scaffold#29](https://github.com/mwpd/basic-scaffold/issues/29)).

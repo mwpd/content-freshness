@@ -23,12 +23,22 @@ final class FixedFreshnessPolicy implements FreshnessPolicy {
 
 	private bool $outdated;
 
-	public function __construct( bool $outdated = true ) {
-		$this->outdated = $outdated;
+	/**
+	 * @var list<int>
+	 */
+	private array $fresh_post_ids;
+
+	/**
+	 * @param bool      $outdated       Whether posts are outdated.
+	 * @param list<int> $fresh_post_ids Posts that are fresh whatever their age, as an evergreen rule would.
+	 */
+	public function __construct( bool $outdated = true, array $fresh_post_ids = [] ) {
+		$this->outdated       = $outdated;
+		$this->fresh_post_ids = $fresh_post_ids;
 	}
 
 	public function is_outdated( WP_Post $post ): bool {
-		return $this->outdated;
+		return $this->outdated && ! in_array( $post->ID, $this->fresh_post_ids, true );
 	}
 
 	public function age_of( WP_Post $post ): PostAge {

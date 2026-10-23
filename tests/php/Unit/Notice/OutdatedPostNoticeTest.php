@@ -63,6 +63,15 @@ final class OutdatedPostNoticeTest extends TestCase {
 		$this->assertStringEndsWith( '<p>Content.</p>', $content );
 	}
 
+	public function test_it_prepends_the_notice_once_to_content_filtered_twice(): void {
+		$notice = $this->make_notice( new FixedFreshnessPolicy( true ), $this->main_loop() );
+
+		$once  = $notice->prepend_notice( '<p>Content.</p>' );
+		$twice = $notice->prepend_notice( $once );
+
+		$this->assertSame( $once, $twice );
+	}
+
 	public function test_it_leaves_a_fresh_post_alone(): void {
 		$notice = $this->make_notice( new FixedFreshnessPolicy( false ), $this->main_loop() );
 

@@ -9,7 +9,8 @@ use MWPD\ContentFreshness\Digest\StalePosts;
 use WP_Post;
 
 /**
- * Stale posts the test chooses, recording what it was asked for.
+ * Stale posts the test chooses, paged like a query, recording what it was
+ * asked for.
  */
 final class FixedStalePosts implements StalePosts {
 
@@ -23,16 +24,24 @@ final class FixedStalePosts implements StalePosts {
 	public ?int $limit = null;
 
 	/**
+	 * Offsets asked for, in order.
+	 *
+	 * @var list<int>
+	 */
+	public array $offsets = [];
+
+	/**
 	 * @param list<WP_Post> $posts Posts to return.
 	 */
 	public function __construct( array $posts ) {
 		$this->posts = $posts;
 	}
 
-	public function last_updated_before( DateTimeImmutable $moment, int $limit ): array {
-		$this->moment = $moment;
-		$this->limit  = $limit;
+	public function last_updated_before( DateTimeImmutable $moment, int $limit, int $offset ): array {
+		$this->moment    = $moment;
+		$this->limit     = $limit;
+		$this->offsets[] = $offset;
 
-		return $this->posts;
+		return array_slice( $this->posts, $offset, $limit );
 	}
 }

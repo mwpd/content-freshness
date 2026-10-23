@@ -27,6 +27,7 @@ use MWPD\ContentFreshness\Infrastructure\{
 	ViewFactory
 };
 use WP_Post;
+use WP_User;
 
 /**
  * Emails editors a weekly list of the posts that need a refresh.
@@ -52,6 +53,15 @@ final class StaleContentDigest implements Service, Registerable, Activateable, D
 	 * @var int
 	 */
 	public const SIZE = 20;
+
+	/**
+	 * Largest number of candidate posts looked at to fill one digest. A
+	 * policy that leaves most old posts out, such as evergreen ones, still
+	 * cannot make one digest go through the whole site.
+	 *
+	 * @var int
+	 */
+	private const MAXIMUM_CANDIDATES = 200;
 
 	/**
 	 * How often the digest is sent.
@@ -205,7 +215,7 @@ final class StaleContentDigest implements Service, Registerable, Activateable, D
 	 * @throws FailedToSendDigest If WordPress could not send to some editors.
 	 */
 	private function send_to_editors(): void {
-		$posts = $this->stale_posts->last_updated_before( $this->policy->outdated_before(), self::SIZE );
+		$posts = $this->find_outdated_posts();
 
 		if ( [] === $posts ) {
 			return;
@@ -240,24 +250,58 @@ final class StaleContentDigest implements Service, Registerable, Activateable, D
 	}
 
 	/**
+	 * Find the outdated posts to list, the one updated longest ago first.
+	 *
+	 * The query narrows the candidates down to posts last updated before the
+	 * policy's cutoff, and the policy still decides about each one, so a
+	 * policy with rules beyond age, such as leaving evergreen posts out, is
+	 * followed here as it is by the notice and the column.
+	 *
+	 * @return list<WP_Post> Up to SIZE outdated posts.
+	 */
+	private function find_outdated_posts(): array {
+		$cutoff = $this->policy->outdated_before();
+		$posts  = [];
+
+		for ( $offset = 0; $offset < self::MAXIMUM_CANDIDATES; $offset += self::SIZE ) {
+			$candidates = $this->stale_posts->last_updated_before( $cutoff, self::SIZE, $offset );
+
+			foreach ( $candidates as $candidate ) {
+				if ( $this->policy->is_outdated( $candidate ) ) {
+					$posts[] = $candidate;
+				}
+
+				if ( \count( $posts ) === self::SIZE ) {
+					return $posts;
+				}
+			}
+
+			if ( \count( $candidates ) < self::SIZE ) {
+				break;
+			}
+		}
+
+		return $posts;
+	}
+
+	/**
 	 * Get the email addresses of the users who get the digest.
 	 *
 	 * @return list<string> Valid email addresses.
 	 */
 	private function get_recipients(): array {
-		$users      = \get_users(
-			[
-				'capability' => self::RECIPIENT_CAPABILITY,
-				'fields'     => [ 'user_email' ],
-			]
-		);
+		// The query finds users by role and stored capability. It does not
+		// see a capability denied to one user, so each one is checked again.
+		$users      = \get_users( [ 'capability' => self::RECIPIENT_CAPABILITY ] );
 		$recipients = [];
 
 		foreach ( $users as $user ) {
-			$email = \is_object( $user ) && isset( $user->user_email ) ? $user->user_email : null;
+			if ( ! $user instanceof WP_User || ! \user_can( $user, self::RECIPIENT_CAPABILITY ) ) {
+				continue;
+			}
 
-			if ( \is_string( $email ) && false !== \is_email( $email ) ) {
-				$recipients[] = $email;
+			if ( false !== \is_email( $user->user_email ) ) {
+				$recipients[] = $user->user_email;
 			}
 		}
 

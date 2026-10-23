@@ -127,6 +127,9 @@ for id in $(wp user list --role=subscriber --field=ID); do
 done
 wp user create e2e-editor editor@example.com --role=editor --porcelain >/dev/null
 wp user create e2e-subscriber subscriber@example.com --role=subscriber --porcelain >/dev/null
+# An editor whose capability to edit others' posts was taken away.
+denied_id="$(wp user create e2e-denied denied@example.com --role=editor --porcelain)"
+wp eval "get_userdata( $denied_id )->add_cap( 'edit_others_posts', false );"
 
 echo "Activation"
 wp plugin activate content-freshness --quiet
@@ -136,7 +139,10 @@ expect_equals "the uninstall callback is registered" "MWPD\\ContentFreshness\\un
 	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo \$u['$PLUGIN'] ?? '';")"
 wp plugin deactivate content-freshness --quiet
 wp plugin activate content-freshness --quiet
-expect_equals "activating again keeps one digest event" "1" \
+expect_equals "deactivating and activating keeps one digest event" "1" \
+	"$(wp cron event list --hook="$CRON_HOOK" --format=count)"
+wp eval "do_action( 'activate_$PLUGIN', false );"
+expect_equals "running activation again while active keeps one digest event" "1" \
 	"$(wp cron event list --hook="$CRON_HOOK" --format=count)"
 
 echo "Posts"
@@ -156,6 +162,8 @@ expect_equals "the fresh post loads" "200" "$(fetch "/?p=$fresh_id")"
 expect_not_contains "the fresh post has no notice" 'mwpd-content-freshness-notice' "$PAGE"
 expect_equals "the home page loads" "200" "$(fetch "/")"
 expect_not_contains "lists of posts have no notice" 'mwpd-content-freshness-notice' "$PAGE"
+expect_equals "the old post's feed loads" "200" "$(fetch "/?p=$old_id&feed=rss2&withoutcomments=1")"
+expect_not_contains "feeds have no notice" 'mwpd-content-freshness-notice' "$PAGE"
 
 echo "Logging in"
 curl -sS -o /dev/null -c "$COOKIES" -b 'wordpress_test_cookie=WP%20Cookie%20check' \
@@ -212,7 +220,7 @@ wp cron event run "$CRON_HOOK" --quiet
 recipients="$(wp eval "\$t = array_map( static fn( \$x ) => \$x['to'], get_option( 'content_freshness_e2e_mails', [] ) ); sort( \$t ); echo implode( ',', \$t );")"
 admin_email="$(wp option get admin_email)"
 expected_recipients="$(printf '%s\n' "$admin_email" editor@example.com | sort | paste -sd, -)"
-expect_equals "the digest goes to the administrator and the editor, not the subscriber" \
+expect_equals "the digest goes to the administrator and the editor, not the subscriber or the denied editor" \
 	"$expected_recipients" "$recipients"
 wp eval "echo get_option( 'content_freshness_e2e_mails' )[0]['message'];" > "$PAGE"
 expect_contains "the digest lists the old post" 'An old post' "$PAGE"
@@ -265,7 +273,8 @@ echo "Uninstall"
 # uninstall_plugin() runs what deleting the plugin runs, without deleting the
 # files, so the mounted copy stays in place.
 wp eval "uninstall_plugin( '$PLUGIN' );"
-expect_equals "the setting is removed" "" "$(wp option get "$OPTION" 2>/dev/null || true)"
+expect_equals "the setting is removed" "missing" \
+	"$(wp option get "$OPTION" >/dev/null 2>&1 && echo present || echo missing)"
 expect_equals "the uninstall callback is forgotten" "" \
 	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo \$u['$PLUGIN'] ?? '';")"
 expect_equals "nothing is scheduled" "0" "$(wp cron event list --hook="$CRON_HOOK" --format=count)"

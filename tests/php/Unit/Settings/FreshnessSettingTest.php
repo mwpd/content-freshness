@@ -6,8 +6,11 @@ namespace MWPD\ContentFreshness\Tests\Unit\Settings;
 
 use Brain\Monkey\Functions;
 use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
+use MWPD\ContentFreshness\Exception\InvalidPath;
 use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 use MWPD\ContentFreshness\Settings\FreshnessSetting;
+use MWPD\ContentFreshness\Tests\Fixture\FixedDebugMode;
 use MWPD\ContentFreshness\Tests\Unit\TestCase;
 
 /**
@@ -147,14 +150,42 @@ final class FreshnessSettingTest extends TestCase {
 		$this->make_setting()->uninstall();
 	}
 
-	private function make_setting(): FreshnessSetting {
-		return new FreshnessSetting( new TemplatedViewFactory( [ dirname( __DIR__, 4 ) ] ) );
+	public function test_a_failing_field_is_left_out_without_debug_mode(): void {
+		Functions\when( 'get_option' )->justReturn( '90' );
+
+		$this->assertSame( '', $this->render_field( $this->make_setting( $this->missing_views(), false ) ) );
 	}
 
-	private function render_field(): string {
-		ob_start();
-		$this->make_setting()->render_field();
+	public function test_a_failing_field_surfaces_in_debug_mode(): void {
+		Functions\when( 'get_option' )->justReturn( '90' );
 
-		return (string) ob_get_clean();
+		$this->expectException( InvalidPath::class );
+
+		$this->render_field( $this->make_setting( $this->missing_views(), true ) );
+	}
+
+	private function make_setting( ?ViewFactory $view_factory = null, bool $debug_mode = false ): FreshnessSetting {
+		return new FreshnessSetting(
+			$view_factory ?? new TemplatedViewFactory( [ dirname( __DIR__, 4 ) ] ),
+			new FixedDebugMode( $debug_mode )
+		);
+	}
+
+	/**
+	 * Views looked up where there are none, as with a broken theme override.
+	 */
+	private function missing_views(): ViewFactory {
+		return new TemplatedViewFactory( [ '/nonexistent' ] );
+	}
+
+	private function render_field( ?FreshnessSetting $setting = null ): string {
+		ob_start();
+		try {
+			( $setting ?? $this->make_setting() )->render_field();
+		} finally {
+			$output = (string) ob_get_clean();
+		}
+
+		return $output;
 	}
 }

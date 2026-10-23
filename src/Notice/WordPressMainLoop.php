@@ -33,6 +33,10 @@ final class WordPressMainLoop implements MainLoop {
 	public function is_rendering_queried_post(): bool {
 		return \in_the_loop()
 			&& \is_main_query()
+			&& ! \is_feed()
+			// WordPress builds an excerpt by running the_content too, for
+			// whichever post it is asked about.
+			&& ! \doing_filter( 'get_the_excerpt' )
 			&& \get_the_ID() === \get_queried_object_id();
 	}
 

@@ -2,8 +2,8 @@
 /**
  * Cell of the "Last updated" column in the Posts list.
  *
- * Rendered by PostAgeColumn for each row. A theme cannot override admin
- * screens, but the path follows the same convention as the other views.
+ * Rendered by PostAgeColumn for each row. Like every view, a theme can
+ * override it with its own views/post-age-column.php.
  *
  * @package MWPD\ContentFreshness
  */

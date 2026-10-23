@@ -154,7 +154,7 @@ answer, as shown in [I need to hook in later](#i-need-to-hook-in-later).
 Do not add a condition the registration action already implies.
 `FreshnessSetting` waits for `admin_init`, which only fires in admin
 requests, so it has no `is_admin()` condition
-(`src/Settings/FreshnessSetting.php:34-38`). A condition would also keep it from
+(`src/Settings/FreshnessSetting.php:36-40`). A condition would also keep it from
 taking part in lifecycle events where it is false, such as uninstalling
 through WP-CLI.
 
@@ -262,7 +262,7 @@ Three things to know:
   Steps that must run in sequence belong in one service that runs them in
   that order.
 
-**Proven by:** `src/Digest/StaleContentDigest.php:137-176`, and the
+**Proven by:** `src/Digest/StaleContentDigest.php:147-186`, and the
 end-to-end tests, which check that the event is scheduled once, however often
 the plugin is activated, and gone after deactivation.
 
@@ -305,7 +305,7 @@ As with activation, `Conditional` applies: a service that is not needed in the
 uninstall request is skipped. Uninstalling can happen in an admin request or
 through WP-CLI, so a service that cleans up must not depend on either.
 
-**Proven by:** `src/Settings/FreshnessSetting.php:116-118`, the bridge in
+**Proven by:** `src/Settings/FreshnessSetting.php:125-127`, the bridge in
 `content-freshness.php:148-150`, and
 `tests/php/Integration/Settings/FreshnessSettingTest.php:55-61`.
 
@@ -374,7 +374,7 @@ $report = $this->injector->make( Report::class );
 
 **Proven by:** `src/PostsList/PostAgeColumn.php:104-108` and
 `src/PostsList/PostAgeColumn.php:189-192`, `src/Infrastructure/View/TemplatedViewFactory.php:29` and
-`src/Infrastructure/View/TemplatedViewFactory.php:56-59`, bound at `src/ContentFreshnessPlugin.php:129`.
+`src/Infrastructure/View/TemplatedViewFactory.php:56-61`, bound at `src/ContentFreshnessPlugin.php:129`.
 The injector is made injectable at
 `src/Infrastructure/ServiceBasedPlugin.php:371-374`, proven by
 `tests/php/Unit/ServiceBasedPluginTest.php:689-723`.
@@ -613,7 +613,7 @@ Calling a WordPress function inside an implementation detail is still fine
 ([principle 4](design-principles.md#4-solid-at-the-top-wordpress-at-the-edges)).
 The interface is for state a service depends on.
 
-**Proven by:** `src/Notice/WordPressMainLoop.php:25-53`, bound at
+**Proven by:** `src/Notice/WordPressMainLoop.php:25-57`, bound at
 `src/ContentFreshnessPlugin.php:143`, and asked at call time in
 `src/Notice/OutdatedPostNotice.php:129-135`.
 
@@ -623,7 +623,7 @@ List the adapter class in `parameters.architecture.noGlobalState.inputAdapters`;
 this permits request superglobals, never `global` or `$GLOBALS`. Form input
 that WordPress already reads for you, such as a setting saved through the
 Settings API, arrives through the sanitize callback instead
-(`src/Settings/FreshnessSetting.php:131`).
+(`src/Settings/FreshnessSetting.php:140`).
 
 **Rules:** `architecture.newOnlyWhereAllowed` (WordPress classes such as
 `WP_Query` come from the injector too), and `architecture.noGlobalState` for
@@ -755,7 +755,7 @@ try {
 ```
 
 **Proven by:** `src/Exception/InvalidMaxAge.php:50-57`,
-`src/Notice/OutdatedPostNotice.php:129-151` and the end-to-end tests,
+`src/Notice/OutdatedPostNotice.php:129-158` and the end-to-end tests,
 which store a broken setting and check both modes. A translated cause is kept
 in `src/Infrastructure/View/SimpleView.php:114-123`.
 
@@ -810,7 +810,7 @@ public const CRON_HOOK = 'mwpd_content_freshness_send_digest';
 ```
 
 **Proven by:** `src/ContentFreshnessPlugin.php:240-256`,
-`src/Freshness/OptionFreshnessPolicy.php:32` and `src/Digest/StaleContentDigest.php:46`. The
+`src/Freshness/OptionFreshnessPolicy.php:32` and `src/Digest/StaleContentDigest.php:47`. The
 setting joins WordPress's own `reading` group, which the configuration allows;
 its option name carries the prefix.
 

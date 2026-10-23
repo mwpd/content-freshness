@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace MWPD\ContentFreshness\Settings;
 
+use MWPD\ContentFreshness\Exception\ContentFreshnessException;
 use MWPD\ContentFreshness\Exception\InvalidMaxAge;
 use MWPD\ContentFreshness\Freshness\MaxAge;
 use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
@@ -20,6 +21,7 @@ use MWPD\ContentFreshness\Infrastructure\{
 	Delayed,
 	Registerable,
 	Service,
+	Service\DebugMode,
 	Uninstallable,
 	ViewFactory
 };
@@ -67,6 +69,11 @@ final class FreshnessSetting implements Service, Registerable, Delayed, Uninstal
 	private ViewFactory $view_factory;
 
 	/**
+	 * Debug mode, which decides how loudly a failure shows.
+	 */
+	private DebugMode $debug_mode;
+
+	/**
 	 * Get the action to register the service at.
 	 *
 	 * @return non-empty-string Registration action.
@@ -79,9 +86,11 @@ final class FreshnessSetting implements Service, Registerable, Delayed, Uninstal
 	 * Instantiate a FreshnessSetting object.
 	 *
 	 * @param ViewFactory $view_factory View factory to render the field with.
+	 * @param DebugMode   $debug_mode   Debug mode, which decides how loudly a failure shows.
 	 */
-	public function __construct( ViewFactory $view_factory ) {
+	public function __construct( ViewFactory $view_factory, DebugMode $debug_mode ) {
 		$this->view_factory = $view_factory;
+		$this->debug_mode   = $debug_mode;
 	}
 
 	/**
@@ -151,6 +160,12 @@ final class FreshnessSetting implements Service, Registerable, Delayed, Uninstal
 
 	/**
 	 * Render the field.
+	 *
+	 * This is where control comes back from WordPress, so failures stop here:
+	 * with debug mode on they surface, with it off the field is left out and
+	 * the rest of the settings page works.
+	 *
+	 * @throws ContentFreshnessException If the field fails in debug mode.
 	 */
 	public function render_field(): void {
 		$context = [
@@ -159,10 +174,17 @@ final class FreshnessSetting implements Service, Registerable, Delayed, Uninstal
 			'minimum' => MaxAge::MINIMUM_DAYS,
 			'maximum' => MaxAge::MAXIMUM_DAYS,
 		];
-		$view    = $this->view_factory->create( self::VIEW );
 
-		// The view escapes what it prints. PHPCS cannot tell, see phpcs.xml.dist.
-		echo $view->render( $context ); // phpcs:ignore WordPress.Security.EscapeOutput
+		try {
+			$view = $this->view_factory->create( self::VIEW );
+
+			// The view escapes what it prints. PHPCS cannot tell, see phpcs.xml.dist.
+			echo $view->render( $context ); // phpcs:ignore WordPress.Security.EscapeOutput
+		} catch ( ContentFreshnessException $exception ) {
+			if ( $this->debug_mode->is_debug_mode() ) {
+				throw $exception;
+			}
+		}
 	}
 
 	/**
