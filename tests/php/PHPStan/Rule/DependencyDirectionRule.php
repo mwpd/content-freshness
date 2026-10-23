@@ -38,7 +38,11 @@ use PHPStan\Rules\RuleErrorBuilder;
  *   infrastructure trait only if the trait supplies nothing but methods of
  *   infrastructure interfaces the using class implements, such as
  *   DefaultRegistrationPriority for Delayed: a trait is not an object that
- *   could be bound instead.
+ *   could be bound instead. In the same way, it may name an infrastructure
+ *   class that a method of those interfaces takes or returns, such as the
+ *   SiteContext of SiteUninstallable: implementing the interface means
+ *   declaring that type, and the infrastructure, not the composition root,
+ *   creates the value it passes.
  * - Only the composition root, an explicit list of classes, knows the
  *   concrete classes and wires everything together.
  * - Nothing depends on the tests.
@@ -154,7 +158,9 @@ final class DependencyDirectionRule implements Rule {
 			return $type->isInterface()
 				|| ( $from !== DependencyContext::TOP_LEVEL
 					&& $type->isTrait()
-					&& $this->supplies_contract( $name, $type ) );
+					&& $this->supplies_contract( $name, $type ) )
+				|| ( $from !== DependencyContext::TOP_LEVEL
+					&& $this->is_in_contract( $name, $dependency ) );
 		}
 
 		// A subsystem may use its own classes and those of other subsystems,
@@ -245,6 +251,61 @@ final class DependencyDirectionRule implements Rule {
 		}
 
 		return $methods !== [];
+	}
+
+	/**
+	 * Check whether an infrastructure class is a parameter or return type of
+	 * a method of the infrastructure interfaces that a class implements.
+	 *
+	 * @param string $name       The implementing class.
+	 * @param string $dependency The infrastructure class.
+	 * @return bool Whether implementing those interfaces requires naming it.
+	 */
+	private function is_in_contract( string $name, string $dependency ): bool {
+		if ( ! $this->reflection->hasClass( $name ) ) {
+			return false;
+		}
+
+		$dependency = PluginNamespace::normalize( $dependency );
+		foreach ( $this->reflection->getClass( $name )->getInterfaces() as $interface ) {
+			if ( $this->context->get_layer( $interface->getName() ) !== DependencyContext::INFRASTRUCTURE ) {
+				continue;
+			}
+
+			foreach ( $interface->getNativeReflection()->getMethods() as $method ) {
+				$types = [ $method->getReturnType() ];
+				foreach ( $method->getParameters() as $parameter ) {
+					$types[] = $parameter->getType();
+				}
+
+				foreach ( $types as $type ) {
+					if ( null !== $type
+						&& \in_array( $dependency, $this->named_types( (string) $type ), true ) ) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the class names in a native type's string form, such as ?Foo or
+	 * Foo|Bar.
+	 *
+	 * @param string $type Native type.
+	 * @return list<string> Normalized class names.
+	 */
+	private function named_types( string $type ): array {
+		$names = [];
+		foreach ( \preg_split( '/[|&()]/', \ltrim( $type, '?' ) ) ?: [] as $part ) {
+			if ( '' !== $part ) {
+				$names[] = PluginNamespace::normalize( $part );
+			}
+		}
+
+		return $names;
 	}
 
 	/**

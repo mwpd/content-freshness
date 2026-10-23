@@ -256,6 +256,23 @@ final class DependencyDirectionRuleTest extends RuleTestCase {
 		);
 	}
 
+	public function test_a_subsystem_names_an_infrastructure_value_only_to_fulfil_its_interfaces(): void {
+		$this->analyse(
+			$this->fixtures( 'Feature/ReceivesOccasion' ),
+			[
+				$this->error(
+					16,
+					'Feature\KeepsOccasion',
+					'the Feature subsystem',
+					'Infrastructure\Occasion',
+					'the infrastructure',
+					' Depend on an interface of the infrastructure instead, and bind the implementation in the'
+						. ' composition root.'
+				),
+			]
+		);
+	}
+
 	public function test_a_top_level_class_does_not_use_an_infrastructure_trait(): void {
 		$this->analyse(
 			$this->fixtures( 'StrayTraitUser' ),
