@@ -54,7 +54,7 @@ final class PrefixedNamesRuleTest extends RuleTestCase {
 				'restRoutes' => $kind( 'acme/plugin', [ 'REST_PREFIX' ] ),
 				'cron'       => $kind( 'acme_plugin_', [ 'CRON_PREFIX' ], [ 'core_event' ] ),
 				'adminPages' => $kind( 'acme-plugin-', [ 'ADMIN_PREFIX' ] ),
-				'settings'   => $kind( 'acme_plugin_', [ 'SETTING_PREFIX' ] ),
+				'settings'   => $kind( 'acme_plugin_', [ 'SETTING_PREFIX' ], [ 'reading' ] ),
 				'ajax'       => $kind( 'acme_plugin_', [ 'AJAX_PREFIX' ] ),
 			],
 			$this->createReflectionProvider()
@@ -376,6 +376,28 @@ final class PrefixedNamesRuleTest extends RuleTestCase {
 						'ajax'
 					),
 					42,
+					self::TIP,
+				],
+				[
+					$this->unprefixed(
+						'register_setting',
+						'setting',
+						'max_age',
+						$this->constant_how( 'acme_plugin_', 'SETTING_PREFIX' ),
+						'settings'
+					),
+					45,
+					self::TIP,
+				],
+				[
+					$this->unprefixed(
+						'register_setting',
+						'setting',
+						'discussion',
+						$this->constant_how( 'acme_plugin_', 'SETTING_PREFIX' ),
+						'settings'
+					),
+					46,
 					self::TIP,
 				],
 			]

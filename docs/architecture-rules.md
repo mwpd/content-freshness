@@ -1082,7 +1082,10 @@ length may be unknown.
 **Allows:** for calls that only read a name, such as `get_option()`,
 `wp_enqueue_script()` without a source, or firing a hook, the names WordPress
 owns that the kind lists as allowed. `wp_next_scheduled()` is also a read;
-scheduling and clearing cron events create or change the plugin's own names.
+scheduling and clearing cron events create or change the plugin's own names. The option group of
+`register_setting()` is a read too: a setting may join one of WordPress's own
+settings pages, such as `reading`, when the `settings` kind allows that group.
+Its option name always needs the prefix.
 `add_filter()` and non-AJAX `add_action()` subscriptions are unchecked because
 they subscribe to names other code owns. Only `add_action()` names known to
 start with `wp_ajax_` or `wp_ajax_nopriv_` are checked, and their remainder

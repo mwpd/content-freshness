@@ -260,7 +260,14 @@ parameters:
             settings:
                 prefix: mwpd_content_freshness_
                 constants: []
-                allowed: []
+                # Option groups of WordPress's own settings pages, which a
+                # setting may join. The option name still needs the prefix.
+                allowed:
+                    - general
+                    - writing
+                    - reading
+                    - discussion
+                    - media
             ajax:
                 prefix: mwpd_content_freshness_
                 constants: []
