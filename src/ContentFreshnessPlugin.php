@@ -6,7 +6,7 @@
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://github.com/mwpd/content-freshness
- * @copyright 2019 Alain Schlesser
+ * @copyright 2026 Alain Schlesser
  */
 
 declare( strict_types=1 );

@@ -143,8 +143,9 @@ Look at what each service does *not* do:
 ### Why adding a feature changed nothing else
 
 The notice came first. The column, the setting and the digest were each added
-in their own commit, and each of those commits touched only the new service,
-its views and tests, and the composition root:
+in their own commit. In `src/`, each of those commits added the new service
+and its collaborators, and changed nothing but a few lines in the composition
+root:
 
 ```text
 Add the post age column       src/ContentFreshnessPlugin.php, src/PostsList/PostAgeColumn.php

@@ -150,7 +150,7 @@ function uninstall(): void {
 }
 
 /*
- * Finally, we run the plugin's register method to Hook the plugin into the
+ * Finally, we run the plugin's register method to hook the plugin into the
  * WordPress request lifecycle.
  */
 ContentFreshnessPluginFactory::create()->register();
