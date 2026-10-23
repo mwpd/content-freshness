@@ -167,6 +167,11 @@ requests, so it has no `is_admin()` condition
 taking part in lifecycle events where it is false, such as uninstalling
 through WP-CLI.
 
+When the answer depends on the admin screen, such as `get_current_screen()`,
+also implement `Delayed` and wait for `current_screen` or a later admin
+action. WordPress has not set the screen at `plugins_loaded`, when the
+plugin normally asks `is_needed()`.
+
 **Rules:** `architecture.noContextChecksInRegister`,
 `architecture.queryContextNeedsDelay`.
 
