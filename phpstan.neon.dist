@@ -137,6 +137,8 @@ parameters:
             valueObjects:
                 - MWPD\ContentFreshness\Infrastructure\ServiceContainer\LazilyInstantiatedService
                 - MWPD\ContentFreshness\Infrastructure\View\ViewLocations
+                - MWPD\ContentFreshness\Freshness\MaxAge
+                - MWPD\ContentFreshness\Freshness\PostAge
                 - DateTimeImmutable
                 - DateInterval
                 - ArrayIterator

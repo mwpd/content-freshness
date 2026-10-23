@@ -10,6 +10,27 @@ declare( strict_types=1 );
 final class WP_Post {
 
 	/**
+	 * ID of the post.
+	 *
+	 * @var int
+	 */
+	public $ID = 0;
+
+	/**
+	 * Type of the post.
+	 *
+	 * @var string
+	 */
+	public $post_type = 'post';
+
+	/**
+	 * Status of the post.
+	 *
+	 * @var string
+	 */
+	public $post_status = 'publish';
+
+	/**
 	 * Title of the post.
 	 *
 	 * @var string
@@ -22,6 +43,13 @@ final class WP_Post {
 	 * @var string
 	 */
 	public $post_date = '0000-00-00 00:00:00';
+
+	/**
+	 * Date of the last update of the post, in UTC.
+	 *
+	 * @var string
+	 */
+	public $post_modified_gmt = '0000-00-00 00:00:00';
 
 	/**
 	 * Instantiate a WP_Post object.
