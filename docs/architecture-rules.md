@@ -1173,18 +1173,22 @@ through the plugin's own injector configuration:
 - building a service adds, removes or fires no hook, and registers no
   activation or deactivation hook, not even through a collaborator its
   constructor creates;
-- every declared service implementing `Registerable`, `Activateable` or
-  `Deactivateable` can run `register()`, `activate()` or `deactivate()` twice
+- every declared service implementing `Registerable`, `Activateable`,
+  `Deactivateable` or `Uninstallable` can run `register()`, `activate()`,
+  `deactivate()` or `uninstall()` twice
   without changing the recorded state on the second call. The check records
-  hook additions and removals, option and transient writes, and post, user,
-  term and comment meta writes. Failures name the service, method and effect;
-  exceptions in either call are reported as problems.
+  hook additions and removals, option and transient writes, post, user,
+  term and comment meta writes, and scheduled cron events. Failures name the
+  service, method and effect; exceptions in either call are reported as
+  problems.
 
 **Allows:** the tests stub the WordPress functions the wiring calls, such as
 `get_post()`, and use stand-ins for WordPress classes such as `WP_Post`. They
 never add a binding the composition root does not have. WordPress writes are
 modelled in memory: adding an existing option or unique meta row is a no-op,
-setting a value replaces it, and non-unique meta additions append. Hooks are
+setting a value replaces it, and non-unique meta additions append. Scheduling
+a cron event appends one, as WordPress does for a recurring event, and
+`wp_next_scheduled()` reads what is scheduled, so a guarded step passes. Hooks are
 keyed by hook name, priority and callback identity, as in WordPress. Re-adding
 the same callback at the same priority replaces the entry; a fresh closure,
 a different object or method, or a different priority adds an entry. Removing

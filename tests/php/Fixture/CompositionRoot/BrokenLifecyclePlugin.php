@@ -16,6 +16,7 @@ final class BrokenLifecyclePlugin extends ServiceBasedPlugin {
 			'ChangingDeactivation'         => ChangingDeactivation::class,
 			'ChangingTransient'            => ChangingTransient::class,
 			'ChangingUninstall'            => ChangingUninstall::class,
+			'ReschedulingActivation'       => ReschedulingActivation::class,
 			'ThrowingLifecycle'            => ThrowingLifecycle::class,
 		];
 	}

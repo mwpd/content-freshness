@@ -17,13 +17,13 @@ use ReflectionProperty;
  * Hook state, fired hook history and WordPress write state.
  *
  * Writes model stored values, not call counts: setting the same value twice
- * is safe, while appending another meta row is not. Hook entries use WordPress's
+ * is safe, while appending another meta row or cron event is not. Hook entries use WordPress's
  * hook name, priority and callback identity, so identical wiring is safe too.
  */
 final class LifecycleEffects {
 
 	/**
-	 * Stored option, transient and meta values, keyed by their diagnostic.
+	 * Stored option, transient, meta and cron values, keyed by their diagnostic.
 	 *
 	 * @var array<string,array<mixed>>
 	 */
@@ -142,6 +142,56 @@ final class LifecycleEffects {
 		foreach ( [ 'post', 'user', 'term', 'comment' ] as $type ) {
 			$this->watch_meta( $type );
 		}
+
+		$this->watch_cron();
+	}
+
+	/**
+	 * Model scheduled cron events by hook.
+	 *
+	 * WordPress keeps a second event when a recurring one is scheduled again,
+	 * so scheduling appends, and an unguarded schedule shows on the second
+	 * run. Reading the next event lets a step guard itself, as WordPress code
+	 * does with wp_next_scheduled().
+	 */
+	private function watch_cron(): void {
+		Functions\when( 'wp_next_scheduled' )->alias(
+			function ( string $hook ) {
+				$next = false;
+				foreach ( $this->writes[ self::cron_key( $hook ) ] ?? [] as $event ) {
+					$timestamp = is_array( $event ) && is_int( $event[0] ?? null ) ? $event[0] : PHP_INT_MAX;
+					$next      = $next === false ? $timestamp : min( $next, $timestamp );
+				}
+
+				return $next;
+			}
+		);
+		Functions\when( 'wp_schedule_event' )->alias(
+			function ( int $timestamp, string $recurrence, string $hook ): bool {
+				$this->writes[ self::cron_key( $hook ) ][] = [ $timestamp, $recurrence ];
+
+				return true;
+			}
+		);
+		Functions\when( 'wp_schedule_single_event' )->alias(
+			function ( int $timestamp, string $hook ): bool {
+				$this->writes[ self::cron_key( $hook ) ][] = [ $timestamp, false ];
+
+				return true;
+			}
+		);
+		Functions\when( 'wp_clear_scheduled_hook' )->alias(
+			function ( string $hook ): int {
+				$cleared = count( $this->writes[ self::cron_key( $hook ) ] ?? [] );
+				unset( $this->writes[ self::cron_key( $hook ) ] );
+
+				return $cleared;
+			}
+		);
+	}
+
+	private static function cron_key( string $hook ): string {
+		return sprintf( 'changes the cron events of "%s" again', $hook );
 	}
 
 	/**
