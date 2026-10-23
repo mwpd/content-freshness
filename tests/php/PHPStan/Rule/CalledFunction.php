@@ -5,7 +5,7 @@
  * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
- * @link      https://www.mwpd.io/
+ * @link      https://github.com/mwpd/content-freshness
  * @copyright 2019 Alain Schlesser
  */
 

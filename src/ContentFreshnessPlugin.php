@@ -5,7 +5,7 @@
  * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
- * @link      https://www.mwpd.io/
+ * @link      https://github.com/mwpd/content-freshness
  * @copyright 2019 Alain Schlesser
  */
 
@@ -86,6 +86,11 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 *                                             names or callables.
 	 */
 	protected function get_service_classes(): array {
+		/*
+		 * Each service states for itself where and when it acts, through the
+		 * capability interfaces it implements. None of them knows about the
+		 * others, so a new feature is one more line here.
+		 */
 		return [
 			self::OUTDATED_POST_NOTICE_ID => OutdatedPostNotice::class,
 			self::POST_AGE_COLUMN_ID      => PostAgeColumn::class,
@@ -230,7 +235,7 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 * Prefixes to use.
 	 *
 	 * These are provided so that if multiple plugins use the same boilerplate
-	 * code, there hooks and service identifiers are scoped and don't clash.
+	 * code, their hooks and service identifiers are scoped and don't clash.
 	 */
 	protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
