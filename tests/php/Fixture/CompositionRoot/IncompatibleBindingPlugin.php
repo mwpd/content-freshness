@@ -12,9 +12,11 @@ use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
  */
 final class IncompatibleBindingPlugin extends ServiceBasedPlugin {
 
+	protected const SERVICE_PREFIX = 'fixture.';
+
 	protected function get_service_classes(): array {
 		return [
-			'good' => GoodService::class,
+			'fixture.good' => GoodService::class,
 		];
 	}
 
