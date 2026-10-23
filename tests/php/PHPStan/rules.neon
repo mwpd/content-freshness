@@ -1,0 +1,396 @@
+# Registers the scaffold's architecture rules with PHPStan.
+#
+# The values the rules work with live in phpstan.neon.dist, under
+# parameters.architecture, so that a plugin generated from the scaffold only
+# edits them in one place. This file declares their shape and wires the rules.
+# docs/architecture-rules.md describes every rule.
+
+parametersSchema:
+    architecture: structure([
+        namespace: string()
+        excludedNamespaces: listOf(string())
+        capabilitiesOnServices: structure([
+            service: string()
+            capabilities: listOf(string())
+            delayed: string()
+            registerable: string()
+        ])
+        finalByDefault: structure([
+            baseClasses: listOf(string())
+        ])
+        namesWithoutTypeKind: structure([
+            allowed: listOf(string())
+        ])
+        noStaticState: structure([
+            allowed: listOf(string())
+        ])
+        pluginFactoryOnlyAtEdges: structure([
+            factories: listOf(string())
+            bridges: listOf(string())
+        ])
+        noGlobalState: structure([
+            inputAdapters: listOf(string())
+        ])
+        exceptions: structure([
+            namespace: string()
+            marker: string()
+            notExceptions: listOf(string())
+        ])
+        exceptionsKeepCause: structure([
+            emptyCatches: listOf(string())
+        ])
+        noWordPressErrorMechanisms: structure([
+            boundaryAdapters: listOf(string())
+        ])
+        rawIsEscaped: structure([
+            escapingFunctions: listOf(string())
+        ])
+        outputOnlyThroughViews: structure([
+            allowed: listOf(string())
+        ])
+        dependencyDirection: structure([
+            infrastructure: string()
+            compositionRoot: listOf(string())
+            views: listOf(string())
+        ])
+        noServiceLocator: structure([
+            container: string()
+            injector: string()
+            allowedInjectorMethods: listOf(string())
+        ])
+        newOnlyWhereAllowed: structure([
+            factories: listOf(string())
+            valueObjects: listOf(string())
+        ])
+        constructorsOnlyAssign: structure([
+            allowed: listOf(string())
+        ])
+        hooks: structure([
+            lifecycleMethods: arrayOf(string(), string())
+            contextFunctions: listOf(string())
+            timingFunctions: listOf(string())
+        ])
+        queryContextNeedsDelay: structure([
+            queryFunctions: listOf(string())
+        ])
+        # An open map keeps every kind optional, including postTypes, taxonomies,
+        # shortcodes, restRoutes, cron, adminPages, settings and ajax.
+        prefixedNames: arrayOf(
+            structure([
+                prefix: string()
+                constants: listOf(string())
+                allowed: listOf(string())
+            ]),
+            string()
+        )
+    ])
+
+services:
+    architecturePluginNamespace:
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginNamespace
+        arguments:
+            root: %architecture.namespace%
+            excluded: %architecture.excludedNamespaces%
+        autowired: false
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CapabilitiesOnServicesRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            service: %architecture.capabilitiesOnServices.service%
+            capabilities: %architecture.capabilitiesOnServices.capabilities%
+            delayed: %architecture.capabilitiesOnServices.delayed%
+            registerable: %architecture.capabilitiesOnServices.registerable%
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            composition_root: %architecture.dependencyDirection.compositionRoot%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\FinalByDefaultRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            base_classes: %architecture.finalByDefault.baseClasses%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NamesWithoutTypeKindRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            marker: %architecture.exceptions.marker%
+            allowed: %architecture.namesWithoutTypeKind.allowed%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoStaticStateRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            allowed: %architecture.noStaticState.allowed%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginFactoryOnlyAtEdgesRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            views: %architecture.dependencyDirection.views%
+            factories: %architecture.pluginFactoryOnlyAtEdges.factories%
+            bridges: %architecture.pluginFactoryOnlyAtEdges.bridges%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoGlobalStateRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            views: %architecture.dependencyDirection.views%
+            input_adapters: %architecture.noGlobalState.inputAdapters%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoErrorReportingFunctionsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoFalseOnFailureRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            file_type_mapper: @PHPStan\Type\FileTypeMapper
+            type_node_resolver: @PHPStan\PhpDoc\TypeNodeResolver
+        tags:
+            - phpstan.rules.rule
+
+    architectureWordPressErrorTransport:
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\WordPressErrorTransport
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            boundary_adapters: %architecture.noWordPressErrorMechanisms.boundaryAdapters%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        autowired: false
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorCreationRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInMethodsRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInFunctionsRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInPropertiesRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInClosuresRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInArrowFunctionsRule
+        arguments:
+            transport: @architectureWordPressErrorTransport
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ThrowOnlyPluginExceptionsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            marker: %architecture.exceptions.marker%
+            exception_namespace: %architecture.exceptions.namespace%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CreateOnlyPluginExceptionsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            marker: %architecture.exceptions.marker%
+            exception_namespace: %architecture.exceptions.namespace%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionShapeRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            marker: %architecture.exceptions.marker%
+            exception_namespace: %architecture.exceptions.namespace%
+            exempt: %architecture.exceptions.notExceptions%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionsThroughNamedConstructorsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            marker: %architecture.exceptions.marker%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionsKeepCauseRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            empty_catches: %architecture.exceptionsKeepCause.emptyCatches%
+        tags:
+            - phpstan.rules.rule
+
+    architectureDependencyContext:
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DependencyContext
+        arguments:
+            root_namespace: %architecture.namespace%
+            test_namespaces: %architecture.excludedNamespaces%
+            exceptions: %architecture.exceptions.namespace%
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            composition_root: %architecture.dependencyDirection.compositionRoot%
+            views: %architecture.dependencyDirection.views%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+            file_type_mapper: @PHPStan\Type\FileTypeMapper
+        autowired: false
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DependencyDirectionRule
+        arguments:
+            context: @architectureDependencyContext
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoServiceLocatorRule
+        arguments:
+            context: @architectureDependencyContext
+            container: %architecture.noServiceLocator.container%
+            injector: %architecture.noServiceLocator.injector%
+            allowed_injector_methods: %architecture.noServiceLocator.allowedInjectorMethods%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\RawIsEscapedRule
+        arguments:
+            views: %architecture.dependencyDirection.views%
+            escaping_functions: %architecture.rawIsEscaped.escapingFunctions%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\OutputOnlyThroughViewsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            views: %architecture.dependencyDirection.views%
+            allowed: %architecture.outputOnlyThroughViews.allowed%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    architectureCreationAllowances:
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CreationAllowances
+        arguments:
+            factories: %architecture.newOnlyWhereAllowed.factories%
+            value_objects: %architecture.newOnlyWhereAllowed.valueObjects%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        autowired: false
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NewOnlyWhereAllowedRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            allowances: @architectureCreationAllowances
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DynamicCreationRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            allowances: @architectureCreationAllowances
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ConstructorsOnlyAssignRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            allowed: %architecture.constructorsOnlyAssign.allowed%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoHooksInConstructorRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\HooksInLifecycleMethodsRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            exceptions: %architecture.exceptions.namespace%
+            composition_root: %architecture.dependencyDirection.compositionRoot%
+            lifecycle_methods: %architecture.hooks.lifecycleMethods%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoContextChecksInRegisterRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            context_functions: %architecture.hooks.contextFunctions%
+            timing_functions: %architecture.hooks.timingFunctions%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\QueryContextNeedsDelayRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            infrastructure: %architecture.dependencyDirection.infrastructure%
+            query_functions: %architecture.queryContextNeedsDelay.queryFunctions%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PrefixedNamesRule
+        arguments:
+            plugin_namespace: @architecturePluginNamespace
+            kinds: %architecture.prefixedNames%
+            reflection: @PHPStan\Reflection\ReflectionProvider
+        tags:
+            - phpstan.rules.rule

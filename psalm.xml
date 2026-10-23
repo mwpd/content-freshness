@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<psalm
+	errorLevel="2"
+	resolveFromConfigFile="true"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="https://getpsalm.org/schema/config"
+	xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+	findUnusedBaselineEntry="true"
+	findUnusedCode="false"
+>
+	<projectFiles>
+		<file name="basic-scaffold.php"/>
+		<directory name="src"/>
+		<directory name="tests"/>
+		<directory name="views"/>
+		<ignoreFiles>
+			<directory name="vendor"/>
+			<file name="tests/php/Fixture/views/broken-view.php"/>
+			<!-- The PHPStan architecture rules build on PHPStan's API, which ships
+			     inside phpstan.phar. Loading it from Psalm replaces the
+			     phpstan/phpdoc-parser version Psalm's plugins need, and Psalm
+			     crashes. PHPStan analyses these files at level max instead. -->
+			<directory name="tests/php/PHPStan"/>
+			<!-- Bootstrap contract fixtures deliberately make invalid hook calls. -->
+			<directory name="tests/php/Fixture/BootstrapContract"/>
+			<!-- Stand-ins for WordPress classes, which the WordPress stubs declare. -->
+			<directory name="tests/php/Fixture/WordPress"/>
+		</ignoreFiles>
+	</projectFiles>
+	<stubs>
+		<file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+	</stubs>
+	<issueHandlers>
+		<InvalidScope>
+			<errorLevel type="suppress">
+				<directory name="tests/php/Fixture/views/"/>
+				<directory name="views/"/>
+			</errorLevel>
+		</InvalidScope>
+		<NoInterfaceProperties>
+			<errorLevel type="suppress">
+				<directory name="tests/php/Fixture/views/"/>
+				<directory name="views/"/>
+			</errorLevel>
+		</NoInterfaceProperties>
+		<ArgumentTypeCoercion>
+			<errorLevel type="suppress">
+				<file name="tests/php/Unit/SimpleInjectorTest.php"/>
+			</errorLevel>
+		</ArgumentTypeCoercion>
+	</issueHandlers>
+	<plugins>
+		<pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+		<pluginClass class="PsalmWordPress\Plugin"/>
+	</plugins>
+</psalm>

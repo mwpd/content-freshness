@@ -1,0 +1,75 @@
+{
+    "name": "mwpd/basic-scaffold",
+    "description": "Basic plugin boilerplate code for quick scaffolding.",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alain Schlesser",
+            "email": "alain.schlesser@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0 || ^9.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+        "phpstan/phpstan": "^1 || ^2",
+        "vimeo/psalm": "^5",
+        "yoast/phpunit-polyfills": "^3",
+        "wp-phpunit/wp-phpunit": "^6",
+        "szepeviktor/phpstan-wordpress": "^1 || ^2",
+        "php-stubs/wordpress-stubs": "^6",
+        "squizlabs/php_codesniffer": "^3",
+        "wp-coding-standards/wpcs": "^3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "phpcompatibility/php-compatibility": "^9",
+        "psalm/plugin-phpunit": "^0.19",
+        "humanmade/psalm-plugin-wordpress": "^3",
+        "rector/rector": "^1.2",
+        "brain/monkey": "^2",
+        "shipmonk/composer-dependency-analyser": "^1.8",
+        "nette/neon": "^3.3",
+        "sebastian/diff": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MWPD\\BasicScaffold\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MWPD\\BasicScaffold\\Tests\\": "tests/php/"
+        },
+        "classmap": [
+            "tests/php/Fixture/WordPress/"
+        ]
+    },
+    "scripts": {
+        "api:snapshot": "@php scripts/snapshot-infrastructure-api.php",
+        "check:autoloader": "@php scripts/check-bundled-autoloader.php",
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite=unit",
+        "test:integration": "phpunit --testsuite=integration",
+        "test:architecture": "phpunit --testsuite=architecture",
+        "test:phpstan-rules": "phpunit --testsuite=phpstan-rules",
+        "phpstan": "phpstan analyze --memory-limit=1G",
+        "psalm": "psalm",
+        "analyze": [
+            "@phpstan",
+            "@psalm"
+        ],
+        "phpcs": "phpcs",
+        "phpcs:fix": "phpcbf",
+        "lint": [
+            "@phpcs",
+            "@analyze",
+            "@test:phpstan-rules"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

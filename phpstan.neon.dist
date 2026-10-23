@@ -1,0 +1,264 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+    - tests/php/PHPStan/rules.neon
+
+parameters:
+    level: max
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - basic-scaffold.php
+        - src
+        - tests
+        - views
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php 
+    excludePaths:
+        - tests/php/Fixture/views/broken-view.php
+        # Fixtures for the architecture rules break those rules on purpose.
+        - tests/php/PHPStan/Fixture
+        # Bootstrap contract fixtures deliberately make invalid hook calls.
+        - tests/php/Fixture/BootstrapContract
+        # Stand-ins for WordPress classes, which the WordPress stubs declare.
+        - tests/php/Fixture/WordPress
+    ignoreErrors:
+        # Ignore errors related to ReflectionClass subtype, see https://github.com/phpstan/phpstan/issues/4078
+        - '#SimpleInjector::get_dependencies_for\(\) has parameter \$reflection with generic class ReflectionClass but does not specify its types#'
+        - '#SimpleInjector::ensure_is_instantiable\(\) has parameter \$reflection with generic class ReflectionClass but does not specify its types#'
+        - '#SimpleInjector::get_class_reflection\(\) return type with generic class ReflectionClass does not specify its types#'
+
+    # Settings for the architecture rules (tests/php/PHPStan/rules.neon), see
+    # docs/architecture-rules.md. Rename the namespaces together with the
+    # plugin's namespace.
+    architecture:
+        # Code the rules apply to.
+        namespace: MWPD\BasicScaffold
+        # Parts of that namespace that are not plugin code.
+        excludedNamespaces:
+            - MWPD\BasicScaffold\Tests
+        capabilitiesOnServices:
+            # Lifecycle capabilities only work on services the plugin orchestrates.
+            service: MWPD\BasicScaffold\Infrastructure\Service
+            capabilities:
+                - MWPD\BasicScaffold\Infrastructure\Registerable
+                - MWPD\BasicScaffold\Infrastructure\Conditional
+                - MWPD\BasicScaffold\Infrastructure\Delayed
+                - MWPD\BasicScaffold\Infrastructure\HasDependencies
+                - MWPD\BasicScaffold\Infrastructure\Activateable
+                - MWPD\BasicScaffold\Infrastructure\Deactivateable
+            delayed: MWPD\BasicScaffold\Infrastructure\Delayed
+            registerable: MWPD\BasicScaffold\Infrastructure\Registerable
+        finalByDefault:
+            # Classes designed to be extended (design principle 6).
+            baseClasses:
+                - MWPD\BasicScaffold\Infrastructure\View\SimpleView
+        namesWithoutTypeKind:
+            # Reviewed type names that encode their kind (design principle 8).
+            allowed: []
+        noStaticState:
+            # Methods allowed to keep static state (design principle 5).
+            allowed:
+                - MWPD\BasicScaffold\BasicScaffoldPluginFactory::create
+        pluginFactoryOnlyAtEdges:
+            # Only WordPress entry points may obtain the graph statically.
+            factories:
+                - MWPD\BasicScaffold\BasicScaffoldPluginFactory
+            # Reviewed static callables that get the graph and delegate at once.
+            bridges: []
+        noGlobalState:
+            # Classes that read request input and sanitize and normalize it
+            # into internal types (design principles 7 and 9). This never
+            # permits global statements or $GLOBALS access.
+            inputAdapters: []
+        exceptions:
+            # Where the plugin's exceptions live, and the interface they all
+            # implement (design principle 10).
+            namespace: MWPD\BasicScaffold\Exception
+            marker: MWPD\BasicScaffold\Exception\BasicScaffoldException
+            # Code in that namespace that is not an exception.
+            notExceptions:
+                - MWPD\BasicScaffold\Exception\Stringify
+        exceptionsKeepCause:
+            # Reviewed Class::method recoveries that need no catch body.
+            # Explain the recovery beside each entry (design principle 10).
+            emptyCatches: []
+        noWordPressErrorMechanisms:
+            # Classes that hand a WP_Error to WordPress where it expects one.
+            boundaryAdapters: []
+        outputOnlyThroughViews:
+            # Named classes allowed to output without a rendered view
+            # (design principle 7). Templates are checked by rawIsEscaped.
+            allowed: []
+        rawIsEscaped:
+            # A raw() read bypasses automatic escaping; templates must escape
+            # it for its output context (design principle 9).
+            escapingFunctions:
+                - esc_html
+                - esc_attr
+                - esc_url
+                - esc_js
+                - esc_textarea
+                - esc_xml
+                - wp_kses
+                - wp_kses_post
+                - wp_kses_data
+                - absint
+                - intval
+        dependencyDirection:
+            # The layer generated plugins build on (design principle 4).
+            infrastructure: MWPD\BasicScaffold\Infrastructure
+            # The only classes that know the concrete classes and wire the
+            # plugin together (design principle 5).
+            compositionRoot:
+                - MWPD\BasicScaffold\BasicScaffoldPlugin
+                - MWPD\BasicScaffold\BasicScaffoldPluginFactory
+                # The bootstrap declares no class, so the rule names its code
+                # after the namespace and the file: it builds the fallback
+                # autoloader and asks the factory for the plugin.
+                - MWPD\BasicScaffold\basic-scaffold
+            # Directories of the view templates that run in production.
+            views:
+                - %currentWorkingDirectory%/views
+        noServiceLocator:
+            # Feature subsystems receive collaborators; only the composition
+            # root configures the graph (design principle 5).
+            container: MWPD\BasicScaffold\Infrastructure\ServiceContainer
+            injector: MWPD\BasicScaffold\Infrastructure\Injector
+            allowedInjectorMethods:
+                - make
+        newOnlyWhereAllowed:
+            # Interfaces whose implementations create objects for a living, on
+            # top of classes named ...Factory (design principle 5).
+            factories:
+                - MWPD\BasicScaffold\Infrastructure\Injector
+                - MWPD\BasicScaffold\Infrastructure\Instantiator
+            # Classes that represent a value rather than a collaborator, and
+            # may be created anywhere.
+            valueObjects:
+                - MWPD\BasicScaffold\Infrastructure\ServiceContainer\LazilyInstantiatedService
+                - MWPD\BasicScaffold\Infrastructure\View\ViewLocations
+                - DateTimeImmutable
+                - DateInterval
+                - ArrayIterator
+                - SplObjectStorage
+        constructorsOnlyAssign:
+            # Reviewed Class::__construct exceptions to storing dependencies
+            # only (design principle 7). Explain each allowance beside it.
+            allowed: []
+        hooks:
+            # The methods a feature service adds and removes hooks in, with
+            # the interface each belongs to (design principle 7).
+            lifecycleMethods:
+                register: MWPD\BasicScaffold\Infrastructure\Registerable
+                activate: MWPD\BasicScaffold\Infrastructure\Activateable
+                deactivate: MWPD\BasicScaffold\Infrastructure\Deactivateable
+            # Functions that tell what kind of request this is. register()
+            # leaves them to Conditional::is_needed().
+            contextFunctions:
+                - is_admin
+                - is_network_admin
+                - is_user_admin
+                - wp_doing_ajax
+                - wp_doing_cron
+                - wp_is_json_request
+                - is_customize_preview
+                - is_singular
+                - is_front_page
+                - is_home
+                - is_archive
+            # Functions that ask which hooks have run or are running.
+            # Delayed::get_registration_action() states when to register.
+            timingFunctions:
+                - did_action
+                - doing_action
+                - did_filter
+                - doing_filter
+                - current_action
+                - current_filter
+        queryContextNeedsDelay:
+            # Query-dependent conditions need Delayed, so is_needed() can
+            # wait until WordPress has run the query (design principle 7).
+            queryFunctions:
+                - is_singular
+                - is_single
+                - is_page
+                - is_front_page
+                - is_home
+                - is_archive
+                - is_search
+                - is_404
+                - is_attachment
+                - is_feed
+                - is_main_query
+        # The prefix of each kind of name the plugin creates, and the class
+        # constants that hold it (design principle 13). Rename the prefixes
+        # together with the plugin.
+        prefixedNames:
+            hooks:
+                prefix: mwpd.basic_scaffold.
+                constants:
+                    - HOOK_PREFIX
+                # Hooks of WordPress the plugin fires itself.
+                allowed: []
+            options:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                # Options of WordPress the plugin reads.
+                allowed:
+                    - date_format
+                    - time_format
+                    - timezone_string
+                    - gmt_offset
+                    - blogname
+                    - home
+                    - siteurl
+            transients:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
+            meta:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
+            assets:
+                prefix: mwpd-basic-scaffold-
+                constants: []
+                # Scripts and styles of WordPress the plugin enqueues.
+                allowed:
+                    - jquery
+                    - wp-api-fetch
+                    - wp-components
+                    - wp-element
+                    - wp-i18n
+
+            postTypes:
+                prefix: mwpd_bs_
+                constants: []
+                allowed: []
+            taxonomies:
+                prefix: mwpd_bs_
+                constants: []
+                allowed: []
+            shortcodes:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
+            restRoutes:
+                prefix: mwpd/basic-scaffold
+                constants: []
+                allowed: []
+            cron:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
+            adminPages:
+                prefix: mwpd-basic-scaffold-
+                constants: []
+                allowed: []
+            settings:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
+            ajax:
+                prefix: mwpd_basic_scaffold_
+                constants: []
+                allowed: []
