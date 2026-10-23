@@ -63,9 +63,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 /*
- * We try to load the Composer if it exists.
+ * We load Composer's autoloader if it exists.
  * If it doesn't exist, we fall back to a basic bundled autoloader
- * implementation. This allows us to just use the plugin as-is without requirin
+ * implementation. This allows us to just use the plugin as-is without requiring
  * the 'composer install' step.
  * Note: If you use Composer not only for autoloading, but also including
  * dependencies needed in production, the 'composer install' becomes mandatory
@@ -75,9 +75,10 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	require __DIR__ . '/vendor/autoload.php';
 }
 
-if ( ! class_exists( __NAMESPACE__ . '\\PluginFactory' ) ) {
-	// Composer autoloader apparently was not found, so fall back to our bundled
-	// autoloader.
+if ( ! class_exists( ContentFreshnessPluginFactory::class ) ) {
+	// Composer's autoloader was not found, or does not know the plugin's
+	// classes, so fall back to our bundled autoloader. Checking a class that
+	// exists keeps the fallback from being registered next to Composer's.
 	require_once __DIR__ . '/src/Infrastructure/Autoloader.php';
 
 	( new Infrastructure\Autoloader() )
