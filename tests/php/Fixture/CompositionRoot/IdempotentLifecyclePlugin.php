@@ -15,6 +15,7 @@ final class IdempotentLifecyclePlugin extends ServiceBasedPlugin {
 			'IdenticalRegistration' => IdenticalRegistration::class,
 			'RemovingDeactivation'  => RemovingDeactivation::class,
 			'GuardedScheduling'     => GuardedScheduling::class,
+			'SameEventScheduling'   => SameEventScheduling::class,
 		];
 	}
 }

@@ -147,47 +147,91 @@ final class LifecycleEffects {
 	}
 
 	/**
-	 * Model scheduled cron events by hook.
+	 * Model scheduled cron events the way WordPress stores them.
 	 *
-	 * WordPress keeps a second event when a recurring one is scheduled again,
-	 * so scheduling appends, and an unguarded schedule shows on the second
-	 * run. Reading the next event lets a step guard itself, as WordPress code
-	 * does with wp_next_scheduled().
+	 * WordPress keys an event by its timestamp, hook and arguments.
+	 * Scheduling the same event again replaces it; scheduling a recurring
+	 * event at another time adds a second one, so an unguarded schedule shows
+	 * on the second run. Looking up and clearing events match their
+	 * arguments, so a step can guard itself with wp_next_scheduled().
 	 */
 	private function watch_cron(): void {
 		Functions\when( 'wp_next_scheduled' )->alias(
-			function ( string $hook ) {
+			function ( string $hook, array $args = [] ) {
 				$next = false;
-				foreach ( $this->writes[ self::cron_key( $hook ) ] ?? [] as $event ) {
-					$timestamp = is_array( $event ) && is_int( $event[0] ?? null ) ? $event[0] : PHP_INT_MAX;
-					$next      = $next === false ? $timestamp : min( $next, $timestamp );
+				foreach ( $this->cron_events( $hook ) as $event ) {
+					if ( $event['args'] === $args ) {
+						$next = $next === false ? $event['timestamp'] : min( $next, $event['timestamp'] );
+					}
 				}
 
 				return $next;
 			}
 		);
 		Functions\when( 'wp_schedule_event' )->alias(
-			function ( int $timestamp, string $recurrence, string $hook ): bool {
-				$this->writes[ self::cron_key( $hook ) ][] = [ $timestamp, $recurrence ];
+			function ( int $timestamp, string $recurrence, string $hook, array $args = [] ): bool {
+				$this->schedule_cron_event( $hook, $timestamp, $recurrence, $args );
 
 				return true;
 			}
 		);
 		Functions\when( 'wp_schedule_single_event' )->alias(
-			function ( int $timestamp, string $hook ): bool {
-				$this->writes[ self::cron_key( $hook ) ][] = [ $timestamp, false ];
+			function ( int $timestamp, string $hook, array $args = [] ): bool {
+				$this->schedule_cron_event( $hook, $timestamp, false, $args );
 
 				return true;
 			}
 		);
 		Functions\when( 'wp_clear_scheduled_hook' )->alias(
-			function ( string $hook ): int {
-				$cleared = count( $this->writes[ self::cron_key( $hook ) ] ?? [] );
-				unset( $this->writes[ self::cron_key( $hook ) ] );
+			function ( string $hook, array $args = [] ): int {
+				$events    = $this->cron_events( $hook );
+				$remaining = array_filter(
+					$events,
+					static fn( array $event ): bool => $event['args'] !== $args
+				);
+				$this->store_cron_events( $hook, $remaining );
 
-				return $cleared;
+				return count( $events ) - count( $remaining );
 			}
 		);
+	}
+
+	/**
+	 * @param string|false $recurrence  Recurrence, or false for a single event.
+	 * @param array<mixed> $args        Arguments of the event.
+	 */
+	private function schedule_cron_event( string $hook, int $timestamp, $recurrence, array $args ): void {
+		$events = $this->cron_events( $hook );
+		$events[ $timestamp . ':' . md5( (string) json_encode( $args ) ) ] = [
+			'timestamp'  => $timestamp,
+			'recurrence' => $recurrence,
+			'args'       => $args,
+		];
+		$this->store_cron_events( $hook, $events );
+	}
+
+	/**
+	 * @return array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}>
+	 */
+	private function cron_events( string $hook ): array {
+		/** @var array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}> $events */
+		$events = $this->writes[ self::cron_key( $hook ) ][0] ?? [];
+
+		return $events;
+	}
+
+	/**
+	 * @param array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}> $events Events of the hook.
+	 */
+	private function store_cron_events( string $hook, array $events ): void {
+		if ( $events === [] ) {
+			unset( $this->writes[ self::cron_key( $hook ) ] );
+
+			return;
+		}
+
+		ksort( $events );
+		$this->writes[ self::cron_key( $hook ) ] = [ $events ];
 	}
 
 	private static function cron_key( string $hook ): string {
