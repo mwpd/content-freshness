@@ -82,6 +82,7 @@ jobs:
         include:
           # The floors the plugin header declares, and the latest release.
           - wordpress: "6.0"
+            core: WordPress/WordPress#6.0
             php: "7.4"
           - wordpress: latest
             php: "7.4"
@@ -89,7 +90,10 @@ jobs:
             php: "8.3"
     env:
       WP_ENV_PHP_VERSION: ${{ matrix.php }}
-      WP_ENV_CORE: ${{ matrix.wordpress == 'latest' && '' || format('WordPress/WordPress#{0}', matrix.wordpress) }}
+      # Empty for the latest release, which wp-env then installs by default.
+      # (An expression like "latest && '' || …" never yields the empty
+      # string: Actions treats it as false and takes the fallback.)
+      WP_ENV_CORE: ${{ matrix.core }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
