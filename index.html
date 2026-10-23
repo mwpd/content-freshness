@@ -451,7 +451,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 0.3rem 1.25rem; }
 <section class="cover" aria-labelledby="title">
 	<div class="cover-in cover-grid">
 		<div>
-			<p class="series">A WordPress plugin &middot; Version 1.0.0 &middot; MIT</p>
+			<p class="series">A WordPress plugin &middot; Version 1.0.1 &middot; MIT</p>
 			<h1 id="title">Old posts, <em>honestly</em> labelled.</h1>
 			<p class="sub">Content Freshness tells your readers when a post may be out of date, and tells your editors which posts need a refresh.</p>
 			<div class="actions">
@@ -566,7 +566,7 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 	<dl class="facts">
 		<div><dt>On activation</dt><dd>The weekly digest is scheduled. The first one goes out a week later, not at once.</dd></div>
 		<div><dt>On deactivation</dt><dd>The digest stops, the notice and the column go away, and your setting is kept.</dd></div>
-		<div><dt>On deletion</dt><dd>The setting is removed too. The plugin stores one option and schedules one weekly event, and removes both.</dd></div>
+		<div><dt>On deletion</dt><dd>The setting is removed too, from every site of a network. The plugin stores one option and schedules one weekly event per site, and removes both.</dd></div>
 	</dl>
 </section>
 
@@ -578,7 +578,7 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 	<p>Every user who can edit other users' posts: Editors and Administrators, unless your roles were changed. It is sent by WP-Cron through <code>wp_mail()</code>, so whatever handles email on your site sends it.</p>
 
 	<h3>The markup</h3>
-	<p>The notice, the column cell, the setting field and the email body are templates in the plugin's <code>views/</code> directory. To change one, copy it into your theme at the same path, for example <code>views/outdated-post-notice.php</code>, and edit it there. A child theme's copy wins over the parent theme's, which wins over the plugin's.</p>
+	<p>The notice, the column cell, the setting field and the email body are templates in the plugin's <code>views/</code> directory. To change one, copy it into a <code>content-freshness/</code> directory of your theme at the same path, for example <code>content-freshness/views/outdated-post-notice.php</code>, and edit it there. A child theme's copy wins over the parent theme's, which wins over the plugin's.</p>
 
 	<h3>The rule</h3>
 	<p>Every feature asks one question, “is this post outdated?”, through one interface. A developer can replace the rule for all of them at once, for example to leave an evergreen category alone. <a href="#rule">How that works</a> is below.</p>
@@ -605,7 +605,7 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 		</details>
 		<details>
 			<summary>Can I change how the notice looks?</summary>
-			<div><p>The notice has the class <code>mwpd-content-freshness-notice</code> for styling. To change its markup, copy <code>views/outdated-post-notice.php</code> from the plugin into your theme, at the same path, and edit it there.</p></div>
+			<div><p>The notice has the class <code>mwpd-content-freshness-notice</code> for styling. To change its markup, copy <code>views/outdated-post-notice.php</code> from the plugin into your theme as <code>content-freshness/views/outdated-post-notice.php</code>, and edit it there.</p></div>
 		</details>
 		<details>
 			<summary>Can I change the rule for what counts as outdated?</summary>
@@ -613,7 +613,7 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 		</details>
 		<details>
 			<summary>What happens when I deactivate or delete the plugin?</summary>
-			<div><p>Deactivating stops the digest and hides the notice and the column, and keeps your setting. Deleting the plugin also removes the setting.</p></div>
+			<div><p>Deactivating stops the digest and hides the notice and the column, and keeps your setting. Deleting the plugin also removes the setting, from every site of a network.</p></div>
 		</details>
 	</div>
 
@@ -650,8 +650,8 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 			<tbody>
 				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php"><code>OutdatedPostNotice</code></a></th><td data-h="Declares"><code>Conditional</code> (<code>is_singular( 'post' )</code>), <code>Delayed</code> (<code>wp</code>), <code>Registerable</code></td><td data-h="Which means">Only exists on a single post, once the query has run, and filters <code>the_content</code> there.</td></tr>
 				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/PostsList/PostAgeColumn.php"><code>PostAgeColumn</code></a></th><td data-h="Declares"><code>Conditional</code> (screen <code>edit-post</code>), <code>Delayed</code> (<code>current_screen</code>), <code>Registerable</code></td><td data-h="Which means">Only exists on the Posts list, and adds its column there.</td></tr>
-				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php"><code>FreshnessSetting</code></a></th><td data-h="Declares"><code>Delayed</code> (<code>admin_init</code>), <code>Registerable</code>, <code>Uninstallable</code></td><td data-h="Which means">Registers the setting in admin requests, and removes its option when the plugin is deleted.</td></tr>
-				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php"><code>StaleContentDigest</code></a></th><td data-h="Declares"><code>Registerable</code>, <code>Activateable</code>, <code>Deactivateable</code></td><td data-h="Which means">Hooks the cron callback in every request, schedules the weekly event on activation and clears it on deactivation.</td></tr>
+				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php"><code>FreshnessSetting</code></a></th><td data-h="Declares"><code>Delayed</code> (<code>admin_init</code>), <code>Registerable</code>, <code>SiteUninstallable</code></td><td data-h="Which means">Registers the setting in admin requests, and removes its option from every site when the plugin is deleted.</td></tr>
+				<tr><th scope="row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php"><code>StaleContentDigest</code></a></th><td data-h="Declares"><code>Registerable</code>, <code>SiteActivateable</code>, <code>SiteDeactivateable</code>, <code>SiteInitializable</code>, <code>SiteUninstallable</code></td><td data-h="Which means">Hooks the cron callback in every request, schedules the weekly event in each site an activation reaches and in new sites of a network, and clears it in each site a deactivation reaches and on uninstall.</td></tr>
 			</tbody>
 		</table>
 		<figcaption><b>Table 1.</b> The four services and what each declares.</figcaption>
@@ -659,7 +659,7 @@ $ git clone https://github.com/mwpd/content-freshness.git</samp></pre>
 
 	<p>On the front end of a single post, only two of the four services are ever built. On the Posts list, three. The others are not skipped by an <code>if</code> somewhere: their own static <code>is_needed()</code> or registration action tells the plugin, before anything is constructed.</p>
 
-	<aside class="note"><span class="n">a</span>Uninstalling was the one lifecycle point the scaffold had no interface for. Following its rule that a lifecycle point gets a capability interface rather than a condition inside a service, this plugin added <code>Uninstallable</code> to the infrastructure.</aside>
+	<aside class="note"><span class="n">a</span>Nothing branches on multisite either. The digest's work happens in each site, so it implements <code>SiteActivateable</code>, and the scaffold visits the sites. Uninstalling works the same way: the setting is a <code>SiteUninstallable</code>, reached in every site through the scaffold's static uninstall bridge.</aside>
 
 	<p>The notice came first. The column, the setting and the digest were each added in their own commit, and each of those commits added its own service and a few lines to the composition root, without changing the services before it.</p>
 
