@@ -19,11 +19,14 @@ use MWPD\ContentFreshness\Exception\FailedToSendDigest;
 use MWPD\ContentFreshness\Freshness\Clock;
 use MWPD\ContentFreshness\Freshness\FreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
-	Activateable,
-	Deactivateable,
+	Lifecycle\SiteContext,
 	Registerable,
 	Service,
 	Service\DebugMode,
+	SiteActivateable,
+	SiteDeactivateable,
+	SiteInitializable,
+	SiteUninstallable,
 	ViewFactory
 };
 use WP_Post;
@@ -32,12 +35,24 @@ use WP_User;
 /**
  * Emails editors a weekly list of the posts that need a refresh.
  *
- * Activation schedules the weekly event and deactivation clears it. The
- * service is deliberately not Conditional: WP-Cron runs the event in whatever
- * request comes along, so the callback has to be hooked in every request, and
- * activation skips a Conditional service that is not needed in its request.
+ * Each site has its own posts, editors and cron events, so the digest is set
+ * up per site: activation schedules the weekly event in every site it
+ * reaches, a whole network included, and so does creating a site on a
+ * network where the plugin is network-active. Deactivation clears the event
+ * in every site it reaches, and uninstalling clears whatever is left.
+ *
+ * The service is deliberately not Conditional: WP-Cron runs the event in
+ * whatever request comes along, so the callback has to be hooked in every
+ * request, and the lifecycle events skip a Conditional service that is not
+ * needed in the site they reach.
  */
-final class StaleContentDigest implements Service, Registerable, Activateable, Deactivateable {
+final class StaleContentDigest implements
+	Service,
+	Registerable,
+	SiteActivateable,
+	SiteDeactivateable,
+	SiteInitializable,
+	SiteUninstallable {
 
 	/**
 	 * Cron hook the weekly event fires.
@@ -149,14 +164,62 @@ final class StaleContentDigest implements Service, Registerable, Activateable, D
 	}
 
 	/**
-	 * Schedule the weekly digest.
+	 * Schedule the weekly digest in a site the plugin is activated on.
+	 *
+	 * @param SiteContext $context Site the plugin is activated on, switched to.
+	 *
+	 * @throws FailedToScheduleDigest If WordPress cannot schedule the event.
+	 */
+	public function activate_site( SiteContext $context ): void {
+		$this->schedule();
+	}
+
+	/**
+	 * Schedule the weekly digest in a site created on a network where the
+	 * plugin is network-active.
+	 *
+	 * @param SiteContext $context New site, switched to.
+	 *
+	 * @throws FailedToScheduleDigest If WordPress cannot schedule the event.
+	 */
+	public function initialize_site( SiteContext $context ): void {
+		$this->schedule();
+	}
+
+	/**
+	 * Stop the weekly digest in a site the plugin is deactivated on.
+	 *
+	 * @param SiteContext $context Site the plugin is deactivated on, switched to.
+	 *
+	 * @throws FailedToScheduleDigest If WordPress cannot clear the event.
+	 */
+	public function deactivate_site( SiteContext $context ): void {
+		$this->unschedule();
+	}
+
+	/**
+	 * Remove a weekly event left in a site when the plugin is uninstalled.
+	 *
+	 * Deactivation clears the event already, so this usually finds nothing.
+	 * It covers a site deactivation did not reach.
+	 *
+	 * @param SiteContext $context Site to clean up, switched to.
+	 *
+	 * @throws FailedToScheduleDigest If WordPress cannot clear the event.
+	 */
+	public function uninstall_site( SiteContext $context ): void {
+		$this->unschedule();
+	}
+
+	/**
+	 * Schedule the weekly digest in the current site.
 	 *
 	 * Activating twice must not send two digests a week, so an event that is
 	 * scheduled already stays as it is.
 	 *
 	 * @throws FailedToScheduleDigest If WordPress cannot schedule the event.
 	 */
-	public function activate(): void {
+	private function schedule(): void {
 		if ( false !== \wp_next_scheduled( self::CRON_HOOK ) ) {
 			return;
 		}
@@ -175,11 +238,11 @@ final class StaleContentDigest implements Service, Registerable, Activateable, D
 	}
 
 	/**
-	 * Stop the weekly digest.
+	 * Clear the weekly digest in the current site, if it is scheduled.
 	 *
 	 * @throws FailedToScheduleDigest If WordPress cannot clear the event.
 	 */
-	public function deactivate(): void {
+	private function unschedule(): void {
 		$result = \wp_clear_scheduled_hook( self::CRON_HOOK, [], true );
 
 		if ( \is_wp_error( $result ) ) {

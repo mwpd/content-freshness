@@ -138,8 +138,8 @@ echo "Activation"
 wp plugin activate content-freshness --quiet
 expect_equals "the plugin is active" "active" "$(wp plugin get content-freshness --field=status)"
 expect_equals "the weekly digest is scheduled" "weekly" "$(wp eval "echo wp_get_schedule( '$CRON_HOOK' );")"
-expect_equals "the uninstall callback is registered" "MWPD\\ContentFreshness\\uninstall" \
-	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo \$u['$PLUGIN'] ?? '';")"
+expect_equals "the uninstall callback is the static bridge" "MWPD\\ContentFreshness\\ContentFreshnessUninstallHook::uninstall" \
+	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo implode( '::', (array) ( \$u['$PLUGIN'] ?? [] ) );")"
 wp plugin deactivate content-freshness --quiet
 wp plugin activate content-freshness --quiet
 expect_equals "deactivating and activating keeps one digest event" "1" \
@@ -273,14 +273,16 @@ fetch "/?p=$old_id" >/dev/null
 expect_not_contains "the notice is gone" 'mwpd-content-freshness-notice' "$PAGE"
 
 echo "Uninstall"
+# A digest event left behind, as on a site deactivation did not reach.
+wp cron event schedule "$CRON_HOOK" '+1 week' weekly --quiet
 # uninstall_plugin() runs what deleting the plugin runs, without deleting the
 # files, so the mounted copy stays in place.
 wp eval "uninstall_plugin( '$PLUGIN' );"
 expect_equals "the setting is removed" "missing" \
 	"$(wp option get "$OPTION" >/dev/null 2>&1 && echo present || echo missing)"
 expect_equals "the uninstall callback is forgotten" "" \
-	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo \$u['$PLUGIN'] ?? '';")"
-expect_equals "nothing is scheduled" "0" "$(wp cron event list --hook="$CRON_HOOK" --format=count)"
+	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo implode( '::', (array) ( \$u['$PLUGIN'] ?? [] ) );")"
+expect_equals "a digest left behind is cleared" "0" "$(wp cron event list --hook="$CRON_HOOK" --format=count)"
 
 echo
 echo "$passed passed, $failed failed"

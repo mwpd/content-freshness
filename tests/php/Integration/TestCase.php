@@ -29,6 +29,11 @@ abstract class TestCase extends PHPUnitTestCase {
 	protected function set_up() {
 		parent::set_up();
 		Monkey\setUp();
+
+		// The digest sets up sites created on a network, so registering the
+		// plugin's services asks whether this is a multisite installation.
+		// A test of multisite installs its own answer.
+		Monkey\Functions\when( 'is_multisite' )->justReturn( false );
 	}
 
 	protected function tear_down() {

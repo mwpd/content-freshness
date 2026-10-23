@@ -7,6 +7,10 @@ namespace MWPD\ContentFreshness\Tests\Unit\Settings;
 use Brain\Monkey\Functions;
 use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
 use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\LifecycleScope;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkId;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteContext;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteId;
 use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
 use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 use MWPD\ContentFreshness\Settings\FreshnessSetting;
@@ -142,6 +146,14 @@ final class FreshnessSettingTest extends TestCase {
 		Functions\when( 'get_option' )->justReturn( [ 'broken' ] );
 
 		$this->assertStringContainsString( 'value="365"', $this->render_field() );
+	}
+
+	public function test_uninstalling_removes_the_option_from_the_site(): void {
+		Functions\expect( 'delete_option' )->once()->with( OptionFreshnessPolicy::OPTION_NAME )->andReturn( true );
+
+		$this->make_setting()->uninstall_site(
+			SiteContext::for_site( SiteId::from_int( 1 ), NetworkId::from_int( 1 ), LifecycleScope::current_site() )
+		);
 	}
 
 	public function test_a_failing_field_is_left_out_without_debug_mode(): void {

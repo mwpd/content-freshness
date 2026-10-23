@@ -20,9 +20,11 @@ use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
 	DefaultRegistrationPriority,
 	Delayed,
+	Lifecycle\SiteContext,
 	Registerable,
 	Service,
 	Service\DebugMode,
+	SiteUninstallable,
 	ViewFactory
 };
 
@@ -39,7 +41,7 @@ use MWPD\ContentFreshness\Infrastructure\{
  * service that is not needed, and uninstalling through WP-CLI is not an admin
  * request, so the option would be left behind.
  */
-final class FreshnessSetting implements Service, Registerable, Delayed {
+final class FreshnessSetting implements Service, Registerable, Delayed, SiteUninstallable {
 
 	// Nothing else on "admin_init" needs to run before or after the setting,
 	// so it registers at the default priority.
@@ -121,6 +123,19 @@ final class FreshnessSetting implements Service, Registerable, Delayed {
 			self::SECTION,
 			[ 'label_for' => OptionFreshnessPolicy::OPTION_NAME ]
 		);
+	}
+
+	/**
+	 * Remove the option the service owns from a site when the plugin is
+	 * uninstalled.
+	 *
+	 * The plugin calls this for every site, with the site switched to, so the
+	 * setting goes from each site of a network too.
+	 *
+	 * @param SiteContext $context Site to clean up, switched to.
+	 */
+	public function uninstall_site( SiteContext $context ): void {
+		\delete_option( OptionFreshnessPolicy::OPTION_NAME );
 	}
 
 	/**

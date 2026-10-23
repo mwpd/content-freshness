@@ -41,20 +41,4 @@ final class StaleContentDigestTest extends TestCase {
 		$this->assertInstanceOf( StaleContentDigest::class, $digest );
 		$this->assertSame( 10, has_action( StaleContentDigest::CRON_HOOK, [ $digest, 'send' ] ) );
 	}
-
-	public function test_activating_and_deactivating_the_plugin_schedules_and_clears_the_digest(): void {
-		Functions\expect( 'wp_next_scheduled' )->once()->with( StaleContentDigest::CRON_HOOK )->andReturn( false );
-		Functions\expect( 'wp_schedule_event' )
-			->once()
-			->with( strtotime( '2026-10-30 12:00:00 UTC' ), 'weekly', StaleContentDigest::CRON_HOOK, [], true )
-			->andReturn( true );
-		Functions\expect( 'wp_clear_scheduled_hook' )
-			->once()
-			->with( StaleContentDigest::CRON_HOOK, [], true )
-			->andReturn( 1 );
-
-		$plugin = new ContentFreshnessPlugin();
-		$plugin->activate();
-		$plugin->deactivate();
-	}
 }

@@ -55,6 +55,11 @@ final class UninstallBridgeTest extends TestCase {
 		$this->recorder  = new LifecycleRecorder();
 		$this->callbacks = [];
 
+		// The plugin's own uninstall services remove the setting, which the
+		// installation models, and any digest left in WP-Cron.
+		Functions\when( 'wp_clear_scheduled_hook' )->justReturn( 0 );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+
 		foreach ( [
 			'register_activation_hook'   => 'activate',
 			'register_deactivation_hook' => 'deactivate',

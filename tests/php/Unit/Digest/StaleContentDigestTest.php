@@ -11,6 +11,10 @@ use MWPD\ContentFreshness\Exception\FailedToScheduleDigest;
 use MWPD\ContentFreshness\Exception\FailedToSendDigest;
 use MWPD\ContentFreshness\Exception\InvalidMaxAge;
 use MWPD\ContentFreshness\Freshness\FreshnessPolicy;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\LifecycleScope;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkId;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteContext;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteId;
 use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
 use MWPD\ContentFreshness\Tests\Fixture\Digest\FixedStalePosts;
 use MWPD\ContentFreshness\Tests\Fixture\FixedDebugMode;
@@ -92,21 +96,21 @@ final class StaleContentDigestTest extends TestCase {
 		$this->assertSame( 10, has_action( StaleContentDigest::CRON_HOOK, [ $digest, 'send' ] ) );
 	}
 
-	public function test_activation_schedules_the_first_digest_a_week_out(): void {
+	public function test_activation_schedules_the_first_digest_of_the_site_a_week_out(): void {
 		Functions\when( 'wp_next_scheduled' )->justReturn( false );
 		Functions\expect( 'wp_schedule_event' )
 			->once()
 			->with( strtotime( '2026-10-30 12:00:00 UTC' ), 'weekly', StaleContentDigest::CRON_HOOK, [], true )
 			->andReturn( true );
 
-		$this->make_digest( new FixedStalePosts( [] ) )->activate();
+		$this->make_digest( new FixedStalePosts( [] ) )->activate_site( $this->site() );
 	}
 
 	public function test_activation_keeps_a_digest_that_is_scheduled_already(): void {
 		Functions\when( 'wp_next_scheduled' )->justReturn( 1700000000 );
 		Functions\expect( 'wp_schedule_event' )->never();
 
-		$this->make_digest( new FixedStalePosts( [] ) )->activate();
+		$this->make_digest( new FixedStalePosts( [] ) )->activate_site( $this->site() );
 	}
 
 	public function test_activation_fails_loudly_when_wordpress_cannot_schedule(): void {
@@ -118,7 +122,7 @@ final class StaleContentDigestTest extends TestCase {
 		$this->expectException( FailedToScheduleDigest::class );
 		$this->expectExceptionMessage( 'The weekly digest could not be scheduled: Event schedule does not exist.' );
 
-		$this->make_digest( new FixedStalePosts( [] ) )->activate();
+		$this->make_digest( new FixedStalePosts( [] ) )->activate_site( $this->site() );
 	}
 
 	public function test_deactivation_clears_the_schedule(): void {
@@ -127,7 +131,26 @@ final class StaleContentDigestTest extends TestCase {
 			->with( StaleContentDigest::CRON_HOOK, [], true )
 			->andReturn( 1 );
 
-		$this->make_digest( new FixedStalePosts( [] ) )->deactivate();
+		$this->make_digest( new FixedStalePosts( [] ) )->deactivate_site( $this->site() );
+	}
+
+	public function test_a_new_site_on_a_network_with_the_plugin_gets_its_own_digest(): void {
+		Functions\when( 'wp_next_scheduled' )->justReturn( false );
+		Functions\expect( 'wp_schedule_event' )
+			->once()
+			->with( strtotime( '2026-10-30 12:00:00 UTC' ), 'weekly', StaleContentDigest::CRON_HOOK, [], true )
+			->andReturn( true );
+
+		$this->make_digest( new FixedStalePosts( [] ) )->initialize_site( $this->site() );
+	}
+
+	public function test_uninstalling_clears_a_digest_left_in_the_site(): void {
+		Functions\expect( 'wp_clear_scheduled_hook' )
+			->once()
+			->with( StaleContentDigest::CRON_HOOK, [], true )
+			->andReturn( 0 );
+
+		$this->make_digest( new FixedStalePosts( [] ) )->uninstall_site( $this->site() );
 	}
 
 	public function test_deactivation_fails_loudly_when_wordpress_cannot_clear(): void {
@@ -140,7 +163,7 @@ final class StaleContentDigestTest extends TestCase {
 			'The weekly digest could not be unscheduled: The cron event list could not be saved.'
 		);
 
-		$this->make_digest( new FixedStalePosts( [] ) )->deactivate();
+		$this->make_digest( new FixedStalePosts( [] ) )->deactivate_site( $this->site() );
 	}
 
 	public function test_it_emails_each_editor_the_stale_posts(): void {
@@ -267,6 +290,10 @@ final class StaleContentDigestTest extends TestCase {
 			new TemplatedViewFactory( [ dirname( __DIR__, 4 ) ] ),
 			new FixedDebugMode( $debug_mode )
 		);
+	}
+
+	private function site(): SiteContext {
+		return SiteContext::for_site( SiteId::from_int( 1 ), NetworkId::from_int( 1 ), LifecycleScope::current_site() );
 	}
 
 	private function post( int $id, string $title ): WP_Post {
