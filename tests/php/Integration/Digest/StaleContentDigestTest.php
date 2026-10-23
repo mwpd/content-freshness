@@ -22,6 +22,8 @@ final class StaleContentDigestTest extends TestCase {
 		Functions\when( 'did_action' )->justReturn( false );
 		Functions\when( 'is_wp_error' )->justReturn( false );
 		Functions\when( 'flush_rewrite_rules' )->justReturn( null );
+		Functions\when( 'is_multisite' )->justReturn( false );
+		Functions\when( 'register_uninstall_hook' )->justReturn( null );
 		Functions\when( 'current_datetime' )->justReturn( new DateTimeImmutable( '2026-10-23 12:00:00 UTC' ) );
 	}
 

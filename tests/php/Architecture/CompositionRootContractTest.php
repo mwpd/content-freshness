@@ -163,6 +163,16 @@ final class CompositionRootContractTest extends TestCase {
 				'activate',
 				'changes the cron events of "fixture_arguments_event" again',
 			],
+			[
+				'AppendingScopedLifecycle',
+				'activate_network',
+				'changes the user meta "fixture_runs" for object 42 again',
+			],
+			[
+				'AppendingScopedLifecycle',
+				'uninstall_site',
+				'changes the post meta "fixture_runs" for object 42 again',
+			],
 		];
 		$messages = [];
 

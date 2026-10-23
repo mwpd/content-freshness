@@ -49,6 +49,14 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\HasDependencies
                 - MWPD\ContentFreshness\Infrastructure\Activateable
                 - MWPD\ContentFreshness\Infrastructure\Deactivateable
+                - MWPD\ContentFreshness\Infrastructure\SiteActivateable
+                - MWPD\ContentFreshness\Infrastructure\NetworkActivateable
+                - MWPD\ContentFreshness\Infrastructure\SiteDeactivateable
+                - MWPD\ContentFreshness\Infrastructure\NetworkDeactivateable
+                - MWPD\ContentFreshness\Infrastructure\SiteInitializable
+                - MWPD\ContentFreshness\Infrastructure\SiteUninitializable
+                - MWPD\ContentFreshness\Infrastructure\SiteUninstallable
+                - MWPD\ContentFreshness\Infrastructure\NetworkUninstallable
             delayed: MWPD\ContentFreshness\Infrastructure\Delayed
             registerable: MWPD\ContentFreshness\Infrastructure\Registerable
         finalByDefault:
@@ -67,7 +75,9 @@ parameters:
             factories:
                 - MWPD\ContentFreshness\ContentFreshnessPluginFactory
             # Reviewed static callables that get the graph and delegate at once.
-            bridges: []
+            bridges:
+                # WordPress stores the uninstall callback and calls it statically.
+                - MWPD\ContentFreshness\ContentFreshnessUninstallHook::uninstall
         noGlobalState:
             # Classes that read request input and sanitize and normalize it
             # into internal types (design principles 7 and 9). This never
@@ -115,6 +125,9 @@ parameters:
             compositionRoot:
                 - MWPD\ContentFreshness\ContentFreshnessPlugin
                 - MWPD\ContentFreshness\ContentFreshnessPluginFactory
+                # The uninstall bridge is an edge like the bootstrap: it asks
+                # the factory for the plugin.
+                - MWPD\ContentFreshness\ContentFreshnessUninstallHook
                 # The bootstrap declares no class, so the rule names its code
                 # after the namespace and the file: it builds the fallback
                 # autoloader and asks the factory for the plugin.
@@ -143,6 +156,13 @@ parameters:
                 - MWPD\ContentFreshness\Freshness\MaxAge
                 - MWPD\ContentFreshness\Freshness\PostAge
                 - MWPD\ContentFreshness\Infrastructure\View\ViewConfiguration
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteId
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkId
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\LifecycleScope
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteContext
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkContext
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteSelection
+                - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkSelection
                 - DateTimeImmutable
                 - DateInterval
                 - ArrayIterator
@@ -158,6 +178,14 @@ parameters:
                 register: MWPD\ContentFreshness\Infrastructure\Registerable
                 activate: MWPD\ContentFreshness\Infrastructure\Activateable
                 deactivate: MWPD\ContentFreshness\Infrastructure\Deactivateable
+                activate_site: MWPD\ContentFreshness\Infrastructure\SiteActivateable
+                activate_network: MWPD\ContentFreshness\Infrastructure\NetworkActivateable
+                deactivate_site: MWPD\ContentFreshness\Infrastructure\SiteDeactivateable
+                deactivate_network: MWPD\ContentFreshness\Infrastructure\NetworkDeactivateable
+                initialize_site: MWPD\ContentFreshness\Infrastructure\SiteInitializable
+                uninitialize_site: MWPD\ContentFreshness\Infrastructure\SiteUninitializable
+                uninstall_site: MWPD\ContentFreshness\Infrastructure\SiteUninstallable
+                uninstall_network: MWPD\ContentFreshness\Infrastructure\NetworkUninstallable
             # Functions that tell what kind of request this is. register()
             # leaves them to Conditional::is_needed().
             contextFunctions:
@@ -206,6 +234,7 @@ parameters:
                     - HOOK_PREFIX
                 # Hooks of WordPress the plugin fires itself.
                 allowed: []
+                managed: []
             options:
                 prefix: mwpd_content_freshness_
                 constants: []
@@ -218,14 +247,24 @@ parameters:
                     - blogname
                     - home
                     - siteurl
+                    # Where WordPress records the plugins active on a site,
+                    # which a network deactivation reads.
+                    - active_plugins
+                # Options of WordPress the plugin also writes, and so may read.
+                # Uninstalling removes the plugin's own uninstall callback from
+                # the main site of each network (#34).
+                managed:
+                    - uninstall_plugins
             transients:
                 prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
+                managed: []
             meta:
                 prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
+                managed: []
             assets:
                 prefix: mwpd-content-freshness-
                 constants: []
@@ -236,31 +275,38 @@ parameters:
                     - wp-components
                     - wp-element
                     - wp-i18n
+                managed: []
 
             postTypes:
                 prefix: mwpd_cf_
                 constants: []
                 allowed: []
+                managed: []
             taxonomies:
                 prefix: mwpd_cf_
                 constants: []
                 allowed: []
+                managed: []
             shortcodes:
                 prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
+                managed: []
             restRoutes:
                 prefix: mwpd/content-freshness
                 constants: []
                 allowed: []
+                managed: []
             cron:
                 prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
+                managed: []
             adminPages:
                 prefix: mwpd-content-freshness-
                 constants: []
                 allowed: []
+                managed: []
             settings:
                 prefix: mwpd_content_freshness_
                 constants: []
@@ -272,7 +318,9 @@ parameters:
                     - reading
                     - discussion
                     - media
+                managed: []
             ajax:
                 prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
+                managed: []

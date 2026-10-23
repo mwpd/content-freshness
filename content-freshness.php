@@ -30,6 +30,8 @@ declare( strict_types=1 );
 
 namespace MWPD\ContentFreshness;
 
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\LifecycleScope;
+
 /*
  * This is the plugin's bootstrap file. It serves three main purposes:
  *  1. Provide the plugin meta information that WordPress needs;
@@ -116,18 +118,36 @@ if ( ! class_exists( ContentFreshnessPluginFactory::class ) ) {
 /*
  * We register activation and deactivation hooks by using closures, as these
  * need static access to work correctly.
+ *
+ * On multisite, WordPress tells them whether the plugin is activated or
+ * deactivated for the whole network. The flag is turned into a LifecycleScope
+ * right here, at the boundary, so the plugin never handles the raw value.
+ *
+ * The uninstall hook is not registered here: WordPress stores it in the
+ * database, so the plugin registers it once, when it is activated. The
+ * callback it stores is the static ContentFreshnessUninstallHook::uninstall().
  */
 \register_activation_hook(
 	__FILE__,
-	static function () {
-		ContentFreshnessPluginFactory::create()->activate();
+	/**
+	 * Activate the plugin, for the whole network if WordPress says so.
+	 *
+	 * @param mixed $network_wide Whether the plugin is network-activated.
+	 */
+	static function ( $network_wide = false ): void {
+		ContentFreshnessPluginFactory::create()->activate_in( LifecycleScope::from_wordpress_flag( $network_wide ) );
 	}
 );
 
 \register_deactivation_hook(
 	__FILE__,
-	static function () {
-		ContentFreshnessPluginFactory::create()->deactivate();
+	/**
+	 * Deactivate the plugin, for the whole network if WordPress says so.
+	 *
+	 * @param mixed $network_wide Whether the plugin is network-deactivated.
+	 */
+	static function ( $network_wide = false ): void {
+		ContentFreshnessPluginFactory::create()->deactivate_in( LifecycleScope::from_wordpress_flag( $network_wide ) );
 	}
 );
 

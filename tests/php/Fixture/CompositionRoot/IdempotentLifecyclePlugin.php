@@ -16,6 +16,7 @@ final class IdempotentLifecyclePlugin extends ServiceBasedPlugin {
 			'RemovingDeactivation'  => RemovingDeactivation::class,
 			'GuardedScheduling'     => GuardedScheduling::class,
 			'SameEventScheduling'   => SameEventScheduling::class,
+			'CleaningUninstall'     => CleaningUninstall::class,
 		];
 	}
 }

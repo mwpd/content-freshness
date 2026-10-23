@@ -21,9 +21,22 @@ use MWPD\ContentFreshness\Infrastructure\Delayed;
 use MWPD\ContentFreshness\Infrastructure\HasDependencies;
 use MWPD\ContentFreshness\Infrastructure\Injector;
 use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\LifecycleScope;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkContext;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkId;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteContext;
+use MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteId;
+use MWPD\ContentFreshness\Infrastructure\NetworkActivateable;
+use MWPD\ContentFreshness\Infrastructure\NetworkDeactivateable;
+use MWPD\ContentFreshness\Infrastructure\NetworkUninstallable;
 use MWPD\ContentFreshness\Infrastructure\Registerable;
 use MWPD\ContentFreshness\Infrastructure\Service;
 use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\SiteActivateable;
+use MWPD\ContentFreshness\Infrastructure\SiteDeactivateable;
+use MWPD\ContentFreshness\Infrastructure\SiteInitializable;
+use MWPD\ContentFreshness\Infrastructure\SiteUninitializable;
+use MWPD\ContentFreshness\Infrastructure\SiteUninstallable;
 use MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginNamespace;
 use ReflectionClass;
 use ReflectionMethod;
@@ -469,7 +482,68 @@ final class CompositionRootContract {
 	}
 
 	/**
+	 * Build the steps of the scoped lifecycle capabilities a service has.
+	 *
+	 * @param Service $service Service built by the injector.
+	 * @return array<string,callable():void> Steps, by method name.
+	 */
+	private static function scoped_lifecycle_steps( Service $service ): array {
+		$network = NetworkId::from_int( 1 );
+		$site    = SiteContext::for_site( SiteId::from_int( 1 ), $network, LifecycleScope::current_site() );
+		$network = NetworkContext::for_network( $network );
+		$steps   = [];
+
+		if ( $service instanceof SiteActivateable ) {
+			$steps['activate_site'] = static function () use ( $service, $site ): void {
+				$service->activate_site( $site );
+			};
+		}
+		if ( $service instanceof NetworkActivateable ) {
+			$steps['activate_network'] = static function () use ( $service, $network ): void {
+				$service->activate_network( $network );
+			};
+		}
+		if ( $service instanceof SiteDeactivateable ) {
+			$steps['deactivate_site'] = static function () use ( $service, $site ): void {
+				$service->deactivate_site( $site );
+			};
+		}
+		if ( $service instanceof NetworkDeactivateable ) {
+			$steps['deactivate_network'] = static function () use ( $service, $network ): void {
+				$service->deactivate_network( $network );
+			};
+		}
+		if ( $service instanceof SiteInitializable ) {
+			$steps['initialize_site'] = static function () use ( $service, $site ): void {
+				$service->initialize_site( $site );
+			};
+		}
+		if ( $service instanceof SiteUninitializable ) {
+			$steps['uninitialize_site'] = static function () use ( $service, $site ): void {
+				$service->uninitialize_site( $site );
+			};
+		}
+		if ( $service instanceof SiteUninstallable ) {
+			$steps['uninstall_site'] = static function () use ( $service, $site ): void {
+				$service->uninstall_site( $site );
+			};
+		}
+		if ( $service instanceof NetworkUninstallable ) {
+			$steps['uninstall_network'] = static function () use ( $service, $network ): void {
+				$service->uninstall_network( $network );
+			};
+		}
+
+		return $steps;
+	}
+
+	/**
 	 * Run each declared lifecycle capability twice on the same service.
+	 *
+	 * The scoped capabilities run with the context of site 1 on network 1, as
+	 * on a single site. Whether the plugin calls them in the right sites is
+	 * for the plugin's own tests; this checks that a service can be called
+	 * twice in the same one.
 	 *
 	 * @param string                $id         Service identifier.
 	 * @param class-string<Service> $class_name Declared service class.
@@ -493,6 +567,8 @@ final class CompositionRootContract {
 				$service->deactivate();
 			};
 		}
+
+		$steps += self::scoped_lifecycle_steps( $service );
 
 		$effects = new LifecycleEffects();
 		$effects->watch();
