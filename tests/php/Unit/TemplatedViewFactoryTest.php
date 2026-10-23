@@ -4,6 +4,9 @@ declare( strict_types=1 );
 namespace MWPD\ContentFreshness\Tests\Unit;
 
 use Brain\Monkey\Functions;
+use MWPD\ContentFreshness\Exception\FailedToLoadView;
+use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\View;
 use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
 use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 use MWPD\ContentFreshness\Tests\ViewHelper;
@@ -90,5 +93,36 @@ final class TemplatedViewFactoryTest extends TestCase {
 			'<p>View C comes from plugin.</p>',
 			$factory->create( 'view-c' )->render()
 		);
+	}
+
+	public function test_it_creates_a_view_that_renders_nothing_for_a_missing_view_in_production(): void {
+		$factory = new TemplatedViewFactory( ViewHelper::LOCATIONS, $this->debug_mode( false ) );
+		$view    = $factory->create( 'non-existent-view' );
+
+		$this->assertInstanceOf( View::class, $view );
+		$this->assertSame( '', $view->render() );
+	}
+
+	public function test_it_throws_for_a_missing_view_in_debug_mode(): void {
+		$factory = new TemplatedViewFactory( ViewHelper::LOCATIONS, $this->debug_mode( true ) );
+
+		$this->expectException( InvalidPath::class );
+
+		$factory->create( 'non-existent-view' );
+	}
+
+	public function test_its_views_render_nothing_for_a_failing_template_in_production(): void {
+		$factory = new TemplatedViewFactory( ViewHelper::LOCATIONS, $this->debug_mode( false ) );
+
+		$this->assertSame( '', $factory->create( 'throwing-view' )->render() );
+	}
+
+	public function test_its_views_throw_for_a_failing_template_in_debug_mode(): void {
+		$factory = new TemplatedViewFactory( ViewHelper::LOCATIONS, $this->debug_mode( true ) );
+		$view    = $factory->create( 'throwing-view' );
+
+		$this->expectException( FailedToLoadView::class );
+
+		$view->render();
 	}
 }
