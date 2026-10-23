@@ -116,16 +116,10 @@ if ( ! class_exists( ContentFreshnessPluginFactory::class ) ) {
 /*
  * We register activation and deactivation hooks by using closures, as these
  * need static access to work correctly.
- *
- * Activation also registers the uninstall callback. WordPress stores that
- * callback in the database, so it has to be a named function rather than a
- * closure, and registering it once on activation is enough: doing it on every
- * request would check the stored value every time.
  */
 \register_activation_hook(
 	__FILE__,
 	static function () {
-		\register_uninstall_hook( __FILE__, __NAMESPACE__ . '\\uninstall' );
 		ContentFreshnessPluginFactory::create()->activate();
 	}
 );
@@ -136,18 +130,6 @@ if ( ! class_exists( ContentFreshnessPluginFactory::class ) ) {
 		ContentFreshnessPluginFactory::create()->deactivate();
 	}
 );
-
-/**
- * Uninstall the plugin.
- *
- * WordPress calls this when the plugin is deleted, after including this file
- * in a request where the plugin is not active. Like the closures above, it is
- * a bridge from a static WordPress callback into the object graph, and
- * delegates at once.
- */
-function uninstall(): void {
-	ContentFreshnessPluginFactory::create()->uninstall();
-}
 
 /*
  * Finally, we run the plugin's register method to hook the plugin into the

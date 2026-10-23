@@ -1215,59 +1215,6 @@ class ServiceBasedPluginTest extends TestCase {
 	}
 
 	/**
-	 * Test that uninstalling reaches every needed Uninstallable service, the
-	 * same way activation does, but requests no flush: WordPress only
-	 * uninstalls a deactivated plugin, whose deactivation flushed already.
-	 */
-	public function test_uninstalling_calls_the_needed_services_without_a_flush(): void {
-		$recorder = new LifecycleRecorder();
-		Functions\expect( 'flush_rewrite_rules' )->never();
-		$plugin = $this->make_lifecycle_plugin(
-			[
-				'unneeded'         => UnneededLifecycleService::class,
-				'unneeded-delayed' => UnneededDelayedLifecycleService::class,
-				'needed'           => NeededLifecycleService::class,
-				'lazy'             => LazyLifecycleService::class,
-				'delayed'          => DelayedLifecycleService::class,
-			],
-			$recorder
-		);
-
-		$plugin->uninstall();
-
-		$this->assertSame(
-			[
-				'construct:needed',
-				'uninstall:needed',
-				'construct:lazy',
-				'uninstall:lazy',
-				'construct:delayed',
-				'uninstall:delayed',
-			],
-			$recorder->events()
-		);
-		$this->assertFalse( $plugin->get_container()->has( 'delayed' ) );
-	}
-
-	/**
-	 * Test that a service already registered in the request is uninstalled on
-	 * the instance in the container, rather than on a new one.
-	 */
-	public function test_a_registered_service_is_uninstalled_on_its_registered_instance(): void {
-		$recorder = new LifecycleRecorder();
-		$plugin   = $this->make_lifecycle_plugin( [ 'delayed' => DelayedLifecycleService::class ], $recorder );
-		$plugin->register_services();
-		$this->fire( 'init' );
-
-		$plugin->uninstall();
-
-		$this->assertSame(
-			[ 'construct:delayed', 'register:delayed', 'uninstall:delayed' ],
-			$recorder->events()
-		);
-	}
-
-	/**
 	 * Test that a rewrite-producing service sets up its post type in
 	 * activate() and removes it in deactivate(), both before the plugin
 	 * requests the soft flush, without its register() running early.

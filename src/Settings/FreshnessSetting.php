@@ -22,7 +22,6 @@ use MWPD\ContentFreshness\Infrastructure\{
 	Registerable,
 	Service,
 	Service\DebugMode,
-	Uninstallable,
 	ViewFactory
 };
 
@@ -39,7 +38,7 @@ use MWPD\ContentFreshness\Infrastructure\{
  * service that is not needed, and uninstalling through WP-CLI is not an admin
  * request, so the option would be left behind.
  */
-final class FreshnessSetting implements Service, Registerable, Delayed, Uninstallable {
+final class FreshnessSetting implements Service, Registerable, Delayed {
 
 	/**
 	 * Settings page the field is shown on, and the option group it is saved
@@ -117,13 +116,6 @@ final class FreshnessSetting implements Service, Registerable, Delayed, Uninstal
 			self::SECTION,
 			[ 'label_for' => OptionFreshnessPolicy::OPTION_NAME ]
 		);
-	}
-
-	/**
-	 * Uninstall the service, by removing the option it owns.
-	 */
-	public function uninstall(): void {
-		\delete_option( OptionFreshnessPolicy::OPTION_NAME );
 	}
 
 	/**

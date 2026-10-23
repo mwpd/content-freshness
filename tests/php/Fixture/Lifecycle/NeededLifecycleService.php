@@ -7,15 +7,9 @@ namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 use MWPD\ContentFreshness\Infrastructure\Activateable;
 use MWPD\ContentFreshness\Infrastructure\Conditional;
 use MWPD\ContentFreshness\Infrastructure\Deactivateable;
-use MWPD\ContentFreshness\Infrastructure\Uninstallable;
 use MWPD\ContentFreshness\Infrastructure\Service;
 
-final class NeededLifecycleService implements
-	Service,
-	Conditional,
-	Activateable,
-	Deactivateable,
-	Uninstallable {
+final class NeededLifecycleService implements Service, Conditional, Activateable, Deactivateable {
 	use RecordsLifecycle;
 
 	private const NAME = 'needed';

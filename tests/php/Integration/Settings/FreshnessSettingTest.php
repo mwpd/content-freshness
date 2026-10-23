@@ -6,13 +6,11 @@ namespace MWPD\ContentFreshness\Tests\Integration\Settings;
 
 use Brain\Monkey\Functions;
 use MWPD\ContentFreshness\ContentFreshnessPlugin;
-use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
 use MWPD\ContentFreshness\Settings\FreshnessSetting;
 use MWPD\ContentFreshness\Tests\Integration\TestCase;
 
 /**
- * The setting, built from the real composition root, in an admin request and
- * when the plugin is uninstalled.
+ * The setting, built from the real composition root, in an admin request.
  */
 final class FreshnessSettingTest extends TestCase {
 
@@ -46,17 +44,5 @@ final class FreshnessSettingTest extends TestCase {
 		$plugin->register_services();
 
 		$this->assertFalse( $plugin->get_container()->has( ContentFreshnessPlugin::FRESHNESS_SETTING_ID ) );
-	}
-
-	/**
-	 * Uninstalling happens where admin_init never fires, such as WP-CLI, and
-	 * still removes the option.
-	 */
-	public function test_uninstalling_the_plugin_removes_the_option_outside_the_admin(): void {
-		Functions\when( 'did_action' )->justReturn( false );
-		Functions\when( 'is_admin' )->justReturn( false );
-		Functions\expect( 'delete_option' )->once()->with( OptionFreshnessPolicy::OPTION_NAME )->andReturn( true );
-
-		( new ContentFreshnessPlugin() )->uninstall();
 	}
 }

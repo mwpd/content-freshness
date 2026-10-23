@@ -6,7 +6,6 @@ namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
 use MWPD\ContentFreshness\Infrastructure\Activateable;
 use MWPD\ContentFreshness\Infrastructure\Deactivateable;
-use MWPD\ContentFreshness\Infrastructure\Uninstallable;
 use MWPD\ContentFreshness\Infrastructure\HasDependencies;
 use MWPD\ContentFreshness\Infrastructure\Registerable;
 use MWPD\ContentFreshness\Infrastructure\Service;
@@ -14,13 +13,7 @@ use MWPD\ContentFreshness\Infrastructure\Service;
 /**
  * Depends on the delayed service, so it waits for init to register.
  */
-final class DependentLifecycleService implements
-	Service,
-	Registerable,
-	HasDependencies,
-	Activateable,
-	Deactivateable,
-	Uninstallable {
+final class DependentLifecycleService implements Service, Registerable, HasDependencies, Activateable, Deactivateable {
 	use RecordsLifecycle;
 
 	private const NAME = 'dependent';

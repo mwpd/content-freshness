@@ -144,16 +144,10 @@ final class FreshnessSettingTest extends TestCase {
 		$this->assertStringContainsString( 'value="365"', $this->render_field() );
 	}
 
-	public function test_uninstalling_removes_the_option(): void {
-		Functions\expect( 'delete_option' )->once()->with( OptionFreshnessPolicy::OPTION_NAME )->andReturn( true );
-
-		$this->make_setting()->uninstall();
-	}
-
 	public function test_a_failing_field_is_left_out_without_debug_mode(): void {
 		Functions\when( 'get_option' )->justReturn( '90' );
 
-		$this->assertSame( '', $this->render_field( $this->make_setting( $this->missing_views(), false ) ) );
+		$this->assertSame( '', $this->render_field( $this->make_setting( $this->missing_views( false ), false ) ) );
 	}
 
 	public function test_a_failing_field_surfaces_in_debug_mode(): void {
@@ -161,7 +155,7 @@ final class FreshnessSettingTest extends TestCase {
 
 		$this->expectException( InvalidPath::class );
 
-		$this->render_field( $this->make_setting( $this->missing_views(), true ) );
+		$this->render_field( $this->make_setting( $this->missing_views( true ), true ) );
 	}
 
 	private function make_setting( ?ViewFactory $view_factory = null, bool $debug_mode = false ): FreshnessSetting {
@@ -174,8 +168,8 @@ final class FreshnessSettingTest extends TestCase {
 	/**
 	 * Views looked up where there are none, as with a broken theme override.
 	 */
-	private function missing_views(): ViewFactory {
-		return new TemplatedViewFactory( [ '/nonexistent' ] );
+	private function missing_views( bool $debug_mode ): ViewFactory {
+		return new TemplatedViewFactory( [ '/nonexistent' ], new FixedDebugMode( $debug_mode ) );
 	}
 
 	private function render_field( ?FreshnessSetting $setting = null ): string {
