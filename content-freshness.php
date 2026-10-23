@@ -151,6 +151,19 @@ if ( ! class_exists( ContentFreshnessPluginFactory::class ) ) {
 	}
 );
 
+/**
+ * Uninstall the plugin, for sites that activated version 1.0.0.
+ *
+ * Version 1.0.0 stored this function as its uninstall callback. WordPress
+ * keeps calling the stored callback until the plugin is activated again,
+ * when it is replaced with ContentFreshnessUninstallHook::uninstall(), so
+ * deleting the plugin on such a site still needs the function. It hands over
+ * at once to the bridge.
+ */
+function uninstall(): void {
+	ContentFreshnessUninstallHook::uninstall();
+}
+
 /*
  * Finally, we run the plugin's register method to hook the plugin into the
  * WordPress request lifecycle.

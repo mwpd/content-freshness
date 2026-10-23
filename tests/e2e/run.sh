@@ -284,6 +284,17 @@ expect_equals "the uninstall callback is forgotten" "" \
 	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo implode( '::', (array) ( \$u['$PLUGIN'] ?? [] ) );")"
 expect_equals "a digest left behind is cleared" "0" "$(wp cron event list --hook="$CRON_HOOK" --format=count)"
 
+echo "Uninstall after updating from 1.0.0"
+# Version 1.0.0 stored a namespaced function as the uninstall callback, and a
+# site keeps it until the plugin is activated again.
+wp option update "$OPTION" 90 --quiet
+wp eval "\$u = (array) get_option( 'uninstall_plugins', [] ); \$u['$PLUGIN'] = 'MWPD\\\\ContentFreshness\\\\uninstall'; update_option( 'uninstall_plugins', \$u );"
+expect_equals "the callback of 1.0.0 is stored" "MWPD\\ContentFreshness\\uninstall" \
+	"$(wp eval "\$u = get_option( 'uninstall_plugins' ); echo \$u['$PLUGIN'] ?? '';")"
+wp eval "uninstall_plugin( '$PLUGIN' );"
+expect_equals "the callback of 1.0.0 still removes the setting" "missing" \
+	"$(wp option get "$OPTION" >/dev/null 2>&1 && echo present || echo missing)"
+
 echo
 echo "$passed passed, $failed failed"
 test "$failed" -eq 0
