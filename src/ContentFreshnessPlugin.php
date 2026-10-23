@@ -25,6 +25,11 @@ use MWPD\ContentFreshness\Freshness\{
 	WordPressClock
 };
 use MWPD\ContentFreshness\Infrastructure\{
+	QueryMonitor\CollectorFactory,
+	QueryMonitor\OutputFactory,
+	QueryMonitor\RegistrationCollectorFactory,
+	QueryMonitor\RegistrationOutputFactory,
+	QueryMonitor\RegistrationPanel,
 	ServiceBasedPlugin,
 	Service\DebugMode,
 	Service\WordPressDebugMode,
@@ -97,6 +102,18 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 			self::POST_AGE_COLUMN_ID      => PostAgeColumn::class,
 			self::FRESHNESS_SETTING_ID    => FreshnessSetting::class,
 			self::STALE_CONTENT_DIGEST_ID => StaleContentDigest::class,
+
+			/*
+			 * To see in Query Monitor which services were registered in a
+			 * request, which were skipped, and which still wait for an action
+			 * or for their dependencies, add the optional panel:
+			 *
+			 * self::REGISTRATION_PANEL_ID => RegistrationPanel::class,
+			 *
+			 * It only does anything in requests where Query Monitor runs, and
+			 * the plugin only records the registration in those. The bindings
+			 * and arguments it needs are already configured below.
+			 */
 		];
 	}
 
@@ -131,6 +148,14 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 
 			// Failures surface when WP_DEBUG is on, and degrade when it is off.
 			DebugMode::class       => WordPressDebugMode::class,
+
+			/*
+			 * The factories the optional Query Monitor panel creates its
+			 * collector and output with. They create nothing until the panel
+			 * is declared above and Query Monitor runs.
+			 */
+			CollectorFactory::class => RegistrationCollectorFactory::class,
+			OutputFactory::class    => RegistrationOutputFactory::class,
 
 			// Ages are measured against the time WordPress tells.
 			Clock::class           => WordPressClock::class,
@@ -167,6 +192,13 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 			 * for scalar values. A scalar would be bound like this:
 			 * SomeService::class => [ 'argument_name' => 'value' ],
 			 */
+			/*
+			 * How the optional Query Monitor panel is named. Its identifier
+			 * carries the plugin's prefix, and its title names the plugin, so
+			 * the panels of two plugins built from this scaffold stay apart.
+			 */
+			RegistrationCollectorFactory::class => [ 'panel_id' => self::REGISTRATION_PANEL_SLUG ],
+			RegistrationOutputFactory::class    => [ 'panel_title' => self::REGISTRATION_PANEL_TITLE ],
 		];
 	}
 
@@ -322,4 +354,15 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	public const FRESHNESS_SETTING_ID = self::SERVICE_PREFIX . 'settings.freshness-setting';
 
 	public const STALE_CONTENT_DIGEST_ID = self::SERVICE_PREFIX . 'digest.stale-content-digest';
+
+	public const REGISTRATION_PANEL_ID = self::SERVICE_PREFIX . 'query-monitor.registration-panel';
+
+	/*
+	 * Identifier and title of the optional Query Monitor panel. Query Monitor
+	 * uses the identifier in HTML IDs, so it is a slug, with the prefix the
+	 * plugin uses for such names.
+	 */
+	protected const REGISTRATION_PANEL_SLUG = 'mwpd-content-freshness-registration';
+
+	protected const REGISTRATION_PANEL_TITLE = 'Content Freshness services';
 }

@@ -57,6 +57,7 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\SiteUninitializable
                 - MWPD\ContentFreshness\Infrastructure\SiteUninstallable
                 - MWPD\ContentFreshness\Infrastructure\NetworkUninstallable
+                - MWPD\ContentFreshness\Infrastructure\Registration\ObservesRegistration
             delayed: MWPD\ContentFreshness\Infrastructure\Delayed
             registerable: MWPD\ContentFreshness\Infrastructure\Registerable
         finalByDefault:
@@ -163,6 +164,10 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkContext
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteSelection
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkSelection
+                - MWPD\ContentFreshness\Infrastructure\Registration\RegistrationRecord
+                # A read-only wrapper around the registration log, like the
+                # lazy service wrapper above.
+                - MWPD\ContentFreshness\Infrastructure\Registration\ReadOnlyRegistrationReport
                 - DateTimeImmutable
                 - DateInterval
                 - ArrayIterator
