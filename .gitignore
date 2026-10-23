@@ -1,3 +1,5 @@
 /vendor/
 .deptrac.cache
 .phpunit.result.cache
+/node_modules/
+/build/

@@ -1,0 +1,13 @@
+{
+	"name": "content-freshness",
+	"private": true,
+	"description": "End-to-end tests of the Content Freshness plugin in a real WordPress.",
+	"license": "MIT",
+	"scripts": {
+		"e2e": "bash tests/e2e/run.sh",
+		"wp-env": "wp-env"
+	},
+	"devDependencies": {
+		"@wordpress/env": "^12.0.0"
+	}
+}

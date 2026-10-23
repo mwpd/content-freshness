@@ -71,3 +71,30 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - run: composer test
+
+  e2e:
+    name: end-to-end (WordPress ${{ matrix.wordpress }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The floors the plugin header declares, and the latest release.
+          - wordpress: "6.0"
+            php: "7.4"
+          - wordpress: latest
+            php: "7.4"
+          - wordpress: latest
+            php: "8.3"
+    env:
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
+      WP_ENV_CORE: ${{ matrix.wordpress == 'latest' && '' || format('WordPress/WordPress#{0}', matrix.wordpress) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm run e2e

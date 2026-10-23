@@ -1,0 +1,11 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"core": null,
+	"port": 8891,
+	"testsEnvironment": false,
+	"plugins": [],
+	"mappings": {
+		"wp-content/plugins/content-freshness": "./build/content-freshness",
+		"wp-content/mu-plugins": "./tests/e2e/mu-plugins"
+	}
+}

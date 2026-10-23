@@ -1,0 +1,31 @@
+# Files that stay out of the plugin a site installs: development tooling,
+# tests and documentation for contributors. The plugin needs nothing but PHP
+# and WordPress, so vendor/ stays out too.
+/.agents
+/.claude
+/.distignore
+/.editorconfig
+/.git
+/.github
+/.gitignore
+/.phpunit.result.cache
+/.wp-env.json
+/AGENTS.md
+/CLAUDE.md
+/composer-dependency-analyser.php
+/composer.json
+/composer.lock
+/docs
+/node_modules
+/package-lock.json
+/package.json
+/phpcs.xml.dist
+/phpstan.neon.dist
+/phpunit.xml.dist
+/psalm.xml
+/rector.php
+/scripts
+/tests
+/vendor
+/README.md
+/build
