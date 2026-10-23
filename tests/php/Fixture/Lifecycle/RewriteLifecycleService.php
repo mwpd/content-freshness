@@ -19,7 +19,12 @@ use MWPD\ContentFreshness\Infrastructure\Service;
  * it again, as the WordPress handbook shows for the activation and
  * deactivation hooks.
  */
-final class RewriteLifecycleService implements Service, Registerable, Delayed, Activateable, Deactivateable {
+final class RewriteLifecycleService implements
+	Service,
+	Registerable,
+	Delayed,
+	Activateable,
+	Deactivateable {
 
 	public const POST_TYPE = 'bs_fixture_book';
 

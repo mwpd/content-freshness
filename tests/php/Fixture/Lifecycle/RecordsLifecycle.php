@@ -23,4 +23,8 @@ trait RecordsLifecycle {
 	public function deactivate(): void {
 		$this->recorder->record( 'deactivate:' . self::NAME );
 	}
+
+	public function uninstall(): void {
+		$this->recorder->record( 'uninstall:' . self::NAME );
+	}
 }

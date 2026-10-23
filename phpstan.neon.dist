@@ -45,6 +45,7 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\HasDependencies
                 - MWPD\ContentFreshness\Infrastructure\Activateable
                 - MWPD\ContentFreshness\Infrastructure\Deactivateable
+                - MWPD\ContentFreshness\Infrastructure\Uninstallable
             delayed: MWPD\ContentFreshness\Infrastructure\Delayed
             registerable: MWPD\ContentFreshness\Infrastructure\Registerable
         finalByDefault:

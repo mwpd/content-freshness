@@ -215,6 +215,30 @@ abstract class ServiceBasedPlugin implements Plugin {
 	}
 
 	/**
+	 * Uninstall the plugin.
+	 *
+	 * Every service implementing Uninstallable is uninstalled, see
+	 * get_lifecycle_services() for which ones and how. WordPress only
+	 * uninstalls a plugin that is deactivated, and deactivation has flushed the
+	 * rewrite rules already, so there is nothing left to flush.
+	 *
+	 * WordPress calls this through the static uninstall callback the main
+	 * plugin file registers, in a request where the plugin is not active, so
+	 * the services are registered here first, as for activation.
+	 *
+	 * @throws InvalidService If a service is not valid.
+	 */
+	public function uninstall(): void {
+		$this->register_services();
+
+		foreach ( $this->get_lifecycle_services( Uninstallable::class ) as $service ) {
+			if ( $service instanceof Uninstallable ) {
+				$service->uninstall();
+			}
+		}
+	}
+
+	/**
 	 * Get the services that take part in a lifecycle event, one at a time.
 	 *
 	 * The container alone is not enough to find them. A service that is not
@@ -246,7 +270,8 @@ abstract class ServiceBasedPlugin implements Plugin {
 	 * configured here. Those take part afterwards if the instance stored for
 	 * them implements the lifecycle interface.
 	 *
-	 * @param class-string $lifecycle_interface Activateable or Deactivateable.
+	 * @param class-string $lifecycle_interface Activateable, Deactivateable or
+	 *                                          Uninstallable.
 	 *
 	 * @throws InvalidService If a service is not valid.
 	 *

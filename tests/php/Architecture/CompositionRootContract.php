@@ -23,6 +23,7 @@ use MWPD\ContentFreshness\Infrastructure\Injector;
 use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
 use MWPD\ContentFreshness\Infrastructure\Registerable;
 use MWPD\ContentFreshness\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Uninstallable;
 use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 use MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginNamespace;
 use ReflectionClass;
@@ -491,6 +492,11 @@ final class CompositionRootContract {
 		if ( $service instanceof Deactivateable ) {
 			$steps['deactivate'] = static function () use ( $service ): void {
 				$service->deactivate();
+			};
+		}
+		if ( $service instanceof Uninstallable ) {
+			$steps['uninstall'] = static function () use ( $service ): void {
+				$service->uninstall();
 			};
 		}
 
