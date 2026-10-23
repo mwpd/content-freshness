@@ -37,6 +37,10 @@ Activating schedules the weekly digest; the first one goes out a week later.
 Deactivating stops the digest and keeps your setting. Deleting the plugin
 removes the setting too.
 
+On multisite, network activation sets the digest up in every site of the
+network, and in each site created on the network later. Deleting the plugin
+removes the setting and the digest from every site of every network.
+
 With WP-CLI:
 
 ```sh
@@ -82,8 +86,10 @@ one, so a rule that leaves some old posts out applies to the email too. The plug
 ### Changing the markup
 
 The notice, the column cell, the setting field and the email body are views
-in `views/`. A theme overrides one by putting a file with the same relative
-path in the theme, for example `views/outdated-post-notice.php`. The notice
+in `views/`. A theme overrides one in a `content-freshness/` directory of its
+own, at the same relative path: the notice, for example, with
+`content-freshness/views/outdated-post-notice.php` in the child or parent
+theme. The notice
 has the class `mwpd-content-freshness-notice` for styling.
 
 ## How it is built
@@ -92,7 +98,7 @@ The plugin is four services, one per feature. Each implements only the small
 capability interfaces that describe where and when it acts, and the scaffold's
 infrastructure works out the rest. The composition root lists them and
 nothing else knows they exist
-(`src/ContentFreshnessPlugin.php:88-100`):
+(`src/ContentFreshnessPlugin.php:94-118`):
 
 ```php
 protected function get_service_classes(): array {
@@ -109,8 +115,8 @@ protected function get_service_classes(): array {
 | --- | --- | --- |
 | [`OutdatedPostNotice`](src/Notice/OutdatedPostNotice.php) | `Conditional` (`is_singular( 'post' )`), `Delayed` (`wp`), `Registerable` | Only exists on a single post, once the query has run, and filters `the_content` there. |
 | [`PostAgeColumn`](src/PostsList/PostAgeColumn.php) | `Conditional` (screen `edit-post`), `Delayed` (`current_screen`), `Registerable` | Only exists on the Posts list, and adds its column there. |
-| [`FreshnessSetting`](src/Settings/FreshnessSetting.php) | `Delayed` (`admin_init`), `Registerable`, `Uninstallable` | Registers the setting in admin requests, and removes its option when the plugin is deleted. |
-| [`StaleContentDigest`](src/Digest/StaleContentDigest.php) | `Registerable`, `Activateable`, `Deactivateable` | Hooks the cron callback in every request, schedules the weekly event on activation and clears it on deactivation. |
+| [`FreshnessSetting`](src/Settings/FreshnessSetting.php) | `Delayed` (`admin_init`), `Registerable`, `SiteUninstallable` | Registers the setting in admin requests, and removes its option from every site when the plugin is deleted. |
+| [`StaleContentDigest`](src/Digest/StaleContentDigest.php) | `Registerable`, `SiteActivateable`, `SiteDeactivateable`, `SiteInitializable`, `SiteUninstallable` | Hooks the cron callback in every request, schedules the weekly event in each site an activation reaches and in new sites of a network, and clears it in each site a deactivation reaches and on uninstall. |
 
 On the front end of a single post, only two of the four services are ever
 built. On the Posts list, three. The other ones are not skipped by an `if`
@@ -121,12 +127,16 @@ Look at what each service does *not* do:
 
 - The notice does not check `is_admin()`, and the column does not check
   `is_singular()`. Each states its own condition once
-  (`src/Notice/OutdatedPostNotice.php:71-73`,
-  `src/PostsList/PostAgeColumn.php:82-86`).
+  (`src/Notice/OutdatedPostNotice.php:76-78`,
+  `src/PostsList/PostAgeColumn.php:87-91`).
 - The digest is deliberately **not** `Conditional`. WP-Cron runs in whatever
   request comes along, so its callback has to be hooked in every request, and
-  the infrastructure skips a `Conditional` service in an activation request
-  where it is not needed.
+  the infrastructure skips a `Conditional` service in a lifecycle event where
+  it is not needed.
+- The digest does not check whether an activation is network-wide. It
+  implements `SiteActivateable`, because its work happens in each site, and
+  the infrastructure visits the sites
+  (`src/Digest/StaleContentDigest.php:173-175`).
 - The setting is not `Conditional` either: waiting for `admin_init` already
   keeps it out of front-end requests, and a condition would keep it from
   cleaning up when the plugin is uninstalled through WP-CLI.
@@ -138,7 +148,7 @@ Look at what each service does *not* do:
 - No service fetches the current post when it is built. The notice asks
   `MainLoop` inside its filter, so it only acts on the queried post in the
   main loop, not on a related-posts widget further down
-  (`src/Notice/OutdatedPostNotice.php:129-135`).
+  (`src/Notice/OutdatedPostNotice.php:134-140`).
 
 ### Why adding a feature changed nothing else
 
@@ -165,17 +175,24 @@ Inside the plugin, every failure is an exception with a name, such as
 before control goes back to WordPress: with `WP_DEBUG` on, the exception
 surfaces; with it off, the notice is left out, the column cell stays empty,
 or the digest waits for next week, and the rest of the page works
-(`src/Notice/OutdatedPostNotice.php:151-156`).
+(`src/Notice/OutdatedPostNotice.php:156-161`).
 
-### One thing the scaffold did not have
+### Uninstalling
 
-Uninstalling was the one lifecycle point the scaffold had no interface for.
-Following its own rule, that a lifecycle point gets a capability interface
-rather than a conditional in a service, this plugin adds `Uninstallable` to
-the infrastructure (`src/Infrastructure/Uninstallable.php:27-33`). The main plugin file
-registers one uninstall callback on activation, a bridge that asks the plugin
-to uninstall, and the plugin calls each `Uninstallable` service
-(`src/Infrastructure/ServiceBasedPlugin.php:231-239`).
+The plugin uses the scaffold's uninstall design. WordPress stores the
+uninstall callback in the database, so activation registers a static bridge,
+`ContentFreshnessUninstallHook::uninstall()`
+(`src/ContentFreshnessUninstallHook.php:31-39`), and the composition root names it
+(`src/ContentFreshnessPlugin.php:309-311`). When the plugin is deleted, the bridge hands over to
+the plugin, which visits every site, builds only the services that implement
+`SiteUninstallable` there, and calls them: the setting deletes its option
+(`src/Settings/FreshnessSetting.php:137-139`), and the digest clears any weekly event left behind.
+
+Version 1.0.0 had an uninstall capability of its own, from before the
+scaffold settled the design. Its callback, a function in the main file,
+stays as a thin hand-over to the bridge
+(`content-freshness.php:163-165`), because a site that activated 1.0.0 keeps
+that callback until the plugin is activated again.
 
 ### Further reading
 
@@ -204,6 +221,12 @@ the column, the setting, the digest (captured by a must-use plugin instead of
 being sent), activation, deactivation and uninstalling. Set
 `WP_ENV_PHP_VERSION` or `WP_ENV_CORE` to run them against another PHP or
 WordPress version.
+
+To see which services a request built, skipped or still waits to build, and
+why, declare the scaffold's optional Query Monitor panel: it is one commented
+line in the composition root, as
+[I need to see why a service did not run](docs/patterns.md#i-need-to-see-why-a-service-did-not-run)
+shows.
 
 Psalm 5 supports PHP up to 8.3, so run the lint step on PHP 8.3. CI
 (`.github/workflows/ci.yml`) is the reference environment. The rules for

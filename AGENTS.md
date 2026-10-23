@@ -14,13 +14,13 @@ tested and readable on its own.
 
 | Path | What it is |
 | --- | --- |
-| `content-freshness.php` | Bootstrap: plugin header, autoloading, lifecycle bridges, kicks off the composition root. |
+| `content-freshness.php` | Bootstrap: plugin header, autoloading, activation and deactivation bridges, kicks off the composition root. |
 | `src/ContentFreshnessPlugin.php` | Composition root: services, injector bindings, shared instances, prefixes. |
 | `src/Freshness/` | The domain: `FreshnessPolicy` and its option-backed implementation, the `MaxAge` and `PostAge` value objects, the `Clock`. |
 | `src/Notice/`, `src/PostsList/`, `src/Settings/`, `src/Digest/` | The four features, one service each, with their WordPress adapters. |
-| `src/Infrastructure/` | The scaffold's infrastructure: service container, injector, views, autoloader, capability interfaces. |
+| `src/Infrastructure/` | The scaffold's infrastructure, as of `mwpd/basic-scaffold@61a9b00`: service container, injector, views, autoloader, capability interfaces, multisite and uninstall lifecycle, the optional Query Monitor panel. |
 | `src/Exception/` | The plugin's exception types. |
-| `views/` | Templates the services render. |
+| `views/` | Templates the services render, and `views/query-monitor-registration.php`, the template of the scaffold's optional Query Monitor panel. |
 | `tests/php/Unit`, `tests/php/Integration` | PHPUnit suites. Both use Brain Monkey; neither needs a WordPress install. |
 | `tests/php/Fixture/` | Test doubles, stand-ins for WordPress classes, view fixtures. |
 | `tests/php/Architecture/`, `tests/php/PHPStan/` | Architecture rules: the `architecture` suite, PHPStan rules, their tests and fixtures. |
@@ -69,8 +69,9 @@ pattern shows the plugin's way, with code that passes the checks.
 service, and each service decides in isolation where and when it acts in the
 WordPress lifecycle, by implementing small capability interfaces
 (`Conditional`, `Delayed`, `HasDependencies`, `Registerable`, `Activateable`,
-`Deactivateable`, `Uninstallable`). The infrastructure works out when to
-trigger what. New logic is one more service, never one more condition threaded
+`Deactivateable`, and the site- and network-scoped lifecycle interfaces such as
+`SiteActivateable` and `SiteUninstallable`). The infrastructure works out when
+to trigger what. New logic is one more service, never one more condition threaded
 through the others. A lifecycle point no interface covers gets a new
 interface, not a conditional inside a service.
 
@@ -119,13 +120,17 @@ before code.
   and `tests/php`. View templates (`views/`, `tests/php/Fixture/views/`) do not.
 - **No runtime Composer dependencies** (principle 1). `require` holds nothing
   but PHP; class loading must work both with and without `vendor/`.
-- **All strings are translatable** with the `content-freshness` text domain,
-  and **all output is escaped** for the context it lands in.
-- **Infrastructure changes are API changes.** `src/Infrastructure/` is the
-  scaffold's code. A change there updates the reviewed listing with
-  `composer api:snapshot`, and is a candidate to send upstream to
-  `mwpd/basic-scaffold`. A change that removes or reshapes existing API needs
-  a maintainer ruling first.
+- **Every string the features show is translatable** with the
+  `content-freshness` text domain, and **all output is escaped** for the
+  context it lands in. The scaffold's developer-facing Query Monitor panel is
+  in English, as upstream.
+- **The infrastructure follows the scaffold.** `src/Infrastructure/`, the
+  architecture tests and the PHPStan rules are `mwpd/basic-scaffold`'s, renamed
+  to this plugin, and match the scaffold's `main` they were last ported from.
+  Port upstream changes rather than diverging; a fix the plugin needs first is
+  filed upstream and kept as small as possible here. A change to the
+  infrastructure updates the reviewed listing with `composer api:snapshot`;
+  one that removes or reshapes existing API needs a maintainer ruling first.
 - **Do not weaken the gates to get green.** No lowered PHPStan/Psalm levels,
   new baselines, broad ignores, or deleted tests. Fix the code or say why on
   the issue.

@@ -130,10 +130,10 @@ says which rules enforce each principle, and what stays with review.
 | [7. WordPress anti-patterns](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns) | `constructorsOnlyAssign`, `noHooksInConstructor`, `hooksInLifecycleMethods`, `noContextChecksInRegister`, `queryContextNeedsDelay`, `registrationActionKnown`, `noSideEffectsOnInclude`, `noStaticState`, `pluginFactoryOnlyAtEdges`, `newOnlyWhereAllowed`, `noGlobalState`, `outputOnlyThroughViews` | God classes |
 | [8. Types name concepts](design-principles.md#8-types-name-concepts-not-just-data) | `namesWithoutTypeKind`; PHPStan at level `max` and Psalm at level 2, for consistency | Whether a value deserves a type of its own; whether implementation names describe their distinguishing behaviour |
 | [9. Never trust what WordPress hands over](design-principles.md#9-never-trust-what-wordpress-hands-over) | `noGlobalState` (request input only in adapters), `rawIsEscaped`, PHPCS (WordPress Coding Standards) for escaping output | Validating input at the boundary |
-| [10. Errors are exceptions](design-principles.md#10-errors-are-exceptions) | `noWordPressErrorMechanisms`, `noFalseOnFailure`, `throwOnlyPluginExceptions`, `exceptionShape`, `exceptionsThroughNamedConstructors`, `exceptionsKeepCause` | Graceful degradation at the boundary ([mwpd/basic-scaffold#27](https://github.com/mwpd/basic-scaffold/issues/27), [mwpd/basic-scaffold#30](https://github.com/mwpd/basic-scaffold/issues/30)) |
+| [10. Errors are exceptions](design-principles.md#10-errors-are-exceptions) | `noWordPressErrorMechanisms`, `noFalseOnFailure`, `throwOnlyPluginExceptions`, `exceptionShape`, `exceptionsThroughNamedConstructors`, `exceptionsKeepCause` | Graceful degradation at the boundary: views ([mwpd/basic-scaffold#27](https://github.com/mwpd/basic-scaffold/issues/27), [mwpd/basic-scaffold#30](https://github.com/mwpd/basic-scaffold/issues/30)), other callbacks and lifecycle steps ([mwpd/basic-scaffold#143](https://github.com/mwpd/basic-scaffold/issues/143)); the scoped lifecycle events propagate by ruling ([mwpd/basic-scaffold#34](https://github.com/mwpd/basic-scaffold/issues/34)) |
 | [11. Lifecycle steps are idempotent](design-principles.md#11-lifecycle-steps-are-idempotent) | `compositionRootContracts` | Plugin registration orchestration ([mwpd/basic-scaffold#26](https://github.com/mwpd/basic-scaffold/issues/26)); effects outside Brain Monkey |
 | [12. Extension points at a hook](design-principles.md#12-extension-points-run-at-a-hook-never-at-include-time) | `noSideEffectsOnInclude`, `noHooksInConstructor`, `bootstrapContract` | |
-| [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity) | `prefixedNames` | Prefixes of service identifiers and view override paths ([mwpd/basic-scaffold#29](https://github.com/mwpd/basic-scaffold/issues/29)) |
+| [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity) | `prefixedNames`, `serviceIdsPrefixed` | The value of `VIEW_OVERRIDE_DIRECTORY`; service IDs added by runtime filters |
 | [14. The code teaches](design-principles.md#14-the-code-teaches) | `samplesAreTested`, `testsAreDiscovered`, `citationsResolve`, `infrastructureApiSnapshot` | Whether comments explain why and cited lines still support the prose |
 | [Hard rules](../AGENTS.md#hard-rules) | `strictTypes`, `noSuppression`, `suppressionsAreNamed`, `testsAreDiscovered`, `gatesAtStrength`, `everyPathAnalysed`, `infrastructureApiSnapshot` | API compatibility and maintainer rulings on breaking changes |
 
@@ -153,6 +153,9 @@ that names the fix. The fixtures and tests listed prove it.
 | A class that is not `final` | `finalByDefault` | `tests/php/PHPStan/Fixture/FinalByDefault/classes.php` |
 | A bare SPL exception thrown | `throwOnlyPluginExceptions` | `tests/php/PHPStan/Fixture/Errors/Service.php` |
 | A public WordPress name without the plugin's prefix, or an overlong post type/taxonomy name | `prefixedNames` | `tests/php/PHPStan/Fixture/Names/Service.php`, `Registrations.php`, `NameLengths.php` |
+| A declared service ID without the composition root's configured prefix | `serviceIdsPrefixed` | `CompositionRootContractTest::test_it_reports_an_unprefixed_service_id_with_the_fix` |
+| The scaffold's sample service IDs left in a root with a different prefix | `serviceIdsPrefixed` | `CompositionRootContractTest::test_it_rejects_sample_service_ids_in_a_root_with_a_different_prefix` |
+| An empty service prefix that leaves every declared ID unprefixed | `serviceIdsPrefixed` | `CompositionRootContractTest::test_it_reports_service_ids_when_the_service_prefix_is_empty` |
 | A feature class or production view without a test | `samplesAreTested` | `SamplesAreTestedTest::test_it_reports_an_untested_subsystem_class_with_the_fix`, `SamplesAreTestedTest::test_it_reports_an_untested_view_with_the_fix` |
 | A test file outside a test suite | `testsAreDiscovered` | `RepositoryStructureTest::test_it_reports_tests_phpunit_never_runs` |
 | A service calling the plugin factory as a static service locator | `pluginFactoryOnlyAtEdges` | `tests/php/PHPStan/Fixture/PluginFactoryOnlyAtEdges/Service.php` |
@@ -169,6 +172,32 @@ that names the fix. The fixtures and tests listed prove it.
 | A delayed service waiting for a misspelled action | `registrationActionKnown` | `tests/php/Fixture/CompositionRoot/TypoActionPlugin.php` |
 
 ## Rules
+
+### `architecture.serviceIdsPrefixed`
+
+**Principle:** [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity).
+
+**Checks:** every key of the composition root's `get_service_classes()` starts
+with that root's configured `SERVICE_PREFIX`. An empty `SERVICE_PREFIX` leaves
+every declared ID unprefixed, so each is reported. Failures name the ID, root
+and configured prefix, and explain how to fix the declaration.
+
+**Allows:** IDs beginning with the root's own nonempty prefix, including in
+generated plugins with different prefixes. Only the recorded declaration keys
+are inspected: this check does not resolve callable declarations, construct
+lazy services, reread configuration or rerun runtime callbacks. The existing
+composition-root contract still resolves and builds services for its other
+checks. Runtime filter output, such as IDs added via the `services` filter,
+is outside this check's scope.
+
+**Configuration:** `RepositoryLayout::COMPOSITION_ROOT` selects the root through
+the existing composition-root contract test. `SERVICE_PREFIX` is read from
+that root by reflection, including protected constants, rather than copied
+from the scaffold's sample plugin.
+
+**Fix:** set a nonempty `SERVICE_PREFIX` in the composition root and build every
+declared ID from it in `get_service_classes()`. See
+[I need a name in a space WordPress shares](patterns.md#i-need-a-name-in-a-space-wordpress-shares).
 
 ### `architecture.infrastructureApiSnapshot`
 
@@ -321,8 +350,9 @@ Calls through a class expression chosen at runtime are not checked.
 
 **Configuration:** `pluginFactoryOnlyAtEdges.factories` lists factory classes;
 the plugin lists `MWPD\ContentFreshness\ContentFreshnessPluginFactory`.
-`pluginFactoryOnlyAtEdges.bridges` lists reviewed methods as `Class::method`
-and is empty by default. Class and method names match without regard to case
+`pluginFactoryOnlyAtEdges.bridges` lists reviewed methods as `Class::method`;
+the plugin lists `ContentFreshnessUninstallHook::uninstall`, which WordPress
+stores as the uninstall callback. Class and method names match without regard to case
 or a leading backslash. `dependencyDirection.views` supplies the production
 view directories, as for `noGlobalState`.
 
@@ -332,8 +362,9 @@ invokes belongs in a listed bridge: get the graph through the plugin factory
 and delegate immediately to instance services, nothing else. The bridge holds
 no state or feature logic; reviewing that contract remains a human check.
 See [I need to reach the plugin from a static WordPress callback](patterns.md#i-need-to-reach-the-plugin-from-a-static-wordpress-callback)
-and [I need a service locator](patterns.md#i-need-a-service-locator). Themes
-and other plugins get no bridge; they use the plugin's hooks, as
+and [I need a service locator](patterns.md#i-need-a-service-locator), and the
+uninstall bridge in [I need to clean up when the plugin is uninstalled](patterns.md#i-need-to-clean-up-when-the-plugin-is-uninstalled).
+Themes and other plugins get no bridge; they use the plugin's hooks, as
 [I need a public API for themes or other plugins](patterns.md#i-need-a-public-api-for-themes-or-other-plugins)
 shows.
 
@@ -361,10 +392,11 @@ need their own entry. Closures inside a listed class may read input; functions
 and closures in templates without a class are not adapters.
 `dependencyDirection.views` supplies the production view directories.
 
-**Fix:** receive the value through the constructor. Put WordPress state behind
-an interface whose WordPress implementation reads and checks it, as `MainLoop`
-does for the current post, and configure a delegation in the composition root
-for collaborators such as `$wpdb` or `WP_Query`. Read request input in a listed
+**Fix:** receive the value through the constructor. Configure a delegation in
+the composition root for collaborators such as `$wpdb` or `WP_Query`. For
+state that changes while the request runs, such as the post being rendered,
+inject an interface and ask it at call time, as `OutdatedPostNotice` asks
+`MainLoop` (`src/Notice/MainLoop.php`). Read request input in a listed
 adapter and pass its normalized internal type to the service. Sanitization
 itself remains with WordPress Coding Standards' `ValidatedSanitizedInput`
 sniff and review. See [I need WordPress state, such as the current post](patterns.md#i-need-wordpress-state-such-as-the-current-post).
@@ -533,7 +565,7 @@ checked separately by `architecture.rawIsEscaped` and PHPCS. The services'
 PHPCS suppression is still needed because PHPCS does not recognize the
 rendering method as automatically escaped.
 
-**Pattern:** [I need to print output](patterns.md#i-need-to-print-output).
+**Patterns:** [I need to print output](patterns.md#i-need-to-print-output), [I need to see why a service did not run](patterns.md#i-need-to-see-why-a-service-did-not-run).
 
 ### `architecture.rawIsEscaped`
 
@@ -655,6 +687,10 @@ Callbacks are recorded without being run.
 
 Every other recorded hook API call fails, including `add_filter()`, removals,
 hook queries, `register_uninstall_hook()`, `do_action()` and `apply_filters()`.
+Rejecting `register_uninstall_hook()` is deliberate: WordPress stores the
+callback in the database, so the plugin registers it on activation. At include
+time it would write on every request, and would add the entry back while
+WordPress is uninstalling the plugin.
 The reference-array and deprecated variants of actions and filters are
 recorded too. Duplicate registrations fail even when they would leave the
 same final hook state. Missing registrations fail with the required wiring.
@@ -674,7 +710,7 @@ after renaming. Intentional violations live in
 at `plugins_loaded`, when other plugins have had a chance to hook in. Keep
 exactly one registration for each of the three entry hooks in the bootstrap.
 
-**Pattern:** [I need to run code when the plugin file loads](patterns.md#i-need-to-run-code-when-the-plugin-file-loads).
+**Patterns:** [I need to run code when the plugin file loads](patterns.md#i-need-to-run-code-when-the-plugin-file-loads), [I need to clean up when the plugin is uninstalled](patterns.md#i-need-to-clean-up-when-the-plugin-is-uninstalled).
 
 ### `architecture.noRuntimeDependencies`
 
@@ -800,7 +836,7 @@ documented reason in its gate's configuration.
 **Fix:** add the missing path to the named configuration's included roots or
 remove the exclusion it reports. Fix the code instead of hiding it from a gate.
 A deliberate policy change needs a maintainer ruling on an issue with
-`needs: decision` before changing an allowance.
+before changing an allowance.
 
 ### `architecture.dependencyDirection`
 
@@ -816,7 +852,7 @@ native types and in any documentation tag, such as `@var`, `@throws` or
 | --- | --- |
 | the exceptions (`src/Exception/`) | other exceptions |
 | the infrastructure (`src/Infrastructure/`) | the infrastructure and the exceptions |
-| a feature subsystem (any other top-level namespace, such as `src/Notice/`) | the infrastructure's interfaces, the exceptions and the subsystems |
+| a feature subsystem (any other top-level namespace, such as `src/Notice/`) | the infrastructure's interfaces (and traits that only fulfil them, and the values their methods take), the exceptions and the subsystems |
 | the composition root | everything |
 | any other class directly in the root namespace | the infrastructure's interfaces and the exceptions |
 | a view template (`views/`) | everything but the tests |
@@ -825,12 +861,23 @@ Nothing but the tests depends on the tests, not even the composition root.
 Classes from PHP or WordPress are always fine.
 
 **Allows:** a subsystem depending on another subsystem; there is no case yet to
-decide otherwise.
+decide otherwise. A subsystem class may also use a trait of the infrastructure
+whose methods all belong to infrastructure interfaces the class implements,
+such as `DefaultRegistrationPriority` for `Delayed`: the trait only fulfils a
+contract the class already depends on, and is not an object the composition
+root could bind instead. A trait that brings any other method is reported.
+In the same way, a subsystem class may name an infrastructure class that a
+method of those interfaces takes or returns, such as the `SiteContext` of
+`SiteUninstallable::uninstall_site()`: implementing the interface means
+declaring that parameter type, and the infrastructure creates the value it
+passes. Naming such a class anywhere else is still reported. This allowance
+is Content Freshness's own, until the scaffold settles it.
 
 **Configuration:** `dependencyDirection.infrastructure` names the
 infrastructure's namespace, and `dependencyDirection.compositionRoot` lists the
-classes of the composition root: `ContentFreshnessPlugin` and
-`ContentFreshnessPluginFactory`. `dependencyDirection.views` lists the
+classes of the composition root: `ContentFreshnessPlugin`,
+`ContentFreshnessPluginFactory` and the uninstall bridge
+`ContentFreshnessUninstallHook`, an edge like the main file. `dependencyDirection.views` lists the
 directories of the view templates that run in production. The exceptions' namespace comes from
 `exceptions.namespace`, the tests' from `excludedNamespaces`.
 
@@ -903,7 +950,10 @@ is a value object or throwable.
 **Configuration:** `newOnlyWhereAllowed.factories` lists the factory
 interfaces: the plugin lists `Injector` and `Instantiator`.
 `newOnlyWhereAllowed.valueObjects` lists the value objects: the plugin lists
-`LazilyInstantiatedService`, `ViewLocations`, its own `MaxAge` and `PostAge`, and PHP's `DateTimeImmutable`,
+`LazilyInstantiatedService`, `ViewLocations`, `ViewConfiguration`, its own
+`MaxAge` and `PostAge`, the
+lifecycle values in `Infrastructure\Lifecycle` (IDs, scope, contexts and
+selections), `RegistrationRecord`, `ReadOnlyRegistrationReport` and PHP's `DateTimeImmutable`,
 `DateInterval`, `ArrayIterator` and `SplObjectStorage`.
 
 **Fix:** receive the object through the constructor, typed to its interface,
@@ -975,7 +1025,9 @@ of a service that decides once where it acts.
 **Checks:** in a feature subsystem, `add_action()`, `add_filter()`,
 `remove_action()` and `remove_filter()` are only called directly in
 `register()`, `activate()` or `deactivate()` of a class implementing
-`Registerable`, `Activateable` or `Deactivateable`.
+`Registerable`, `Activateable` or `Deactivateable`, or in a method of one of
+the scoped lifecycle interfaces, such as `activate_site()` of
+`SiteActivateable`.
 
 **Allows:** the infrastructure, which orchestrates the lifecycle, and the
 composition root. A closure, even one created in `register()`, is a callback
@@ -1115,7 +1167,7 @@ with the prefix for their kind:
 | `restRoutes` | `register_rest_route` | namespace, the 1st argument | `mwpd/content-freshness` |
 | `cron` | `wp_schedule_event`; `wp_schedule_single_event`, `wp_unschedule_event`; `wp_next_scheduled`, `wp_clear_scheduled_hook` | hook: 3rd; 2nd; 1st argument, respectively | `mwpd_content_freshness_` |
 | `adminPages` | `add_menu_page`, `add_options_page`, `add_management_page`; `add_submenu_page` | menu slug: 4th; 5th argument, respectively | `mwpd-content-freshness-` |
-| `settings` | `register_setting` | option group and option name, the 1st and 2nd arguments | `mwpd_content_freshness_` |
+| `settings` | `register_setting` | option group, the 1st argument, is a read and may name a core settings page; option name, the 2nd argument, always needs the prefix | `mwpd_content_freshness_` |
 | `ajax` | `add_action` with a known `wp_ajax_` or `wp_ajax_nopriv_` action | the remainder after WordPress's action prefix | `mwpd_content_freshness_` |
 
 A name passes when PHPStan knows it starts with the prefix, or when it is built
@@ -1131,19 +1183,25 @@ length may be unknown.
 **Allows:** for calls that only read a name, such as `get_option()`,
 `wp_enqueue_script()` without a source, or firing a hook, the names WordPress
 owns that the kind lists as allowed. `wp_next_scheduled()` is also a read;
-scheduling and clearing cron events create or change the plugin's own names. The option group of
-`register_setting()` is a read too: a setting may join one of WordPress's own
-settings pages, such as `reading`, when the `settings` kind allows that group.
-Its option name always needs the prefix.
+scheduling and clearing cron events create or change the plugin's own names.
+The option group in `register_setting()` is a read: it may use the prefix or
+name a core settings page in `settings.allowed` (`general`, `writing`,
+`reading`, `discussion` and `media` by default). A field on a core page must
+join that page's option group. The option name is a write and always needs the
+prefix; `settings.allowed` does not exempt it.
 `add_filter()` and non-AJAX `add_action()` subscriptions are unchecked because
 they subscribe to names other code owns. Only `add_action()` names known to
 start with `wp_ajax_` or `wp_ajax_nopriv_` are checked, and their remainder
 must carry the AJAX prefix. A known AJAX wrapper with an unresolved remainder
-fails with the usual "cannot check" message.
+fails with the usual "cannot check" message. A name WordPress owns that the
+plugin also has to write passes, reads and writes alike, when the kind lists it
+as `managed`: a reviewed exception for state WordPress keeps on the plugin's
+behalf, such as its entry in the `uninstall_plugins` option.
 
 **Configuration:** `prefixedNames.<kind>` sets the kind's `prefix`, its
-prefix `constants` and the `allowed` names. A kind absent from configuration
-is skipped. The defaults above follow WordPress conventions: underscores for
+prefix `constants`, the `allowed` names it may read and the `managed` names it
+may also write. Each kind lists all four, `[]` for none. A kind absent from
+configuration is skipped. The defaults above follow WordPress conventions: underscores for
 stored keys, shortcodes, cron hooks, settings and AJAX actions; hyphens for
 asset handles and admin slugs; and the path-like `mwpd/content-freshness` for REST
 namespaces (for example, `mwpd/content-freshness/v1`). Post types and taxonomies
@@ -1155,7 +1213,9 @@ the scaffold renames these settings together with `HOOK_PREFIX` and
 
 **Fix:** start the name with the prefix, or build it from the prefix
 constant. Shorten overlong post type and taxonomy names, including the prefix,
-to the WordPress limit.
+to the WordPress limit. Writing a name WordPress owns needs a reviewed
+`managed` entry; add one only for state WordPress keeps for the plugin itself,
+and say why beside it.
 
 **Patterns:** [I need a name in a space WordPress shares](patterns.md#i-need-a-name-in-a-space-wordpress-shares), [I need a public API for themes or other plugins](patterns.md#i-need-a-public-api-for-themes-or-other-plugins).
 
@@ -1215,7 +1275,7 @@ silence, as checked by
 **Configuration:** none.
 
 **Fix:** fix the code. If the rule is wrong for a real case, open an issue
-that names the case; an exception the maintainer accepts becomes an
+on an issue; an exception the maintainer accepts becomes an
 allowance in the rule's configuration.
 
 An ignore counts as aimed at a rule when it names its identifier, or when its
@@ -1264,32 +1324,38 @@ through the plugin's own injector configuration:
 - building a service adds, removes or fires no hook, and registers no
   activation or deactivation hook, not even through a collaborator its
   constructor creates;
-- every declared service implementing `Registerable`, `Activateable`,
-  `Deactivateable` or `Uninstallable` can run `register()`, `activate()`,
-  `deactivate()` or `uninstall()` twice
-  without changing the recorded state on the second call. The check records
-  hook additions and removals, option and transient writes, post, user,
-  term and comment meta writes, and scheduled cron events. Failures name the
-  service, method and effect; exceptions in either call are reported as
-  problems.
+- every declared service implementing `Registerable`, `Activateable` or
+  `Deactivateable` can run `register()`, `activate()` or `deactivate()` twice
+  without changing the recorded state on the second call, and so can every
+  method of the scoped lifecycle interfaces it implements, such as
+  `activate_site()` or `uninstall_network()`, called with the context of site
+  1 on network 1. The check records
+  hook additions and removals, cron events, option and transient writes, and
+  post, user, term and comment meta writes. Failures name the service, method
+  and effect; exceptions in either call are reported as problems.
 
 **Allows:** the tests stub the WordPress functions the wiring calls, such as
-`get_post()`, and use stand-ins for WordPress classes such as `WP_Post`. They
-never add a binding the composition root does not have. WordPress writes are
+`get_stylesheet_directory()`, and use stand-ins for WordPress classes such as
+`WP_Post`. They never add a binding the composition root does not have. WordPress writes are
 modelled in memory: adding an existing option or unique meta row is a no-op,
-setting a value replaces it, and non-unique meta additions append. Cron events
-are keyed by timestamp, hook and arguments, as in WordPress: scheduling the
-same event again replaces it, scheduling at another time adds one, and
-`wp_next_scheduled()` and `wp_clear_scheduled_hook()` match the arguments, so
-a guarded step passes. Hooks are
+setting a value replaces it, and non-unique meta additions append. Hooks are
 keyed by hook name, priority and callback identity, as in WordPress. Re-adding
 the same callback at the same priority replaces the entry; a fresh closure,
 a different object or method, or a different priority adds an entry. Removing
 an existing entry changes state; removing a missing entry leaves it unchanged.
 Actions and filters share hook entries, and fired hooks retain their call
-history. This does not check the plugin's own
-`register_services()` orchestration ([mwpd/basic-scaffold#26](https://github.com/mwpd/basic-scaffold/issues/26)), which services activation and
-deactivation reach (`tests/php/Unit/ServiceBasedPluginTest.php` covers that),
+history. Cron events are keyed by hook, timestamp and `md5( serialize( $args ) )`,
+with recurrence stored per event. Scheduling the same event replaces it;
+a different timestamp or argument array adds one. `wp_next_scheduled()` returns the
+earliest timestamp matching the hook and arguments, or `false`.
+`wp_clear_scheduled_hook()` removes events matching the hook and arguments
+and returns the number removed; `wp_unschedule_event()` also matches the
+timestamp and returns `true` even when nothing matched. Single events use the
+same model without the ten-minute duplicate window. This does not check the
+plugin's own `register_services()` orchestration ([mwpd/basic-scaffold#26](https://github.com/mwpd/basic-scaffold/issues/26)), which services activation,
+deactivation and uninstall reach and in which sites
+(`tests/php/Unit/ServiceBasedPluginTest.php`, `tests/php/Unit/ScopedLifecycleTest.php`
+and `tests/php/Unit/UninstallLifecycleTest.php` cover that),
 or database and filesystem effects Brain Monkey cannot see. Dependency graph
 checks skip missing or invalid declarations already reported by the contract.
 Ordering checks silently skip an edge if either action is outside the known
@@ -1315,7 +1381,7 @@ Keep constructors to storing dependencies. Guard
 each lifecycle step so a second run does nothing, or make it set rather than
 add.
 
-**Patterns:** [I need to add a feature](patterns.md#i-need-to-add-a-feature), [I need to set something up when the plugin is activated](patterns.md#i-need-to-set-something-up-when-the-plugin-is-activated), [I need to clean up when the plugin is deleted](patterns.md#i-need-to-clean-up-when-the-plugin-is-deleted).
+**Patterns:** [I need to add a feature](patterns.md#i-need-to-add-a-feature), [I need to set something up when the plugin is activated](patterns.md#i-need-to-set-something-up-when-the-plugin-is-activated), [I need to clean up when the plugin is uninstalled](patterns.md#i-need-to-clean-up-when-the-plugin-is-uninstalled).
 
 ### `architecture.capabilitiesOnServices`
 
@@ -1323,8 +1389,11 @@ add.
 and the capability interfaces of [the core idea](design-principles.md#how-services-map-to-it).
 
 **Checks:** a class implementing `Registerable`, `Conditional`, `Delayed`,
-`HasDependencies`, `Activateable`, `Deactivateable` or `Uninstallable` also
-implements `Service`.
+`HasDependencies`, `Activateable`, `Deactivateable`, `ObservesRegistration` or
+one of the eight scoped lifecycle interfaces (`SiteActivateable`,
+`NetworkActivateable`, `SiteDeactivateable`, `NetworkDeactivateable`,
+`SiteInitializable`, `SiteUninitializable`, `SiteUninstallable`,
+`NetworkUninstallable`) also implements `Service`.
 A `Delayed` class also implements `Registerable`: waiting for an action only
 makes sense when the service has hooks to register. Inherited interfaces count,
 including on abstract classes.
@@ -1345,6 +1414,8 @@ exclusions come from `dependencyDirection.infrastructure` and
 `Delayed` class, implement `Registerable` and add its hooks in `register()`.
 Declare the service in the composition root as shown in
 [I need to add a feature](patterns.md#i-need-to-add-a-feature).
+
+**Patterns:** [I need to add a feature](patterns.md#i-need-to-add-a-feature), [I need to see why a service did not run](patterns.md#i-need-to-see-why-a-service-did-not-run).
 
 ### `architecture.servicesDeclared`
 
