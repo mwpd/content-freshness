@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Feature;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Task;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Hooks;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Later;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Task;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Hooks;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities\RenamedPlugin\Lifecycle\Later;
 
 final class MissingHooks implements Task, Later {}

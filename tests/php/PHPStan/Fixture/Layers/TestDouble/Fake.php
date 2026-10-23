@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\TestDouble;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\TestDouble;
 
 final class Fake {
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,11 +11,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Exception\InvalidPath;
-use MWPD\BasicScaffold\Infrastructure\View\ViewLocations;
-use MWPD\BasicScaffold\Tests\ViewHelper;
+use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\View\ViewLocations;
+use MWPD\ContentFreshness\Tests\ViewHelper;
 
 final class ViewLocationsTest extends TestCase {
 

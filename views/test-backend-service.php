@@ -1,6 +1,6 @@
 <?php
 
-use MWPD\BasicScaffold\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\View;
 
 /** @var View $this */
 /** @var string $raw_plugin */

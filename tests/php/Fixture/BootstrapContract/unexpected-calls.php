@@ -2,7 +2,7 @@
 /**
  * Hook operations that the bootstrap must defer, even if they undo each other.
  *
- * @package MWPD\BasicScaffold\Tests
+ * @package MWPD\ContentFreshness\Tests
  */
 
 declare( strict_types=1 );

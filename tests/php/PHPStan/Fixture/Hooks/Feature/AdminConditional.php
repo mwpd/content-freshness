@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Feature;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Infrastructure\Conditional;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Infrastructure\Conditional;
 
 final class AdminConditional implements Conditional {
 

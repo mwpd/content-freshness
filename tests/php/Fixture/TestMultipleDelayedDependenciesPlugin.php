@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestDelayedService1;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestDelayedService2;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestMultiDependentService;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestDelayedService1;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestDelayedService2;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestMultiDependentService;
 
 class TestMultipleDelayedDependenciesPlugin extends ServiceBasedPlugin {
 	protected function get_service_classes(): array {

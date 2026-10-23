@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoServiceLocator;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoServiceLocator;
 
 final class Plugin {
-	public function configure( \MWPD\BasicScaffold\Infrastructure\ServiceContainer $container, \MWPD\BasicScaffold\Infrastructure\Injector $injector ): void {
+	public function configure( \MWPD\ContentFreshness\Infrastructure\ServiceContainer $container, \MWPD\ContentFreshness\Infrastructure\Injector $injector ): void {
 		$injector->bind( self::class, self::class );
 	}
 }

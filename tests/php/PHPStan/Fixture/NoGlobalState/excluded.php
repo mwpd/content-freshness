@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoGlobalState\Excluded;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoGlobalState\Excluded;
 
 global $wpdb;
 $value = [ $GLOBALS, $_GET ];

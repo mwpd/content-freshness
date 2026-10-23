@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
@@ -24,7 +24,7 @@ final class NewOnlyWhereAllowedRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Creation/';
 
-	private const CREATION = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Creation';
+	private const CREATION = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Creation';
 
 	private const TIP = 'Principle 5: One composition root builds the object graph, see '
 		. 'docs/design-principles.md#5-one-composition-root-builds-the-object-graph. '

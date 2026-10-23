@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Feature\Service;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Feature\Service;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete;
 
 final class Plugin {
 

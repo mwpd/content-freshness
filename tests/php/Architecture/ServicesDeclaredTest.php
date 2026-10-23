@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,11 +11,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Brain\Monkey;
 use Composer\Autoload\ClassLoader;
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -47,7 +47,7 @@ final class ServicesDeclaredTest extends TestCase {
 		$this->repository->write(
 			'src/Plugin.php',
 			'<?php declare( strict_types=1 ); namespace NAMESPACE; '
-			. 'final class Plugin extends \\MWPD\\BasicScaffold\\Infrastructure\\ServiceBasedPlugin {'
+			. 'final class Plugin extends \\MWPD\\ContentFreshness\\Infrastructure\\ServiceBasedPlugin {'
 			. 'protected function get_service_classes(): array { return ['
 			. '"direct" => Feature\\Declared::class,'
 			. '"callable" => static function (): string { return Feature\\FromCallback::class; }'
@@ -143,7 +143,7 @@ final class ServicesDeclaredTest extends TestCase {
 			'src/' . $path . '.php',
 			'<?php declare( strict_types=1 ); namespace NAMESPACE' . $namespace . '; '
 			. $declaration . ( $is_class ? ' implements' : '' )
-			. ' \\MWPD\\BasicScaffold\\Infrastructure\\Service {}'
+			. ' \\MWPD\\ContentFreshness\\Infrastructure\\Service {}'
 		);
 	}
 

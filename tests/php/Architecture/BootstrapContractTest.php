@@ -1,13 +1,13 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package MWPD\BasicScaffold
+ * @package MWPD\ContentFreshness
  */
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Brain\Monkey;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;

@@ -2,13 +2,13 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
 
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 final class CallService implements Service {
 
 	public function __construct() {
-		$this->option = get_option( 'mwpd_basic_scaffold_option' );
+		$this->option = get_option( 'mwpd_content_freshness_option' );
 	}
 }

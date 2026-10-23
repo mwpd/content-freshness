@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 
 final class CyclicDependencyPlugin extends ServiceBasedPlugin {
 

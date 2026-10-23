@@ -1,34 +1,34 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
- * @link      https://www.mwpd.io/
- * @copyright 2019 Alain Schlesser
+ * @link      https://github.com/mwpd/content-freshness
+ * @copyright 2026 Alain Schlesser
  *
  * ------------------------------------------------------------------------------
  * -- 1. Provide the plugin meta information that WordPress needs.             --
  * ------------------------------------------------------------------------------
  *
  * @wordpress-plugin
- * Plugin Name:  MWPD Basic Plugin Scaffold
- * Plugin URI:   https://www.mwpd.io/
- * Description:  Basic plugin scaffold for the "Modern WordPress Plugin Development" book
- * Version:      0.1.0
- * Requires PHP: 7.4
- * Author:       Alain Schlesser <alain.schlesser@gmail.com>
- * Author URI:   https://www.alainschlesser.com/
- * Text Domain:  mwpd-basic
- * Domain Path:  /languages
- * License:      MIT
- * License URI:  https://opensource.org/licenses/MIT
+ * Plugin Name:       Content Freshness
+ * Plugin URI:        https://github.com/mwpd/content-freshness
+ * Description:       Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest.
+ * Version:           1.0.0
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
+ * Author:            Alain Schlesser
+ * Author URI:        https://www.alainschlesser.com/
+ * Text Domain:       content-freshness
+ * License:           MIT
+ * License URI:       https://opensource.org/licenses/MIT
  */
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold;
+namespace MWPD\ContentFreshness;
 
 /*
  * This is the plugin's bootstrap file. It serves three main purposes:
@@ -119,14 +119,14 @@ if ( ! class_exists( __NAMESPACE__ . '\\PluginFactory' ) ) {
 \register_activation_hook(
 	__FILE__,
 	static function () {
-		BasicScaffoldPluginFactory::create()->activate();
+		ContentFreshnessPluginFactory::create()->activate();
 	}
 );
 
 \register_deactivation_hook(
 	__FILE__,
 	static function () {
-		BasicScaffoldPluginFactory::create()->deactivate();
+		ContentFreshnessPluginFactory::create()->deactivate();
 	}
 );
 
@@ -134,4 +134,4 @@ if ( ! class_exists( __NAMESPACE__ . '\\PluginFactory' ) ) {
  * Finally, we run the plugin's register method to Hook the plugin into the
  * WordPress request lifecycle.
  */
-BasicScaffoldPluginFactory::create()->register();
+ContentFreshnessPluginFactory::create()->register();

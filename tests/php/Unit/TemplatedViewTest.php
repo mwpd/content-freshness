@@ -1,12 +1,12 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Exception\InvalidPath;
-use MWPD\BasicScaffold\Infrastructure\View\TemplatedView;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
-use MWPD\BasicScaffold\Tests\ViewHelper;
+use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\View\TemplatedView;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Tests\ViewHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 
 final class TemplatedViewTest extends TestCase {

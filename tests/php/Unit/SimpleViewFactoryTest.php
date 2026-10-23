@@ -1,10 +1,10 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Infrastructure\View\SimpleViewFactory;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Infrastructure\View\SimpleViewFactory;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 
 final class SimpleViewFactoryTest extends TestCase {
 

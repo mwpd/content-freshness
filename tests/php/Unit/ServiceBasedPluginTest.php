@@ -2,58 +2,58 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
-use MWPD\BasicScaffold\Exception\FailedToMakeInstance;
-use MWPD\BasicScaffold\Exception\FailedToResolveDependencies;
-use MWPD\BasicScaffold\Exception\InvalidConfiguration;
-use MWPD\BasicScaffold\Exception\InvalidService;
-use MWPD\BasicScaffold\Infrastructure\Injector;
-use MWPD\BasicScaffold\Infrastructure\Injector\SimpleInjector;
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer\SimpleServiceContainer;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClass;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClassWithCallback;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClassWithDependency;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClassWithFunctionNamedArguments;
-use MWPD\BasicScaffold\Tests\Fixture\DummyInterface;
-use MWPD\BasicScaffold\Tests\Fixture\ImmutableInjector;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\DelayedLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\DependentLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\LazyLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\LifecycleRecorder;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\NeededLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\RewriteLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\UnneededDelayedLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Lifecycle\UnneededLifecycleService;
-use MWPD\BasicScaffold\Tests\Fixture\Resolver;
-use MWPD\BasicScaffold\Tests\Fixture\TestInjectorConfigurationPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\TestServiceBasedPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\TestServicesPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestDelayedDependentService;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestDelayedService;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceA;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceB;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceC;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceNeedingB;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceNeedingInjector;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceNeedingUnneeded;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestUnneededDelayedService;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestUnneededService;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestUnneededServiceNeedingUnneeded;
-use MWPD\BasicScaffold\Tests\Fixture\TestCircularDependencyPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\TestDependencyCheckingPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\TestMissingDependencyPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\TestMultipleDelayedDependenciesPlugin;
+use MWPD\ContentFreshness\Exception\FailedToMakeInstance;
+use MWPD\ContentFreshness\Exception\FailedToResolveDependencies;
+use MWPD\ContentFreshness\Exception\InvalidConfiguration;
+use MWPD\ContentFreshness\Exception\InvalidService;
+use MWPD\ContentFreshness\Infrastructure\Injector;
+use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer\SimpleServiceContainer;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClass;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClassWithCallback;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClassWithDependency;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClassWithFunctionNamedArguments;
+use MWPD\ContentFreshness\Tests\Fixture\DummyInterface;
+use MWPD\ContentFreshness\Tests\Fixture\ImmutableInjector;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\DelayedLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\DependentLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\LazyLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\LifecycleRecorder;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\NeededLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\RewriteLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\UnneededDelayedLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Lifecycle\UnneededLifecycleService;
+use MWPD\ContentFreshness\Tests\Fixture\Resolver;
+use MWPD\ContentFreshness\Tests\Fixture\TestInjectorConfigurationPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\TestServiceBasedPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\TestServicesPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestDelayedDependentService;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestDelayedService;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceA;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceB;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceC;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceNeedingB;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceNeedingInjector;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceNeedingUnneeded;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestUnneededDelayedService;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestUnneededService;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestUnneededServiceNeedingUnneeded;
+use MWPD\ContentFreshness\Tests\Fixture\TestCircularDependencyPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\TestDependencyCheckingPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\TestMissingDependencyPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\TestMultipleDelayedDependenciesPlugin;
 
 /**
  * Test the service-based plugin infrastructure.
  *
- * @covers \MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin
+ * @covers \MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin
  */
 class ServiceBasedPluginTest extends TestCase {
 
@@ -433,9 +433,9 @@ class ServiceBasedPluginTest extends TestCase {
 	 */
 	public static function data_function_names(): array {
 		return [
-			'global function'   => [ 'mwpd_basic_scaffold_test_resolver', 'mwpd_basic_scaffold_test_resolver' ],
-			'leading backslash' => [ 'mwpd_basic_scaffold_test_resolver', '\\mwpd_basic_scaffold_test_resolver' ],
-			'other case'        => [ 'mwpd_basic_scaffold_test_resolver', 'MWPD_Basic_Scaffold_Test_Resolver' ],
+			'global function'   => [ 'mwpd_content_freshness_test_resolver', 'mwpd_content_freshness_test_resolver' ],
+			'leading backslash' => [ 'mwpd_content_freshness_test_resolver', '\\mwpd_content_freshness_test_resolver' ],
+			'other case'        => [ 'mwpd_content_freshness_test_resolver', 'MWPD_Content_Freshness_Test_Resolver' ],
 			'namespaced'        => [ __NAMESPACE__ . '\\test_resolver', __NAMESPACE__ . '\\test_resolver' ],
 		];
 	}
@@ -523,7 +523,7 @@ class ServiceBasedPluginTest extends TestCase {
 	public function test_a_delegation_factory_is_passed_as_is(): void {
 		$made = new DummyClassWithDependency( new DummyClass() );
 
-		Functions\expect( 'mwpd_basic_scaffold_test_factory' )
+		Functions\expect( 'mwpd_content_freshness_test_factory' )
 			->once()
 			->with( DummyInterface::class )
 			->andReturn( $made );
@@ -535,7 +535,7 @@ class ServiceBasedPluginTest extends TestCase {
 		 */
 		$factories = [
 			static fn(): DummyClassWithDependency => $made,
-			'mwpd_basic_scaffold_test_factory',
+			'mwpd_content_freshness_test_factory',
 		];
 
 		foreach ( $factories as $factory ) {

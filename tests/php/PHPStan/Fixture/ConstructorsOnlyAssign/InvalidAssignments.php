@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
 
-use MWPD\BasicScaffold\Infrastructure\Service;
-use MWPD\BasicScaffold\Infrastructure\Service\WordPressDebugMode;
+use MWPD\ContentFreshness\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Service\WordPressDebugMode;
 
 final class InvalidAssignments implements Service {
 

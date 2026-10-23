@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 
 /**
  * A plugin that configures its injector with whatever a test hands it, and

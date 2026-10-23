@@ -2,7 +2,7 @@
 /**
  * Exactly the three entry hooks; executing any callback would fail the check.
  *
- * @package MWPD\BasicScaffold\Tests
+ * @package MWPD\ContentFreshness\Tests
  */
 
 declare( strict_types=1 );

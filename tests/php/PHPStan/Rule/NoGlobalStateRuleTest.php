@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,10 +23,10 @@ final class NoGlobalStateRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/NoGlobalState/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoGlobalState';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoGlobalState';
 
 	private const FIX = ' Receive the value through the constructor; for collaborators such as $wpdb or WP_Query,'
-		. ' configure a delegation in the composition root, as for WP_Post in src/BasicScaffoldPlugin.php.'
+		. ' configure a delegation in the composition root, as for WP_Post in src/ContentFreshnessPlugin.php.'
 		. ' Read request input only in a class listed in parameters.architecture.noGlobalState.inputAdapters'
 		. ' that sanitizes and normalizes it into an internal type.';
 

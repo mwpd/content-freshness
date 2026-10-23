@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 final class EmptyDelayedService implements Service, Delayed {
 

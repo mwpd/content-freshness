@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<ruleset name="MWPD Basic Scaffold">
-    <description>Custom coding standards for MWPD Basic Scaffold</description>
+<ruleset name="Content Freshness">
+    <description>Custom coding standards for Content Freshness</description>
 
     <!-- What to scan -->
-    <file>basic-scaffold.php</file>
+    <file>content-freshness.php</file>
     <file>src</file>
     <file>tests</file>
     <file>views</file>
@@ -105,7 +105,7 @@
     <rule ref="WordPress.Security.EscapeOutput">
         <properties>
             <property name="customAutoEscapedFunctions" type="array">
-                <element value="MWPD\BasicScaffold\View::render"/>
+                <element value="MWPD\ContentFreshness\View::render"/>
             </property>
         </properties>
     </rule>

@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
 
-/** @property \MWPD\BasicScaffold\Infrastructure\ServiceContainer $container */
+/** @property \MWPD\ContentFreshness\Infrastructure\ServiceContainer $container */
 final class Documented {}

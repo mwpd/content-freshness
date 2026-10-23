@@ -4,7 +4,7 @@ Rules for any coding agent working in this repository.
 
 ## What this is
 
-`mwpd/basic-scaffold` is a template for WordPress plugins, the companion code
+`mwpd/content-freshness` is a template for WordPress plugins, the companion code
 to the *Modern WordPress Plugin Development* book. People generate a plugin
 from it and replace the sample code with their own. So the scaffold's
 infrastructure is effectively a public API, and its sample code is teaching
@@ -12,8 +12,8 @@ material.
 
 | Path | What it is |
 | --- | --- |
-| `basic-scaffold.php` | Bootstrap: plugin header, autoloading, kicks off the composition root. |
-| `src/BasicScaffoldPlugin.php` | Composition root: services, injector bindings, prefixes. |
+| `content-freshness.php` | Bootstrap: plugin header, autoloading, kicks off the composition root. |
+| `src/ContentFreshnessPlugin.php` | Composition root: services, injector bindings, prefixes. |
 | `src/Infrastructure/` | What generated plugins build on: service container, injector, views, autoloader. |
 | `src/Exception/` | The scaffold's exception types. |
 | `src/SampleSubsystem/`, `views/` | Example services and templates that a generated plugin replaces. |
@@ -97,7 +97,7 @@ ruling on its issue before code.
 
 ## Hard rules
 
-- **`basic-scaffold.php` is the only file with side effects.** Everything under
+- **`content-freshness.php` is the only file with side effects.** Everything under
   `src/` is autoloadable declarations: no code that runs on include.
 - **PHP 7.4 is the floor.** No syntax or functions newer than 7.4 in `src/`,
   `tests/` or `views/`. `phpcs` enforces it through PHPCompatibility.

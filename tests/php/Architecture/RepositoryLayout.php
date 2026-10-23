@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,9 +11,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginNamespace;
+use MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginNamespace;
 use Nette\Neon\Neon;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -33,7 +33,7 @@ final class RepositoryLayout {
 	/**
 	 * The composition root, the class that wires the plugin together.
 	 */
-	public const COMPOSITION_ROOT = 'MWPD\\BasicScaffold\\BasicScaffoldPlugin';
+	public const COMPOSITION_ROOT = 'MWPD\\ContentFreshness\\ContentFreshnessPlugin';
 
 	/**
 	 * Subsystem services built outside get_service_classes(), keyed by class
@@ -79,7 +79,7 @@ final class RepositoryLayout {
 	/**
 	 * The plugin's main file, the only one with side effects.
 	 */
-	public const BOOTSTRAP = 'basic-scaffold.php';
+	public const BOOTSTRAP = 'content-freshness.php';
 
 	/**
 	 * Directories with the classes that run in production.

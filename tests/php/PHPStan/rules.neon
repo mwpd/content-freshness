@@ -87,14 +87,14 @@ parametersSchema:
 
 services:
     architecturePluginNamespace:
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginNamespace
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginNamespace
         arguments:
             root: %architecture.namespace%
             excluded: %architecture.excludedNamespaces%
         autowired: false
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CapabilitiesOnServicesRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\CapabilitiesOnServicesRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             service: %architecture.capabilitiesOnServices.service%
@@ -107,7 +107,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\FinalByDefaultRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\FinalByDefaultRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             base_classes: %architecture.finalByDefault.baseClasses%
@@ -115,7 +115,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NamesWithoutTypeKindRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NamesWithoutTypeKindRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             marker: %architecture.exceptions.marker%
@@ -124,7 +124,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoStaticStateRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoStaticStateRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             allowed: %architecture.noStaticState.allowed%
@@ -132,7 +132,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginFactoryOnlyAtEdgesRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginFactoryOnlyAtEdgesRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             views: %architecture.dependencyDirection.views%
@@ -142,7 +142,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoGlobalStateRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoGlobalStateRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             views: %architecture.dependencyDirection.views%
@@ -151,7 +151,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoErrorReportingFunctionsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoErrorReportingFunctionsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             reflection: @PHPStan\Reflection\ReflectionProvider
@@ -159,7 +159,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoFalseOnFailureRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoFalseOnFailureRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             file_type_mapper: @PHPStan\Type\FileTypeMapper
@@ -168,7 +168,7 @@ services:
             - phpstan.rules.rule
 
     architectureWordPressErrorTransport:
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\WordPressErrorTransport
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\WordPressErrorTransport
         arguments:
             plugin_namespace: @architecturePluginNamespace
             boundary_adapters: %architecture.noWordPressErrorMechanisms.boundaryAdapters%
@@ -176,49 +176,49 @@ services:
         autowired: false
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorCreationRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorCreationRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInMethodsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorInMethodsRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInFunctionsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorInFunctionsRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInPropertiesRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorInPropertiesRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInClosuresRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorInClosuresRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoWordPressErrorInArrowFunctionsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoWordPressErrorInArrowFunctionsRule
         arguments:
             transport: @architectureWordPressErrorTransport
         tags:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ThrowOnlyPluginExceptionsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\ThrowOnlyPluginExceptionsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             marker: %architecture.exceptions.marker%
@@ -227,7 +227,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CreateOnlyPluginExceptionsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\CreateOnlyPluginExceptionsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             marker: %architecture.exceptions.marker%
@@ -236,7 +236,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionShapeRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\ExceptionShapeRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             marker: %architecture.exceptions.marker%
@@ -246,7 +246,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionsThroughNamedConstructorsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\ExceptionsThroughNamedConstructorsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             marker: %architecture.exceptions.marker%
@@ -254,7 +254,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ExceptionsKeepCauseRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\ExceptionsKeepCauseRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             empty_catches: %architecture.exceptionsKeepCause.emptyCatches%
@@ -262,7 +262,7 @@ services:
             - phpstan.rules.rule
 
     architectureDependencyContext:
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DependencyContext
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\DependencyContext
         arguments:
             root_namespace: %architecture.namespace%
             test_namespaces: %architecture.excludedNamespaces%
@@ -275,7 +275,7 @@ services:
         autowired: false
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DependencyDirectionRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\DependencyDirectionRule
         arguments:
             context: @architectureDependencyContext
             reflection: @PHPStan\Reflection\ReflectionProvider
@@ -283,7 +283,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoServiceLocatorRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoServiceLocatorRule
         arguments:
             context: @architectureDependencyContext
             container: %architecture.noServiceLocator.container%
@@ -293,7 +293,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\RawIsEscapedRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\RawIsEscapedRule
         arguments:
             views: %architecture.dependencyDirection.views%
             escaping_functions: %architecture.rawIsEscaped.escapingFunctions%
@@ -301,7 +301,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\OutputOnlyThroughViewsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\OutputOnlyThroughViewsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             infrastructure: %architecture.dependencyDirection.infrastructure%
@@ -312,7 +312,7 @@ services:
             - phpstan.rules.rule
 
     architectureCreationAllowances:
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\CreationAllowances
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\CreationAllowances
         arguments:
             factories: %architecture.newOnlyWhereAllowed.factories%
             value_objects: %architecture.newOnlyWhereAllowed.valueObjects%
@@ -320,7 +320,7 @@ services:
         autowired: false
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NewOnlyWhereAllowedRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NewOnlyWhereAllowedRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             allowances: @architectureCreationAllowances
@@ -329,7 +329,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\DynamicCreationRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\DynamicCreationRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             allowances: @architectureCreationAllowances
@@ -337,7 +337,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\ConstructorsOnlyAssignRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\ConstructorsOnlyAssignRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             infrastructure: %architecture.dependencyDirection.infrastructure%
@@ -347,7 +347,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoHooksInConstructorRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoHooksInConstructorRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             reflection: @PHPStan\Reflection\ReflectionProvider
@@ -355,7 +355,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\HooksInLifecycleMethodsRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\HooksInLifecycleMethodsRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             infrastructure: %architecture.dependencyDirection.infrastructure%
@@ -367,7 +367,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\NoContextChecksInRegisterRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\NoContextChecksInRegisterRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             context_functions: %architecture.hooks.contextFunctions%
@@ -377,7 +377,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\QueryContextNeedsDelayRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\QueryContextNeedsDelayRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             infrastructure: %architecture.dependencyDirection.infrastructure%
@@ -387,7 +387,7 @@ services:
             - phpstan.rules.rule
 
     -
-        class: MWPD\BasicScaffold\Tests\PHPStan\Rule\PrefixedNamesRule
+        class: MWPD\ContentFreshness\Tests\PHPStan\Rule\PrefixedNamesRule
         arguments:
             plugin_namespace: @architecturePluginNamespace
             kinds: %architecture.prefixedNames%

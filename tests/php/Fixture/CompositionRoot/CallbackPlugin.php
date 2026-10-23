@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 
 /**
  * A composition root whose callable declarations build objects themselves,

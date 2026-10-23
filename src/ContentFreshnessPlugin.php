@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,12 +11,12 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold;
+namespace MWPD\ContentFreshness;
 
-use MWPD\BasicScaffold\Exception\FailedToFindPost;
-use MWPD\BasicScaffold\SampleSubsystem\SampleBackendService;
-use MWPD\BasicScaffold\SampleSubsystem\SampleLoopService;
-use MWPD\BasicScaffold\Infrastructure\{
+use MWPD\ContentFreshness\Exception\FailedToFindPost;
+use MWPD\ContentFreshness\SampleSubsystem\SampleBackendService;
+use MWPD\ContentFreshness\SampleSubsystem\SampleLoopService;
+use MWPD\ContentFreshness\Infrastructure\{
 	ServiceBasedPlugin,
 	View\TemplatedViewFactory,
 	ViewFactory
@@ -24,7 +24,7 @@ use MWPD\BasicScaffold\Infrastructure\{
 use WP_Post;
 
 /**
- * The BasicScaffoldPlugin class is the composition root of the plugin.
+ * The ContentFreshnessPlugin class is the composition root of the plugin.
  *
  * In here we assemble our infrastructure, configure it for the specific use
  * case the plugin is meant to solve and then kick off the services so that they
@@ -43,7 +43,7 @@ use WP_Post;
  * delegation factories are handed to the injector as they are, so a
  * callable there is passed on rather than called here.
  */
-final class BasicScaffoldPlugin extends ServiceBasedPlugin {
+final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	/*
 	 * --------------------------------------------------------------------------
 	 * -- 1. Define the services that make up this plugin.                     --
@@ -217,9 +217,9 @@ final class BasicScaffoldPlugin extends ServiceBasedPlugin {
 	 * These are provided so that if multiple plugins use the same boilerplate
 	 * code, there hooks and service identifiers are scoped and don't clash.
 	 */
-	protected const HOOK_PREFIX = 'mwpd.basic_scaffold.';
+	protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
-	protected const SERVICE_PREFIX = 'mwpd.basic_scaffold.';
+	protected const SERVICE_PREFIX = 'mwpd.content_freshness.';
 
 	/*
 	 * Service identifiers we know about.

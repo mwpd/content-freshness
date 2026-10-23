@@ -1,24 +1,24 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Tests\Fixture\DummyClass;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClassWithDependency;
-use MWPD\BasicScaffold\Tests\Fixture\DummyInterface;
-use MWPD\BasicScaffold\Tests\Fixture\DummyClassWithNamedArguments;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\BindingCycleFrom;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\BindingCycleTo;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\CycleEnd;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\CycleStart;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\DiamondTop;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\SharedLeaf;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\TwoOfTheSameBoundDependency;
-use MWPD\BasicScaffold\Tests\Fixture\Injector\TwoOfTheSameDependency;
-use MWPD\BasicScaffold\Exception\FailedToMakeInstance;
-use MWPD\BasicScaffold\Infrastructure\Injector;
-use MWPD\BasicScaffold\Infrastructure\Injector\SimpleInjector;
-use MWPD\BasicScaffold\Infrastructure\Instantiator;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClass;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClassWithDependency;
+use MWPD\ContentFreshness\Tests\Fixture\DummyInterface;
+use MWPD\ContentFreshness\Tests\Fixture\DummyClassWithNamedArguments;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\BindingCycleFrom;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\BindingCycleTo;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\CycleEnd;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\CycleStart;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\DiamondTop;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\SharedLeaf;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\TwoOfTheSameBoundDependency;
+use MWPD\ContentFreshness\Tests\Fixture\Injector\TwoOfTheSameDependency;
+use MWPD\ContentFreshness\Exception\FailedToMakeInstance;
+use MWPD\ContentFreshness\Infrastructure\Injector;
+use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
+use MWPD\ContentFreshness\Infrastructure\Instantiator;
 use stdClass;
 use PHPUnit\Framework\MockObject\MockObject;
 final class SimpleInjectorTest extends TestCase {
@@ -513,15 +513,15 @@ final class SimpleInjectorTest extends TestCase {
 	 * @return class-string Fully qualified name of the fixture class.
 	 */
 	private function declare_fixture( string $name, string $parameter ): string {
-		$namespace = 'MWPD\BasicScaffold\Tests\Fixture\Injector';
+		$namespace = 'MWPD\ContentFreshness\Tests\Fixture\Injector';
 		$class     = $namespace . '\\' . $name;
 
 		if ( ! \class_exists( $class, false ) ) {
 			// phpcs:ignore Squiz.PHP.Eval.Discouraged -- The code is a fixed string from this test, see above.
 			eval(
 				"namespace {$namespace};
-				use MWPD\BasicScaffold\Tests\Fixture\DummyClass;
-				use MWPD\BasicScaffold\Tests\Fixture\DummyInterface;
+				use MWPD\ContentFreshness\Tests\Fixture\DummyClass;
+				use MWPD\ContentFreshness\Tests\Fixture\DummyInterface;
 				final class {$name} {
 					public \$dependency;
 					public function __construct( {$parameter} ) {

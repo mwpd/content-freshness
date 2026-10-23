@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestCircularA;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestCircularB;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestCircularA;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestCircularB;
 
 class TestCircularDependencyPlugin extends ServiceBasedPlugin {
 	protected function get_service_classes(): array {

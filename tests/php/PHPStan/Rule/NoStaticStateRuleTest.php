@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class NoStaticStateRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/NoStaticState/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoStaticState';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoStaticState';
 
 	private const FIX = ' Keep the value on an instance and share that instance through the injector with share();'
 		. ' only the methods in parameters.architecture.noStaticState.allowed may hold static state.';

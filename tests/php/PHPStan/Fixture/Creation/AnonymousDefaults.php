@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Creation;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Creation;
 
 use RuntimeException;
 

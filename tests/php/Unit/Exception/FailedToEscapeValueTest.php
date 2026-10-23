@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Unit\Exception;
+namespace MWPD\ContentFreshness\Tests\Unit\Exception;
 
-use MWPD\BasicScaffold\Exception\FailedToEscapeValue;
+use MWPD\ContentFreshness\Exception\FailedToEscapeValue;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

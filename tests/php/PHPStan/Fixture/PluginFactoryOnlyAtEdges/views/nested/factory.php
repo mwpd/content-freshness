@@ -1,3 +1,3 @@
 <?php
 
-\MWPD\BasicScaffold\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges\PluginFactory::create();
+\MWPD\ContentFreshness\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges\PluginFactory::create();

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use LogicException;
 
@@ -21,7 +21,7 @@ use LogicException;
  * This is a programming error in the injector rather than a failure while
  * running, so it extends LogicException.
  */
-final class InvalidInjectionChain extends LogicException implements BasicScaffoldException {
+final class InvalidInjectionChain extends LogicException implements ContentFreshnessException {
 
 	/**
 	 * Create a new instance of the exception for reading the last class of an

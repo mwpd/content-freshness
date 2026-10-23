@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
 /**
  * A class that takes a callable argument, to check that a callable argument

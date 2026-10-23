@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,15 +11,15 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Infrastructure;
+namespace MWPD\ContentFreshness\Infrastructure;
 
-use MWPD\BasicScaffold\Infrastructure\Injector\SimpleInjector;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer\SimpleServiceContainer;
-use MWPD\BasicScaffold\Exception\FailedToResolveDependencies;
-use MWPD\BasicScaffold\Exception\InvalidArgument;
-use MWPD\BasicScaffold\Exception\InvalidConfiguration;
-use MWPD\BasicScaffold\Exception\InvalidService;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer\LazilyInstantiatedService;
+use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer\SimpleServiceContainer;
+use MWPD\ContentFreshness\Exception\FailedToResolveDependencies;
+use MWPD\ContentFreshness\Exception\InvalidArgument;
+use MWPD\ContentFreshness\Exception\InvalidConfiguration;
+use MWPD\ContentFreshness\Exception\InvalidService;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer\LazilyInstantiatedService;
 
 /**
  * This abstract base plugin provides all the boilerplate code for working with

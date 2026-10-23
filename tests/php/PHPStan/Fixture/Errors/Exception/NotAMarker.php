@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors\Exception;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors\Exception;
 
 interface NotAMarker {
 }

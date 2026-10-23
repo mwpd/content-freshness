@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,31 +11,31 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\BrokenPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\BrokenLifecyclePlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\IdempotentLifecyclePlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\CallbackPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\GoodService;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\IncompatibleBindingPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\BoundToSomethingElse;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\NotAService;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\CyclicDependencyPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\MisorderedDependencyPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\ValidDependencyGraphPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\UnknownActionDependencyPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\SelfDependentPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\InvalidDependencyGraphPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\DependsOnB;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\OverlappingCyclesPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\TypoActionService;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\TypoActionPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\PrefixedActionPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\AdminMenuPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\EmptyHookPrefixPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\BrokenPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\BrokenLifecyclePlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\IdempotentLifecyclePlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\CallbackPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\GoodService;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\IncompatibleBindingPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\BoundToSomethingElse;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\NotAService;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\CyclicDependencyPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\MisorderedDependencyPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\ValidDependencyGraphPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\UnknownActionDependencyPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\SelfDependentPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\InvalidDependencyGraphPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\DependsOnB;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\OverlappingCyclesPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\TypoActionService;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\TypoActionPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\PrefixedActionPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\AdminMenuPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\EmptyHookPrefixPlugin;
 use stdClass;
 use WP_Post;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
@@ -64,7 +64,7 @@ final class CompositionRootContractTest extends TestCase {
 		/**
 		 * The composition root of this plugin.
 		 *
-		 * @var class-string<\MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin> $plugin
+		 * @var class-string<\MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin> $plugin
 		 */
 		$plugin   = RepositoryLayout::COMPOSITION_ROOT;
 		$problems = ( new CompositionRootContract( $plugin ) )->check();
@@ -75,7 +75,7 @@ final class CompositionRootContractTest extends TestCase {
 	public function test_it_reports_the_promises_a_composition_root_breaks(): void {
 		$problems = ( new CompositionRootContract( BrokenPlugin::class ) )->check();
 		$prefix   = '[architecture.compositionRootContracts] The service "%s" (%s) of ' . BrokenPlugin::class . ' ';
-		$fixtures = 'MWPD\\BasicScaffold\\Tests\\Fixture\\CompositionRoot\\';
+		$fixtures = 'MWPD\\ContentFreshness\\Tests\\Fixture\\CompositionRoot\\';
 		$expected = [
 			[ 'hooking', 'HookingService', 'changes hooks while it is being built, directly or through' ],
 			[ 'unbound', 'NeedsContract', 'cannot be built from the composition root: ' ],
@@ -268,7 +268,7 @@ final class CompositionRootContractTest extends TestCase {
 			[
 				'[architecture.registrationActionKnown] The service "delayed" (' . TypoActionService::class
 				. ') of ' . TypoActionPlugin::class . ' is Delayed, but returns the unknown action "wp_laoded".'
-				. ' Use a core action or one starting with the plugin\'s hook prefix "mwpd.basic_scaffold.".'
+				. ' Use a core action or one starting with the plugin\'s hook prefix "mwpd.content_freshness.".'
 				. ' Principle 7: Show the alternative to WordPress anti-patterns, see '
 				. 'docs/design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns.'
 				. ' Pattern: docs/patterns.md#i-need-to-hook-in-later.'
@@ -338,7 +338,7 @@ final class CompositionRootContractTest extends TestCase {
 	}
 
 	/**
-	 * @param class-string<\MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin> $plugin Fixture root.
+	 * @param class-string<\MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin> $plugin Fixture root.
 	 */
 	private function graph_problem( string $plugin, string $id, string $problem ): string {
 		return '[architecture.compositionRootContracts] The service "' . $id . '" ('
@@ -348,7 +348,7 @@ final class CompositionRootContractTest extends TestCase {
 
 	private function lifecycle_problem( string $service, string $problem ): string {
 		return '[architecture.compositionRootContracts] The service "' . $service . '" ('
-			. 'MWPD\\BasicScaffold\\Tests\\Fixture\\CompositionRoot\\' . $service . ') of '
+			. 'MWPD\\ContentFreshness\\Tests\\Fixture\\CompositionRoot\\' . $service . ') of '
 			. BrokenLifecyclePlugin::class . ' ' . $problem . ' '
 			. RuleManifest::get_explanation( RuleManifest::COMPOSITION_ROOT_CONTRACTS ) . '.';
 	}

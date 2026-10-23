@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class QueryContextNeedsDelayRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Hooks/';
 
-	private const HOOKS = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks';
+	private const HOOKS = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks';
 
 	private string $root = self::HOOKS;
 
@@ -83,8 +83,8 @@ final class QueryContextNeedsDelayRuleTest extends RuleTestCase {
 
 	public function test_the_sample_loop_service_passes(): void {
 		// The sample uses the real interfaces rather than the fixture ones.
-		$this->root     = 'MWPD\BasicScaffold';
-		$this->excluded = [ 'MWPD\BasicScaffold\Tests' ];
+		$this->root     = 'MWPD\ContentFreshness';
+		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 
 		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleLoopService.php' ], [] );
 	}

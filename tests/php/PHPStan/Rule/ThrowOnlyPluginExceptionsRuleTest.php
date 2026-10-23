@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -26,7 +26,7 @@ final class ThrowOnlyPluginExceptionsRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Errors/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors';
 
 	private const MARKER = self::FIXTURE_NAMESPACE . '\Exception\PluginException';
 

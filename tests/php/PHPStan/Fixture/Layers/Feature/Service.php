@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Feature;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Exception\LayerException;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure\Contract;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Other\Helper;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Plugin;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\TestDouble\Fake;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Exception\LayerException;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure\Contract;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Other\Helper;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Plugin;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\TestDouble\Fake;
 
 final class Service {
 

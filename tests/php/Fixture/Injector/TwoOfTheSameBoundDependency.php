@@ -1,9 +1,9 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Injector;
+namespace MWPD\ContentFreshness\Tests\Fixture\Injector;
 
-use MWPD\BasicScaffold\Tests\Fixture\DummyInterface;
+use MWPD\ContentFreshness\Tests\Fixture\DummyInterface;
 
 /**
  * Needs two instances of an interface that a binding resolves.

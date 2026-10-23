@@ -2,15 +2,15 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Exception\FailedToEscapeValue;
-use MWPD\BasicScaffold\Exception\FailedToLoadView;
-use MWPD\BasicScaffold\Exception\InvalidContextProperty;
-use MWPD\BasicScaffold\Exception\InvalidPath;
-use MWPD\BasicScaffold\Infrastructure\Service\DebugMode;
-use MWPD\BasicScaffold\Infrastructure\View\SimpleView;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Exception\FailedToEscapeValue;
+use MWPD\ContentFreshness\Exception\FailedToLoadView;
+use MWPD\ContentFreshness\Exception\InvalidContextProperty;
+use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\Service\DebugMode;
+use MWPD\ContentFreshness\Infrastructure\View\SimpleView;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 

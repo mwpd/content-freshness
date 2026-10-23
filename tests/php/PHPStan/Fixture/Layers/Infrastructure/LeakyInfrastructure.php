@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Exception\LayerException;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Feature\Service;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Plugin;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Exception\LayerException;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Feature\Service;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Plugin;
 
 final class LeakyInfrastructure implements Contract {
 

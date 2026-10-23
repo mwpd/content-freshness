@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,9 +11,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold;
+namespace MWPD\ContentFreshness;
 
-use MWPD\BasicScaffold\Infrastructure\Plugin;
+use MWPD\ContentFreshness\Infrastructure\Plugin;
 
 /**
  * The plugin factory is responsible for instantiating the plugin and returning
@@ -25,7 +25,7 @@ use MWPD\BasicScaffold\Infrastructure\Plugin;
  *
  * @see https://www.alainschlesser.com/singletons-shared-instances/
  */
-final class BasicScaffoldPluginFactory {
+final class ContentFreshnessPluginFactory {
 
 	/**
 	 * Create and return an instance of the plugin.
@@ -49,7 +49,7 @@ final class BasicScaffoldPluginFactory {
 		static $plugin = null;
 
 		if ( null === $plugin ) {
-			$plugin = new BasicScaffoldPlugin();
+			$plugin = new ContentFreshnessPlugin();
 		}
 
 		return $plugin;

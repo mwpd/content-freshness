@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\PhpDoc\TypeNodeResolver;
 use PHPStan\Rules\Rule;
@@ -27,7 +27,7 @@ final class NoFalseOnFailureRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/FalseOnFailure/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\FalseOnFailure';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\FalseOnFailure';
 
 	private const TIP = 'Principle 10: Errors are exceptions, see docs/design-principles.md#10-errors-are-exceptions. '
 		. 'Pattern: docs/patterns.md#i-need-to-report-a-failure. '

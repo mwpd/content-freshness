@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Infrastructure;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Infrastructure;
 
 interface Conditional {
 

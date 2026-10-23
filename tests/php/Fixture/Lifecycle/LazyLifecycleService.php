@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Lifecycle;
+namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
-use MWPD\BasicScaffold\Infrastructure\Activateable;
-use MWPD\BasicScaffold\Infrastructure\Deactivateable;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Activateable;
+use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 /**
  * Not Registerable, so the plugin stores it lazily.

@@ -1,12 +1,12 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
 use Brain\Monkey\Functions;
-use MWPD\BasicScaffold\Infrastructure\View\TemplatedViewFactory;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
-use MWPD\BasicScaffold\Tests\ViewHelper;
+use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Tests\ViewHelper;
 
 final class TemplatedViewFactoryTest extends TestCase {
 

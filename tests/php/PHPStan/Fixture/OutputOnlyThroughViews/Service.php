@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\OutputOnlyThroughViews;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\OutputOnlyThroughViews;
 
-use MWPD\BasicScaffold\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\View;
 use function printf as output_format;
 
 final class Service {

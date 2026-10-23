@@ -1,11 +1,11 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
 use LogicException;
-use MWPD\BasicScaffold\Exception\BasicScaffoldException;
-use MWPD\BasicScaffold\Infrastructure\Injector\InjectionChain;
+use MWPD\ContentFreshness\Exception\ContentFreshnessException;
+use MWPD\ContentFreshness\Infrastructure\Injector\InjectionChain;
 
 final class InjectionChainTest extends TestCase {
 
@@ -82,7 +82,7 @@ final class InjectionChainTest extends TestCase {
 			( new InjectionChain() )->get_class();
 			$this->fail( 'Reading the class of an empty injection chain did not throw.' );
 		} catch ( LogicException $exception ) {
-			$this->assertInstanceOf( BasicScaffoldException::class, $exception );
+			$this->assertInstanceOf( ContentFreshnessException::class, $exception );
 			$this->assertSame(
 				'Access to injection chain before any resolution was made.',
 				$exception->getMessage()

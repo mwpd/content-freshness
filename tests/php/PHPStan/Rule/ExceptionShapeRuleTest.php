@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class ExceptionShapeRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Errors/';
 
-	private const EXCEPTIONS = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors\Exception';
+	private const EXCEPTIONS = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors\Exception';
 
 	private const MARKER = self::EXCEPTIONS . '\PluginException';
 
@@ -34,8 +34,8 @@ final class ExceptionShapeRuleTest extends RuleTestCase {
 	protected function getRule(): Rule {
 		return new ExceptionShapeRule(
 			new PluginNamespace(
-				'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors',
-				[ 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors\TestDouble' ]
+				'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors',
+				[ 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors\TestDouble' ]
 			),
 			self::MARKER,
 			self::EXCEPTIONS,
@@ -65,7 +65,7 @@ final class ExceptionShapeRuleTest extends RuleTestCase {
 				[ $this->not_an_exception_message( 'NotAnException' ), 7, self::TIP ],
 				[ $this->not_an_exception_message( 'NotAMarker' ), 7, self::TIP ],
 				[
-					'Exception MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors\Elsewhere\MisplacedException is'
+					'Exception MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors\Elsewhere\MisplacedException is'
 						. ' outside ' . self::EXCEPTIONS . '. Move it to ' . self::EXCEPTIONS . ', where every'
 						. ' exception of the plugin lives.',
 					10,

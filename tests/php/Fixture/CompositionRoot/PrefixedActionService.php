@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\Registerable;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\Registerable;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 final class PrefixedActionService implements Service, Delayed, Registerable {
 
 	public static function get_registration_action(): string {
-		return 'mwpd.basic_scaffold.ready';
+		return 'mwpd.content_freshness.ready';
 	}
 
 	public function register(): void {

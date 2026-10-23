@@ -2,12 +2,12 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Integration;
+namespace MWPD\ContentFreshness\Tests\Integration;
 
 use Brain\Monkey\Functions;
-use MWPD\BasicScaffold\BasicScaffoldPlugin;
-use MWPD\BasicScaffold\Exception\FailedToFindPost;
-use MWPD\BasicScaffold\SampleSubsystem\SampleLoopService;
+use MWPD\ContentFreshness\ContentFreshnessPlugin;
+use MWPD\ContentFreshness\Exception\FailedToFindPost;
+use MWPD\ContentFreshness\SampleSubsystem\SampleLoopService;
 use stdClass;
 use WP_Post;
 
@@ -35,13 +35,13 @@ final class SampleLoopServiceTest extends TestCase {
 		$fields->post_date  = '2026-10-22 12:00:00';
 		Functions\when( 'get_post' )->justReturn( new WP_Post( $fields ) );
 
-		$plugin = new BasicScaffoldPlugin();
+		$plugin = new ContentFreshnessPlugin();
 		$plugin->register_services();
 
 		$container = $plugin->get_container();
-		$this->assertTrue( $container->has( BasicScaffoldPlugin::SAMPLE_LOOP_SERVICE_ID ) );
+		$this->assertTrue( $container->has( ContentFreshnessPlugin::SAMPLE_LOOP_SERVICE_ID ) );
 
-		$service = $container->get( BasicScaffoldPlugin::SAMPLE_LOOP_SERVICE_ID );
+		$service = $container->get( ContentFreshnessPlugin::SAMPLE_LOOP_SERVICE_ID );
 		$this->assertInstanceOf( SampleLoopService::class, $service );
 		$this->assertNotFalse( has_filter( 'the_content', [ $service, 'prepend_post_header' ] ) );
 
@@ -57,6 +57,6 @@ final class SampleLoopServiceTest extends TestCase {
 
 		$this->expectException( FailedToFindPost::class );
 
-		( new BasicScaffoldPlugin() )->register_services();
+		( new ContentFreshnessPlugin() )->register_services();
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class NamesWithoutTypeKindRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/NamesWithoutTypeKind/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\NamesWithoutTypeKind';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\NamesWithoutTypeKind';
 
 	private const TIP = 'Principle 8: Types name concepts, not just data, see '
 		. 'docs/design-principles.md#8-types-name-concepts-not-just-data. '

@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\ConstructorsOnlyAssign;
 
-use MWPD\BasicScaffold\Infrastructure\Service;
-use MWPD\BasicScaffold\Infrastructure\Service\DebugMode;
-use MWPD\BasicScaffold\Infrastructure\Service\WordPressDebugMode;
+use MWPD\ContentFreshness\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Service\DebugMode;
+use MWPD\ContentFreshness\Infrastructure\Service\WordPressDebugMode;
 
 final class Assignments implements Service {
 
@@ -24,6 +24,6 @@ final class Assignments implements Service {
 	}
 
 	public function register(): void {
-		get_option( 'mwpd_basic_scaffold_option' );
+		get_option( 'mwpd_content_freshness_option' );
 	}
 }

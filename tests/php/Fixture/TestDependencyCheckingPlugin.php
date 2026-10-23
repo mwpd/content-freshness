@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
 use LogicException;
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceA;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceB;
-use MWPD\BasicScaffold\Tests\Fixture\Service\TestServiceNeedingB;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceA;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceB;
+use MWPD\ContentFreshness\Tests\Fixture\Service\TestServiceNeedingB;
 
 /**
  * A plugin that overrides dependencies_are_met() relying on its documented

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 class TestServiceWithMissingDependency implements Service, HasDependencies {
 	public static function get_dependencies(): array {

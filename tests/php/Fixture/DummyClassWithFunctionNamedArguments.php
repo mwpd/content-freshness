@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
 /**
  * A class whose argument names are also the names of PHP functions, so a

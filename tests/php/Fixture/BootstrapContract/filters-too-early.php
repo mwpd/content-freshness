@@ -2,7 +2,7 @@
 /**
  * A bootstrap that otherwise keeps the contract, but fires an extension early.
  *
- * @package MWPD\BasicScaffold\Tests
+ * @package MWPD\ContentFreshness\Tests
  */
 
 declare( strict_types=1 );

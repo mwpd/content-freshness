@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use Throwable;
 
@@ -22,6 +22,6 @@ use Throwable;
  * This allows you to not only catch individual exceptions, but also catch "all
  * exceptions from plugin XY".
  */
-interface BasicScaffoldException extends Throwable {
+interface ContentFreshnessException extends Throwable {
 
 }

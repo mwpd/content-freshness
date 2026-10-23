@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities;
 
-use MWPD\BasicScaffold\Infrastructure\Conditional;
-use MWPD\BasicScaffold\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\Conditional;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
 
 final class FullService extends BaseService implements Conditional, Delayed {
 	public function register(): void {}

@@ -6,7 +6,7 @@ parameters:
     level: max
     treatPhpDocTypesAsCertain: false
     paths:
-        - basic-scaffold.php
+        - content-freshness.php
         - src
         - tests
         - views
@@ -31,37 +31,37 @@ parameters:
     # plugin's namespace.
     architecture:
         # Code the rules apply to.
-        namespace: MWPD\BasicScaffold
+        namespace: MWPD\ContentFreshness
         # Parts of that namespace that are not plugin code.
         excludedNamespaces:
-            - MWPD\BasicScaffold\Tests
+            - MWPD\ContentFreshness\Tests
         capabilitiesOnServices:
             # Lifecycle capabilities only work on services the plugin orchestrates.
-            service: MWPD\BasicScaffold\Infrastructure\Service
+            service: MWPD\ContentFreshness\Infrastructure\Service
             capabilities:
-                - MWPD\BasicScaffold\Infrastructure\Registerable
-                - MWPD\BasicScaffold\Infrastructure\Conditional
-                - MWPD\BasicScaffold\Infrastructure\Delayed
-                - MWPD\BasicScaffold\Infrastructure\HasDependencies
-                - MWPD\BasicScaffold\Infrastructure\Activateable
-                - MWPD\BasicScaffold\Infrastructure\Deactivateable
-            delayed: MWPD\BasicScaffold\Infrastructure\Delayed
-            registerable: MWPD\BasicScaffold\Infrastructure\Registerable
+                - MWPD\ContentFreshness\Infrastructure\Registerable
+                - MWPD\ContentFreshness\Infrastructure\Conditional
+                - MWPD\ContentFreshness\Infrastructure\Delayed
+                - MWPD\ContentFreshness\Infrastructure\HasDependencies
+                - MWPD\ContentFreshness\Infrastructure\Activateable
+                - MWPD\ContentFreshness\Infrastructure\Deactivateable
+            delayed: MWPD\ContentFreshness\Infrastructure\Delayed
+            registerable: MWPD\ContentFreshness\Infrastructure\Registerable
         finalByDefault:
             # Classes designed to be extended (design principle 6).
             baseClasses:
-                - MWPD\BasicScaffold\Infrastructure\View\SimpleView
+                - MWPD\ContentFreshness\Infrastructure\View\SimpleView
         namesWithoutTypeKind:
             # Reviewed type names that encode their kind (design principle 8).
             allowed: []
         noStaticState:
             # Methods allowed to keep static state (design principle 5).
             allowed:
-                - MWPD\BasicScaffold\BasicScaffoldPluginFactory::create
+                - MWPD\ContentFreshness\ContentFreshnessPluginFactory::create
         pluginFactoryOnlyAtEdges:
             # Only WordPress entry points may obtain the graph statically.
             factories:
-                - MWPD\BasicScaffold\BasicScaffoldPluginFactory
+                - MWPD\ContentFreshness\ContentFreshnessPluginFactory
             # Reviewed static callables that get the graph and delegate at once.
             bridges: []
         noGlobalState:
@@ -72,11 +72,11 @@ parameters:
         exceptions:
             # Where the plugin's exceptions live, and the interface they all
             # implement (design principle 10).
-            namespace: MWPD\BasicScaffold\Exception
-            marker: MWPD\BasicScaffold\Exception\BasicScaffoldException
+            namespace: MWPD\ContentFreshness\Exception
+            marker: MWPD\ContentFreshness\Exception\ContentFreshnessException
             # Code in that namespace that is not an exception.
             notExceptions:
-                - MWPD\BasicScaffold\Exception\Stringify
+                - MWPD\ContentFreshness\Exception\Stringify
         exceptionsKeepCause:
             # Reviewed Class::method recoveries that need no catch body.
             # Explain the recovery beside each entry (design principle 10).
@@ -105,37 +105,37 @@ parameters:
                 - intval
         dependencyDirection:
             # The layer generated plugins build on (design principle 4).
-            infrastructure: MWPD\BasicScaffold\Infrastructure
+            infrastructure: MWPD\ContentFreshness\Infrastructure
             # The only classes that know the concrete classes and wire the
             # plugin together (design principle 5).
             compositionRoot:
-                - MWPD\BasicScaffold\BasicScaffoldPlugin
-                - MWPD\BasicScaffold\BasicScaffoldPluginFactory
+                - MWPD\ContentFreshness\ContentFreshnessPlugin
+                - MWPD\ContentFreshness\ContentFreshnessPluginFactory
                 # The bootstrap declares no class, so the rule names its code
                 # after the namespace and the file: it builds the fallback
                 # autoloader and asks the factory for the plugin.
-                - MWPD\BasicScaffold\basic-scaffold
+                - MWPD\ContentFreshness\content-freshness
             # Directories of the view templates that run in production.
             views:
                 - %currentWorkingDirectory%/views
         noServiceLocator:
             # Feature subsystems receive collaborators; only the composition
             # root configures the graph (design principle 5).
-            container: MWPD\BasicScaffold\Infrastructure\ServiceContainer
-            injector: MWPD\BasicScaffold\Infrastructure\Injector
+            container: MWPD\ContentFreshness\Infrastructure\ServiceContainer
+            injector: MWPD\ContentFreshness\Infrastructure\Injector
             allowedInjectorMethods:
                 - make
         newOnlyWhereAllowed:
             # Interfaces whose implementations create objects for a living, on
             # top of classes named ...Factory (design principle 5).
             factories:
-                - MWPD\BasicScaffold\Infrastructure\Injector
-                - MWPD\BasicScaffold\Infrastructure\Instantiator
+                - MWPD\ContentFreshness\Infrastructure\Injector
+                - MWPD\ContentFreshness\Infrastructure\Instantiator
             # Classes that represent a value rather than a collaborator, and
             # may be created anywhere.
             valueObjects:
-                - MWPD\BasicScaffold\Infrastructure\ServiceContainer\LazilyInstantiatedService
-                - MWPD\BasicScaffold\Infrastructure\View\ViewLocations
+                - MWPD\ContentFreshness\Infrastructure\ServiceContainer\LazilyInstantiatedService
+                - MWPD\ContentFreshness\Infrastructure\View\ViewLocations
                 - DateTimeImmutable
                 - DateInterval
                 - ArrayIterator
@@ -148,9 +148,9 @@ parameters:
             # The methods a feature service adds and removes hooks in, with
             # the interface each belongs to (design principle 7).
             lifecycleMethods:
-                register: MWPD\BasicScaffold\Infrastructure\Registerable
-                activate: MWPD\BasicScaffold\Infrastructure\Activateable
-                deactivate: MWPD\BasicScaffold\Infrastructure\Deactivateable
+                register: MWPD\ContentFreshness\Infrastructure\Registerable
+                activate: MWPD\ContentFreshness\Infrastructure\Activateable
+                deactivate: MWPD\ContentFreshness\Infrastructure\Deactivateable
             # Functions that tell what kind of request this is. register()
             # leaves them to Conditional::is_needed().
             contextFunctions:
@@ -194,13 +194,13 @@ parameters:
         # together with the plugin.
         prefixedNames:
             hooks:
-                prefix: mwpd.basic_scaffold.
+                prefix: mwpd.content_freshness.
                 constants:
                     - HOOK_PREFIX
                 # Hooks of WordPress the plugin fires itself.
                 allowed: []
             options:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 # Options of WordPress the plugin reads.
                 allowed:
@@ -212,15 +212,15 @@ parameters:
                     - home
                     - siteurl
             transients:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
             meta:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
             assets:
-                prefix: mwpd-basic-scaffold-
+                prefix: mwpd-content-freshness-
                 constants: []
                 # Scripts and styles of WordPress the plugin enqueues.
                 allowed:
@@ -231,34 +231,34 @@ parameters:
                     - wp-i18n
 
             postTypes:
-                prefix: mwpd_bs_
+                prefix: mwpd_cf_
                 constants: []
                 allowed: []
             taxonomies:
-                prefix: mwpd_bs_
+                prefix: mwpd_cf_
                 constants: []
                 allowed: []
             shortcodes:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
             restRoutes:
-                prefix: mwpd/basic-scaffold
+                prefix: mwpd/content-freshness
                 constants: []
                 allowed: []
             cron:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
             adminPages:
-                prefix: mwpd-basic-scaffold-
+                prefix: mwpd-content-freshness-
                 constants: []
                 allowed: []
             settings:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []
             ajax:
-                prefix: mwpd_basic_scaffold_
+                prefix: mwpd_content_freshness_
                 constants: []
                 allowed: []

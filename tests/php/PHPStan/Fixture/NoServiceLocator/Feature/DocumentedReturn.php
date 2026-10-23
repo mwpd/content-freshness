@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
 
 final class DocumentedReturn {
-	/** @return \MWPD\BasicScaffold\Infrastructure\ServiceContainer */
+	/** @return \MWPD\ContentFreshness\Infrastructure\ServiceContainer */
 	public function container() {}
 }

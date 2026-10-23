@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,9 +11,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
-use MWPD\BasicScaffold\Tests\Architecture\RuleManifest;
+use MWPD\ContentFreshness\Tests\Architecture\RuleManifest;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Global_;
@@ -120,7 +120,7 @@ final class NoGlobalStateRule implements Rule {
 		return RuleErrorBuilder::message(
 			$problem
 			. ' Receive the value through the constructor; for collaborators such as $wpdb or WP_Query,'
-			. ' configure a delegation in the composition root, as for WP_Post in src/BasicScaffoldPlugin.php.'
+			. ' configure a delegation in the composition root, as for WP_Post in src/ContentFreshnessPlugin.php.'
 			. ' Read request input only in a class listed in parameters.architecture.noGlobalState.inputAdapters'
 			. ' that sanitizes and normalizes it into an internal type.'
 		)

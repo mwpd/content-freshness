@@ -1,16 +1,16 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package MWPD\BasicScaffold
+ * @package MWPD\ContentFreshness
  */
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Brain\Monkey;
-use MWPD\BasicScaffold\Tests\Fixture\CompositionRoot\IdenticalRegistration;
+use MWPD\ContentFreshness\Tests\Fixture\CompositionRoot\IdenticalRegistration;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**

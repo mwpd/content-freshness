@@ -68,7 +68,7 @@ Each lifecycle question a service has to answer is a small interface in
 
 The plugin itself only hooks into `plugins_loaded`
 (`src/Infrastructure/ServiceBasedPlugin.php:79`) and the activation and
-deactivation hooks (`basic-scaffold.php:119-131`). Everything else is decided
+deactivation hooks (`content-freshness.php:119-131`). Everything else is decided
 per service. `SampleLoopService` shows the result: it declares that it runs at
 `wp` and only on singular views
 (`src/SampleSubsystem/SampleLoopService.php:55-72`), and no other code has to
@@ -91,7 +91,7 @@ asset pipeline before it runs: copy the plugin directory and activate it.
 Composer is a **development tool**, not a runtime dependency. The scaffold
 uses and supports it for tests, static analysis and coding standards, and loads
 its autoloader when one is present. When it is absent, the bundled
-`Infrastructure\Autoloader` takes over (`basic-scaffold.php:74-86`).
+`Infrastructure\Autoloader` takes over (`content-freshness.php:74-86`).
 
 In practice:
 
@@ -100,7 +100,7 @@ In practice:
 - Both autoloading paths must keep working. A change to class loading is
   proven with and without `vendor/`.
 - A generated plugin may still choose to add runtime Composer packages. It
-  then takes on a build step for itself, as the comment in `basic-scaffold.php`
+  then takes on a build step for itself, as the comment in `content-freshness.php`
   notes. The scaffold itself never makes that choice for it.
 
 ## 2. Self-contained infrastructure, replaceable by design
@@ -122,7 +122,7 @@ In the code:
   (`src/Infrastructure/ServiceBasedPlugin.php:152-171`). Swapping in an adapter
   for a full-featured container changes one constructor call, not the plugin.
 - `ViewFactory` is bound to `TemplatedViewFactory` in the composition root
-  (`src/BasicScaffoldPlugin.php:95`) and can be rebound the same way.
+  (`src/ContentFreshnessPlugin.php:95`) and can be rebound the same way.
 
 When improving infrastructure, keep the simple implementation simple. Add
 capability only when the scaffold's own use needs it, and keep the interface
@@ -196,7 +196,7 @@ is plausible. Otherwise, call WordPress.
 ## 5. One composition root builds the object graph
 
 The plugin's objects are assembled as one tree from a single composition
-root. `BasicScaffoldPlugin` (`src/BasicScaffoldPlugin.php`) declares the
+root. `ContentFreshnessPlugin` (`src/ContentFreshnessPlugin.php`) declares the
 services, bindings, arguments, shared instances and delegations, and
 `ServiceBasedPlugin` turns that configuration into running services through
 the injector. Every object that takes part in the application flow is obtained
@@ -226,8 +226,8 @@ There are exactly two ways to defer part of that tree:
   (`src/Infrastructure/View/TemplatedViewFactory.php:61`). Going through the
   injector instead is allowed but not required: the factory is assumed to
   know best how to build its product. The same goes for managing instances:
-  `BasicScaffoldPluginFactory` keeps the one plugin instance in a static
-  variable (`src/BasicScaffoldPluginFactory.php:38-52`). That works around a
+  `ContentFreshnessPluginFactory` keeps the one plugin instance in a static
+  variable (`src/ContentFreshnessPluginFactory.php:38-52`). That works around a
   limitation of WordPress core, which needs static access to the plugin from
   outside the object graph, for example for the activation hooks. Because the
   state is encapsulated in the factory, it does not leak into the rest of the
@@ -254,7 +254,7 @@ locator. It depends on which side of the graph's edge the code is on:
   that one concept. It never looks a service up in the container.
 - **At the edge**, where WordPress calls in from outside, a listed *bridge*
   gets the plugin through the plugin factory and delegates at once to instance
-  methods, as the activation hooks do (`basic-scaffold.php:119-131`). A bridge
+  methods, as the activation hooks do (`content-freshness.php:119-131`). A bridge
   holds no state and no logic of its own, and it is where exceptions have to
   be caught before control goes back to WordPress (principle 10); the
   activation hooks do not do that yet (#27).
@@ -282,14 +282,14 @@ book, shows the better alternative so that plugins built on it learn it too.
 | Common anti-pattern | What the scaffold does instead |
 | --- | --- |
 | Registering hooks in a constructor, so creating an object changes global state | Constructors only store dependencies. Hooks are added in `register()` (`Registerable`), called by the plugin at the right time (`src/SampleSubsystem/SampleBackendService.php:71-77`). [Pattern](patterns.md#i-need-to-add-hooks) |
-| Singletons with `::instance()` and static state | Shared instances come from the injector (`share()`). The plugin factory keeps one shared plugin instance without the Singleton pattern (`src/BasicScaffoldPluginFactory.php:38-56`). [Pattern](patterns.md#i-need-a-singleton) |
+| Singletons with `::instance()` and static state | Shared instances come from the injector (`share()`). The plugin factory keeps one shared plugin instance without the Singleton pattern (`src/ContentFreshnessPluginFactory.php:38-56`). [Pattern](patterns.md#i-need-a-singleton) |
 | A service locator, such as a static `Services::get( 'id' )` | Each need behind it has its own answer: constructor injection, a factory, a typed registry, `share()`, or a bridge at the edge of the object graph (principle 5). [Pattern](patterns.md#i-need-a-service-locator) |
-| A global variable or singleton so that WordPress callbacks can reach the plugin | A bridge gets the plugin through the plugin factory and delegates at once (`basic-scaffold.php:119-131`). [Pattern](patterns.md#i-need-to-reach-the-plugin-from-a-static-wordpress-callback) |
+| A global variable or singleton so that WordPress callbacks can reach the plugin | A bridge gets the plugin through the plugin factory and delegates at once (`content-freshness.php:119-131`). [Pattern](patterns.md#i-need-to-reach-the-plugin-from-a-static-wordpress-callback) |
 | Creating collaborators with `new` inside a class, or pulling them from globals | Dependencies are injected through the constructor and configured as bindings in the composition root. [Pattern: creating objects](patterns.md#i-need-to-create-objects-on-demand), [WordPress state](patterns.md#i-need-wordpress-state-such-as-the-current-post) |
 | `is_admin()` checks wrapped around hook calls throughout the code | A service states when it is needed once, in `Conditional::is_needed()` (`src/SampleSubsystem/SampleBackendService.php:45-52`). [Pattern](patterns.md#i-need-a-service-only-in-some-requests) |
 | Hooking to an early action just to wait for a later one | A service names its registration action through `Delayed`, and the plugin defers it. [Pattern](patterns.md#i-need-to-hook-in-later) |
 | Asking query-dependent conditions before the query has run | A `Conditional` service also implements `Delayed` and returns `wp` or a later action from `get_registration_action()`, so the plugin waits before asking `is_needed()`. [Pattern](patterns.md#i-need-to-hook-in-later) |
-| Doing work when a file is included | Only `basic-scaffold.php` has side effects; everything else is autoloadable declarations. [Pattern](patterns.md#i-need-to-run-code-when-the-plugin-file-loads) |
+| Doing work when a file is included | Only `content-freshness.php` has side effects; everything else is autoloadable declarations. [Pattern](patterns.md#i-need-to-run-code-when-the-plugin-file-loads) |
 | One god class holding the whole plugin | A composition root wires small services, each with one responsibility. [Pattern](patterns.md#i-need-to-add-a-feature) |
 | Echoing HTML from business logic | Output goes through views from a `ViewFactory`, escaped by default. [Pattern](patterns.md#i-need-to-print-output) |
 
@@ -313,7 +313,7 @@ distinguishes them (`Simple…`, `WordPress…`, `Cached…`), never `…Impl`,
 what distinguishes their implementations. The abstract base
 `ServiceBasedPlugin` and the trait `Stringify` follow the same rule.
 Exceptions name the failure, such as `FailedToLoadView` and `InvalidService`;
-only the configured exception marker interface (`BasicScaffoldException` in
+only the configured exception marker interface (`ContentFreshnessException` in
 this scaffold) may end in `Exception`.
 
 Types are used for concepts as well as for data structures. When two things
@@ -396,7 +396,7 @@ The exceptions follow a fixed shape (`src/Exception/`):
   `FailedToLoadView`, `FailedToEscapeValue`). Callers can catch by category
   without knowing the scaffold's classes.
 - **They share one marker interface.** Every exception implements
-  `BasicScaffoldException` (`src/Exception/BasicScaffoldException.php:25`), so
+  `ContentFreshnessException` (`src/Exception/ContentFreshnessException.php:25`), so
   everything this plugin throws can be caught in one place.
 - **Each kind of failure gets its own class.** A new kind of failure gets a
   dedicated, `final` exception rather than a generic exception with a
@@ -464,7 +464,7 @@ collaboration or synchronization between plugins.
 
 **Everything public carries the plugin's prefix**, so that several plugins
 built from this scaffold can run side by side without clashing. That covers
-hook names and service identifiers (`src/BasicScaffoldPlugin.php:206-208`), as
+hook names and service identifiers (`src/ContentFreshnessPlugin.php:206-208`), as
 well as option, meta and transient names, script and style handles, and the
 paths a theme uses to override the plugin's views. The prefixes prevent
 collisions; they are not a coordination protocol.
@@ -475,9 +475,9 @@ This scaffold is companion code to a book, and the plugins generated from it
 copy what it does. Its code and comments are teaching material:
 
 - **Comments explain why**, not just what. The bootstrap is split into three
-  numbered steps that say what each one is for (`basic-scaffold.php:33-46`),
+  numbered steps that say what each one is for (`content-freshness.php:33-46`),
   and the composition root is laid out the same way
-  (`src/BasicScaffoldPlugin.php`, sections 1 to 3).
+  (`src/ContentFreshnessPlugin.php`, sections 1 to 3).
 - **The samples must be correct.** Sample services and views are copied more
   than anything else, so they demonstrate the full pattern, including escaping
   and error handling, and they are covered by tests. A shortcut in a sample is

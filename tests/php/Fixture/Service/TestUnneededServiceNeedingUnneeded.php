@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Service;
+namespace MWPD\ContentFreshness\Tests\Fixture\Service;
 
-use MWPD\BasicScaffold\Infrastructure\Conditional;
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Conditional;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 /**
  * Not needed in the same requests as the service it depends on.

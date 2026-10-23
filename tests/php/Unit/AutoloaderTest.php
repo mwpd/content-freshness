@@ -1,10 +1,10 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Infrastructure\Autoloader;
-use MWPD\BasicScaffold\Tests\Architecture\TemporaryRepository;
+use MWPD\ContentFreshness\Infrastructure\Autoloader;
+use MWPD\ContentFreshness\Tests\Architecture\TemporaryRepository;
 
 final class AutoloaderTest extends TestCase {
 

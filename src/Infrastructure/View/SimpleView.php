@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,16 +11,16 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Infrastructure\View;
+namespace MWPD\ContentFreshness\Infrastructure\View;
 
-use MWPD\BasicScaffold\Exception\FailedToEscapeValue;
-use MWPD\BasicScaffold\Exception\FailedToLoadView;
-use MWPD\BasicScaffold\Exception\InvalidContextProperty;
-use MWPD\BasicScaffold\Exception\InvalidPath;
-use MWPD\BasicScaffold\Infrastructure\View;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
-use MWPD\BasicScaffold\Infrastructure\Service\DebugMode;
-use MWPD\BasicScaffold\Infrastructure\Service\WordPressDebugMode;
+use MWPD\ContentFreshness\Exception\FailedToEscapeValue;
+use MWPD\ContentFreshness\Exception\FailedToLoadView;
+use MWPD\ContentFreshness\Exception\InvalidContextProperty;
+use MWPD\ContentFreshness\Exception\InvalidPath;
+use MWPD\ContentFreshness\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Infrastructure\Service\DebugMode;
+use MWPD\ContentFreshness\Infrastructure\Service\WordPressDebugMode;
 use stdClass;
 use Throwable;
 

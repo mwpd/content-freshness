@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Service;
+namespace MWPD\ContentFreshness\Tests\Fixture\Service;
 
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 /**
  * Registers at "wp", and depends on a service that registers at "init".

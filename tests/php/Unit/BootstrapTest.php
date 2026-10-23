@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
 use Brain\Monkey\Functions;
 
@@ -38,7 +38,7 @@ final class BootstrapTest extends TestCase {
 
 		$before = array_keys( get_defined_vars() );
 
-		include dirname( __DIR__, 3 ) . '/basic-scaffold.php';
+		include dirname( __DIR__, 3 ) . '/content-freshness.php';
 
 		$this->assertSame( [], array_values( array_diff( array_keys( get_defined_vars() ), $before, [ 'before' ] ) ) );
 	}

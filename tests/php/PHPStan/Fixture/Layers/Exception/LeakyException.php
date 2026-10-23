@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Exception;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Exception;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure\Contract;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure\Contract;
 use RuntimeException;
 
 final class LeakyException extends RuntimeException {

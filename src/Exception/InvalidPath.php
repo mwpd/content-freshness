@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,14 +11,14 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use InvalidArgumentException;
 
 /**
  * Exception for invalid paths.
  */
-final class InvalidPath extends InvalidArgumentException implements BasicScaffoldException {
+final class InvalidPath extends InvalidArgumentException implements ContentFreshnessException {
 
 	/**
 	 * Create a new instance of the exception for a file that is not accessible

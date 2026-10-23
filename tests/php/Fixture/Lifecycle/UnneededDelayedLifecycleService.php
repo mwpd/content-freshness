@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Lifecycle;
+namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
-use MWPD\BasicScaffold\Infrastructure\Activateable;
-use MWPD\BasicScaffold\Infrastructure\Conditional;
-use MWPD\BasicScaffold\Infrastructure\Deactivateable;
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\Registerable;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Activateable;
+use MWPD\ContentFreshness\Infrastructure\Conditional;
+use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\Registerable;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 final class UnneededDelayedLifecycleService implements
 	Service,

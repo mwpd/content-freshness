@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,11 +11,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Infrastructure;
+namespace MWPD\ContentFreshness\Infrastructure;
 
 use stdClass;
-use MWPD\BasicScaffold\Exception\FailedToLoadView;
-use MWPD\BasicScaffold\Exception\InvalidPath;
+use MWPD\ContentFreshness\Exception\FailedToLoadView;
+use MWPD\ContentFreshness\Exception\InvalidPath;
 
 /**
  * The view interface defines how the rendering system works.

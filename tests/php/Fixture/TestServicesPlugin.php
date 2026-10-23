@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture;
+namespace MWPD\ContentFreshness\Tests\Fixture;
 
-use MWPD\BasicScaffold\Infrastructure\Injector;
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer;
+use MWPD\ContentFreshness\Infrastructure\Injector;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer;
 
 /**
  * A plugin that registers whichever services a test hands it.

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Capabilities/';
 
-	private const NAMESPACE_ROOT = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Capabilities';
+	private const NAMESPACE_ROOT = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Capabilities';
 
 	private const TIP = 'Principle 5: One composition root builds the object graph, see '
 		. 'docs/design-principles.md#5-one-composition-root-builds-the-object-graph. '
@@ -32,26 +32,26 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 
 	private string $root = self::NAMESPACE_ROOT;
 
-	private string $service = 'MWPD\BasicScaffold\Infrastructure\Service';
+	private string $service = 'MWPD\ContentFreshness\Infrastructure\Service';
 
-	private string $registerable = 'MWPD\BasicScaffold\Infrastructure\Registerable';
+	private string $registerable = 'MWPD\ContentFreshness\Infrastructure\Registerable';
 
-	private string $delayed = 'MWPD\BasicScaffold\Infrastructure\Delayed';
+	private string $delayed = 'MWPD\ContentFreshness\Infrastructure\Delayed';
 
 	/** @var array<string> */
 	private array $capabilities = [
-		'MWPD\BasicScaffold\Infrastructure\Registerable',
-		'MWPD\BasicScaffold\Infrastructure\Conditional',
-		'MWPD\BasicScaffold\Infrastructure\Delayed',
-		'MWPD\BasicScaffold\Infrastructure\HasDependencies',
-		'MWPD\BasicScaffold\Infrastructure\Activateable',
-		'MWPD\BasicScaffold\Infrastructure\Deactivateable',
+		'MWPD\ContentFreshness\Infrastructure\Registerable',
+		'MWPD\ContentFreshness\Infrastructure\Conditional',
+		'MWPD\ContentFreshness\Infrastructure\Delayed',
+		'MWPD\ContentFreshness\Infrastructure\HasDependencies',
+		'MWPD\ContentFreshness\Infrastructure\Activateable',
+		'MWPD\ContentFreshness\Infrastructure\Deactivateable',
 	];
 
 	/** @var array<string> */
 	private array $excluded = [];
 
-	private string $infrastructure = 'MWPD\BasicScaffold\Infrastructure';
+	private string $infrastructure = 'MWPD\ContentFreshness\Infrastructure';
 
 	/** @var array<string> */
 	private array $composition_root = [];
@@ -142,8 +142,8 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 	}
 
 	public function test_the_sample_services_pass(): void {
-		$this->root     = 'MWPD\BasicScaffold';
-		$this->excluded = [ 'MWPD\BasicScaffold\Tests' ];
+		$this->root     = 'MWPD\ContentFreshness';
+		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 		$this->analyse(
 			[
 				dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleBackendService.php',
@@ -154,12 +154,12 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 	}
 
 	public function test_the_infrastructure_and_composition_root_orchestrate_services(): void {
-		$this->root             = 'MWPD\BasicScaffold';
-		$this->composition_root = [ $this->root . '\BasicScaffoldPlugin' ];
+		$this->root             = 'MWPD\ContentFreshness';
+		$this->composition_root = [ $this->root . '\ContentFreshnessPlugin' ];
 		$this->analyse(
 			[
 				dirname( __DIR__, 4 ) . '/src/Infrastructure/ServiceBasedPlugin.php',
-				dirname( __DIR__, 4 ) . '/src/BasicScaffoldPlugin.php',
+				dirname( __DIR__, 4 ) . '/src/ContentFreshnessPlugin.php',
 			],
 			[]
 		);

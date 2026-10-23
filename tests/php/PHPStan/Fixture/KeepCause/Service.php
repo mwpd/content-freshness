@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\KeepCause;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\KeepCause;
 
 use RuntimeException;
 use Throwable;

@@ -2,17 +2,17 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NamesWithoutTypeKind\Excluded;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NamesWithoutTypeKind\Excluded;
 
 interface FooInterface {
 }
 
-namespace mwpd\basicscaffold\tests\phpstan\fixture\nameswithouttypekind\excluded;
+namespace mwpd\contentfreshness\tests\phpstan\fixture\nameswithouttypekind\excluded;
 
 trait FooTrait {
 }
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NamesWithoutTypeKindSibling;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NamesWithoutTypeKindSibling;
 
 final class FooImpl {
 }

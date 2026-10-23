@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Other;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Other;
 
 final class Helper {
 }

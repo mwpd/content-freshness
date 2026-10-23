@@ -8,13 +8,13 @@
  *
  * Run it through the architecture test suite, see docs/architecture-rules.md.
  *
- * @package MWPD\BasicScaffold
+ * @package MWPD\ContentFreshness
  */
 
 declare( strict_types=1 );
 
-use MWPD\BasicScaffold\Tests\Architecture\RepositoryLayout;
-use MWPD\BasicScaffold\Tests\Architecture\RuntimeDependencyConfiguration;
+use MWPD\ContentFreshness\Tests\Architecture\RepositoryLayout;
+use MWPD\ContentFreshness\Tests\Architecture\RuntimeDependencyConfiguration;
 
 require_once __DIR__ . '/vendor/autoload.php';
 

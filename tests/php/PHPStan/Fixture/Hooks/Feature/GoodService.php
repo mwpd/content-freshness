@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Feature;
 
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Infrastructure\Activateable;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Infrastructure\Deactivateable;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Hooks\Infrastructure\Registerable;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Infrastructure\Activateable;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Hooks\Infrastructure\Registerable;
 
 final class GoodService implements Registerable, Activateable, Deactivateable {
 

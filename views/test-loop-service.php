@@ -1,6 +1,6 @@
 <?php
 
-use MWPD\BasicScaffold\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\View;
 
 /** @var View $this */
 /** @var WP_Post $current_post */

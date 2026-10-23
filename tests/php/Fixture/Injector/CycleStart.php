@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Injector;
+namespace MWPD\ContentFreshness\Tests\Fixture\Injector;
 
 /**
  * Depends on a class that in turn depends on this one: a real cycle.

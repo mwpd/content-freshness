@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors;
 
 use LogicException;
-use MWPD\BasicScaffold\Tests\PHPStan\Fixture\Errors\Exception\GoodException;
+use MWPD\ContentFreshness\Tests\PHPStan\Fixture\Errors\Exception\GoodException;
 use RuntimeException;
 use Throwable;
 use WP_Error;

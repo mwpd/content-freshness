@@ -1,4 +1,4 @@
-# MWPD Basic Plugin Scaffold
+# Content Freshness
 
 A starting point for WordPress plugins with a clean object-oriented architecture,
 written as the companion code to the *Modern WordPress Plugin Development* book.
@@ -47,7 +47,7 @@ into this scaffold.
   it is needed and what it hooks into. Services that a request does not need are
   never even instantiated.
 - **Dependency injection** through a single composition root,
-  [`src/BasicScaffoldPlugin.php`](src/BasicScaffoldPlugin.php), with a simple
+  [`src/ContentFreshnessPlugin.php`](src/ContentFreshnessPlugin.php), with a simple
   built-in injector and service container that you can swap for your own.
 - **Views** with escaping by default and child-theme and parent-theme overrides.
 - **No runtime dependencies.** The plugin needs only PHP and WordPress on the
@@ -67,22 +67,22 @@ The reasoning behind all of this is written down in the
 ## Getting started
 
 1. Create your own repository with **Use this template** on GitHub, or
-   `gh repo create my-plugin --template mwpd/basic-scaffold`.
+   `gh repo create my-plugin --template mwpd/content-freshness`.
 2. Make it yours. Rename:
-   - the plugin header and file name in `basic-scaffold.php`, including the text
+   - the plugin header and file name in `content-freshness.php`, including the text
      domain;
-   - the `MWPD\BasicScaffold` namespace in `src/`, `tests/` and the `autoload`
+   - the `MWPD\ContentFreshness` namespace in `src/`, `tests/` and the `autoload`
      sections of `composer.json`, and the package `name`;
    - the namespaces under `parameters.architecture` in `phpstan.neon.dist`, so
      the [architecture rules](docs/architecture-rules.md) check your code;
-   - `BasicScaffoldPlugin`, `BasicScaffoldPluginFactory` and
-     `BasicScaffoldException`;
+   - `ContentFreshnessPlugin`, `ContentFreshnessPluginFactory` and
+     `ContentFreshnessException`;
    - the `HOOK_PREFIX` and `SERVICE_PREFIX` constants in
-     `src/BasicScaffoldPlugin.php`, so your hooks and service identifiers don't
+     `src/ContentFreshnessPlugin.php`, so your hooks and service identifiers don't
      clash with other plugins built on this scaffold.
 3. Replace the sample services in `src/SampleSubsystem/` and the views in
    `views/` with your own, and list your services in
-   `BasicScaffoldPlugin::get_service_classes()`.
+   `ContentFreshnessPlugin::get_service_classes()`.
 
 ## Development
 
@@ -102,7 +102,7 @@ Psalm 5 supports PHP up to 8.3, so run the lint step on PHP 8.3. CI
 
 ## Contributing
 
-Work is planned and tracked in [GitHub issues](https://github.com/mwpd/basic-scaffold/issues),
+Work is planned and tracked in [GitHub issues](https://github.com/mwpd/content-freshness/issues),
 including work done by coding agents. [`docs/process/github.md`](docs/process/github.md)
 describes the labels and the lifecycle of an issue, and [`AGENTS.md`](AGENTS.md)
 has the rules every change follows.

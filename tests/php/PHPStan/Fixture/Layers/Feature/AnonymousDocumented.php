@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Feature;
 
 final class AnonymousDocumented {
 
@@ -10,7 +10,7 @@ final class AnonymousDocumented {
 		return new class() {
 
 			/**
-			 * @return \MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete
+			 * @return \MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers\Infrastructure\Concrete
 			 */
 			public function concrete(): object {
 				return $this;

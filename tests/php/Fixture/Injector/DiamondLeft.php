@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Injector;
+namespace MWPD\ContentFreshness\Tests\Fixture\Injector;
 
 /**
  * Left branch of a diamond: depends on the shared leaf.

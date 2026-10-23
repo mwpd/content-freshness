@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\OutputOnlyThroughViews;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\OutputOnlyThroughViews;
 
-use MWPD\BasicScaffold\Infrastructure\Renderable;
-use MWPD\BasicScaffold\Infrastructure\View;
-use MWPD\BasicScaffold\Infrastructure\ViewFactory;
+use MWPD\ContentFreshness\Infrastructure\Renderable;
+use MWPD\ContentFreshness\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\ViewFactory;
 
 final class RenderedOutput {
 

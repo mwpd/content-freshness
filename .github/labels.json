@@ -37,7 +37,7 @@
   {
     "name": "area: bootstrap",
     "color": "5319e7",
-    "description": "basic-scaffold.php, the plugin factory and the BasicScaffoldPlugin composition root."
+    "description": "content-freshness.php, the plugin factory and the ContentFreshnessPlugin composition root."
   },
   {
     "name": "area: infrastructure",

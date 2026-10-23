@@ -2,7 +2,7 @@
 /**
  * Matching function names alone do not make valid registrations.
  *
- * @package MWPD\BasicScaffold\Tests
+ * @package MWPD\ContentFreshness\Tests
  */
 
 declare( strict_types=1 );

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use RuntimeException;
 
@@ -22,7 +22,7 @@ use RuntimeException;
  * Registration waits for a service's dependencies. Without this exception, a
  * service whose dependencies will never arrive would just quietly be missing.
  */
-final class FailedToResolveDependencies extends RuntimeException implements BasicScaffoldException {
+final class FailedToResolveDependencies extends RuntimeException implements ContentFreshnessException {
 
 	/**
 	 * Create a new instance of the exception for services that depend on each

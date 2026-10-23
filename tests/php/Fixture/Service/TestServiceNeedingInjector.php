@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Service;
+namespace MWPD\ContentFreshness\Tests\Fixture\Service;
 
-use MWPD\BasicScaffold\Infrastructure\Injector;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Injector;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 /**
  * A service that receives the injector to make objects on demand.

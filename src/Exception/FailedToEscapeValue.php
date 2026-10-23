@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,14 +11,14 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use RuntimeException;
 
 /**
  * Exception thrown when a value cannot be escaped.
  */
-final class FailedToEscapeValue extends RuntimeException implements BasicScaffoldException {
+final class FailedToEscapeValue extends RuntimeException implements ContentFreshnessException {
 
 	use Stringify;
 

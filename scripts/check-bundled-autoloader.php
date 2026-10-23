@@ -10,7 +10,7 @@
 
 declare( strict_types=1 );
 
-use MWPD\BasicScaffold\Infrastructure\Autoloader;
+use MWPD\ContentFreshness\Infrastructure\Autoloader;
 
 $source = __DIR__ . '/../src/';
 $files  = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $source, FilesystemIterator::SKIP_DOTS ) );
@@ -19,7 +19,7 @@ $names  = [];
 foreach ( $files as $file ) {
 	if ( $file instanceof SplFileInfo && $file->isFile() && 'php' === $file->getExtension() ) {
 		$relative = substr( $file->getPathname(), strlen( $source ), -4 );
-		$names[]  = 'MWPD\\BasicScaffold\\' . str_replace( DIRECTORY_SEPARATOR, '\\', $relative );
+		$names[]  = 'MWPD\\ContentFreshness\\' . str_replace( DIRECTORY_SEPARATOR, '\\', $relative );
 	}
 }
 
@@ -37,7 +37,7 @@ if ( ! empty( spl_autoload_functions() ) ) {
 
 require $source . 'Infrastructure/Autoloader.php';
 $autoloader = new Autoloader();
-$autoloader->add_namespace( 'MWPD\\BasicScaffold', $source )->register();
+$autoloader->add_namespace( 'MWPD\\ContentFreshness', $source )->register();
 $failures = [];
 sort( $names );
 

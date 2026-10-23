@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 final class GoodService implements Service {
 }

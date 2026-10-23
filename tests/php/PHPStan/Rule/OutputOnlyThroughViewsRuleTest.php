@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class OutputOnlyThroughViewsRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/OutputOnlyThroughViews/';
 
-	private const ROOT = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\OutputOnlyThroughViews';
+	private const ROOT = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\OutputOnlyThroughViews';
 
 	private const TIP = 'Principle 7: Show the alternative to WordPress anti-patterns, see '
 		. 'docs/design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns. '
@@ -32,7 +32,7 @@ final class OutputOnlyThroughViewsRuleTest extends RuleTestCase {
 
 	private string $root = self::ROOT;
 
-	private string $infrastructure = 'MWPD\BasicScaffold\Infrastructure';
+	private string $infrastructure = 'MWPD\ContentFreshness\Infrastructure';
 
 	/**
 	 * @var array<string>
@@ -125,8 +125,8 @@ final class OutputOnlyThroughViewsRuleTest extends RuleTestCase {
 	}
 
 	public function test_the_sample_backend_service_passes(): void {
-		$this->root     = 'MWPD\BasicScaffold';
-		$this->excluded = [ 'MWPD\BasicScaffold\Tests' ];
+		$this->root     = 'MWPD\ContentFreshness';
+		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleBackendService.php' ], [] );
 	}
 

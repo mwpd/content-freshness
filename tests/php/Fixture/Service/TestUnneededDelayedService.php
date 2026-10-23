@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Service;
+namespace MWPD\ContentFreshness\Tests\Fixture\Service;
 
-use MWPD\BasicScaffold\Infrastructure\Conditional;
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Conditional;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 class TestUnneededDelayedService implements Service, Conditional, Delayed {
 	public static function get_registration_action(): string {

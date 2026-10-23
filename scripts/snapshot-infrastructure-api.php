@@ -5,8 +5,8 @@
 
 declare( strict_types=1 );
 
-use MWPD\BasicScaffold\Tests\Architecture\InfrastructureApiSnapshot;
-use MWPD\BasicScaffold\Tests\Architecture\RepositoryLayout;
+use MWPD\ContentFreshness\Tests\Architecture\InfrastructureApiSnapshot;
+use MWPD\ContentFreshness\Tests\Architecture\RepositoryLayout;
 
 require __DIR__ . '/../vendor/autoload.php';
 

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,9 +11,9 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Infrastructure\Injector;
+namespace MWPD\ContentFreshness\Infrastructure\Injector;
 
-use MWPD\BasicScaffold\Exception\InvalidInjectionChain;
+use MWPD\ContentFreshness\Exception\InvalidInjectionChain;
 
 /**
  * The injection chain is similar to a trace, keeping track of what we have done

@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,14 +11,14 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use InvalidArgumentException;
 
 /**
  * Exception thrown when a service is invalid.
  */
-final class InvalidArgument extends InvalidArgumentException implements BasicScaffoldException {
+final class InvalidArgument extends InvalidArgumentException implements ContentFreshnessException {
 
 	use Stringify;
 

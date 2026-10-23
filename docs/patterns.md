@@ -60,7 +60,7 @@ itself when it is needed and when it hooks in, through the capability
 interfaces in the sections below. No other code changes.
 
 ```php
-// src/BasicScaffoldPlugin.php
+// src/ContentFreshnessPlugin.php
 protected function get_service_classes(): array {
 	return [
 		self::SAMPLE_BACKEND_SERVICE_ID => SampleBackendService::class,
@@ -70,7 +70,7 @@ protected function get_service_classes(): array {
 }
 ```
 
-**Proven by:** `src/BasicScaffoldPlugin.php:59-66` declares the two sample
+**Proven by:** `src/ContentFreshnessPlugin.php:59-66` declares the two sample
 services; neither knows about the other.
 
 **Rules:** `architecture.compositionRootContracts` builds every declared
@@ -308,7 +308,7 @@ $report = $this->injector->make( Report::class );
 
 **Proven by:** `src/SampleSubsystem/SampleBackendService.php:60-66` and
 `:82-89`, `src/Infrastructure/View/TemplatedViewFactory.php:29` and `:57-63`,
-bound at `src/BasicScaffoldPlugin.php:95`. The injector is made injectable at
+bound at `src/ContentFreshnessPlugin.php:95`. The injector is made injectable at
 `src/Infrastructure/ServiceBasedPlugin.php:346-349`, proven by
 `tests/php/Unit/ServiceBasedPluginTest.php:685-737`.
 
@@ -367,7 +367,7 @@ and the singleton row of [principle 7](design-principles.md#7-show-the-alternati
 a locator hides dependencies and lets any code reach any object. A locator
 that keeps its own registry needs static state, which
 `architecture.noStaticState` already rejects. One that only forwards to the
-plugin factory, `BasicScaffoldPluginFactory::create()->get_container()->get( $id )`,
+plugin factory, `ContentFreshnessPluginFactory::create()->get_container()->get( $id )`,
 holds no state of its own. `architecture.pluginFactoryOnlyAtEdges` rejects
 that factory call inside the object graph, and `architecture.noServiceLocator`
 keeps the container out of feature subsystems.
@@ -406,7 +406,7 @@ composition root's shared instances, and every object that asks for it
 receives the same one. The class itself stays an ordinary class.
 
 ```php
-// src/BasicScaffoldPlugin.php
+// src/ContentFreshnessPlugin.php
 protected function get_shared_instances(): array {
 	return [
 		ReportCache::class, // Illustrative: built once, injected wherever it is asked for.
@@ -417,7 +417,7 @@ protected function get_shared_instances(): array {
 The one exception is the plugin itself, which WordPress needs to reach from
 outside the object graph: see the next section.
 
-**Proven by:** `src/BasicScaffoldPlugin.php:136-146` is where shared instances
+**Proven by:** `src/ContentFreshnessPlugin.php:136-146` is where shared instances
 are declared; `Injector::share()` (`src/Infrastructure/Injector.php:78`) is
 what the plugin calls for each one.
 
@@ -439,7 +439,7 @@ through it and delegates at once to instance methods:
 
 ```php
 \register_activation_hook( __FILE__, static function () {
-	BasicScaffoldPluginFactory::create()->activate();
+	ContentFreshnessPluginFactory::create()->activate();
 } );
 ```
 
@@ -459,8 +459,8 @@ A bridge outside the main plugin file follows the same contract:
 
 The uninstall bridge (#34) is the first bridge the scaffold itself adds.
 
-**Proven by:** `basic-scaffold.php:119-131`, and the factory at
-`src/BasicScaffoldPluginFactory.php:38-56`.
+**Proven by:** `content-freshness.php:119-131`, and the factory at
+`src/ContentFreshnessPluginFactory.php:38-56`.
 
 **Rules:** `architecture.noStaticState` allows static state only in the
 factory. [`architecture.pluginFactoryOnlyAtEdges`](architecture-rules.md#architecturepluginfactoryonlyatedges)
@@ -483,7 +483,7 @@ the value, checks it, and fails with a dedicated exception when it is not
 what the service needs.
 
 ```php
-// src/BasicScaffoldPlugin.php
+// src/ContentFreshnessPlugin.php
 WP_Post::class => static function (): WP_Post {
 	$post = \get_post();
 
@@ -504,7 +504,7 @@ Calling a WordPress function inside an implementation detail is still fine
 ([principle 4](design-principles.md#4-solid-at-the-top-wordpress-at-the-edges)).
 The delegation is for values a service depends on.
 
-**Proven by:** `src/BasicScaffoldPlugin.php:159-192` and
+**Proven by:** `src/ContentFreshnessPlugin.php:159-192` and
 `src/SampleSubsystem/SampleLoopService.php:81`.
 
 For request input, a boundary adapter reads the superglobals, sanitizes and
@@ -611,7 +611,7 @@ the previous one. Where control goes back to WordPress, catch it: loud with
 debug mode on, degrade gracefully with it off.
 
 ```php
-final class FailedToFindPost extends RuntimeException implements BasicScaffoldException {
+final class FailedToFindPost extends RuntimeException implements ContentFreshnessException {
 
 	public static function for_current_request(): self {
 		return new self(
@@ -656,7 +656,7 @@ right action. The main plugin file is the only file with side effects, and it
 only loads the autoloader, hooks activation and deactivation, and registers
 the plugin.
 
-**Proven by:** `basic-scaffold.php:74-137`.
+**Proven by:** `content-freshness.php:74-137`.
 
 **Rules:** `architecture.noSideEffectsOnInclude`;
 `architecture.bootstrapContract` limits the main file's hook API calls to
@@ -678,12 +678,12 @@ setting group/name, AJAX action and service identifier with the plugin's
 prefix. Build hook names and service identifiers from the prefix constants.
 
 ```php
-protected const HOOK_PREFIX = 'mwpd.basic_scaffold.';
+protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
 public const SAMPLE_LOOP_SERVICE_ID = self::SERVICE_PREFIX . 'sample-subsystem.sample-loop-service';
 ```
 
-**Proven by:** `src/BasicScaffoldPlugin.php:206-218`.
+**Proven by:** `src/ContentFreshnessPlugin.php:206-218`.
 
 **Rules:** `architecture.prefixedNames` covers hooks, stored keys, asset
 handles, post types, taxonomies, shortcodes, REST namespaces, cron hooks,

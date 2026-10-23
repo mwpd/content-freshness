@@ -14,7 +14,7 @@ namespace OtherPlugin {
 	?><p>Other namespace</p><?php
 }
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\OutputOnlyThroughViewsOther {
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\OutputOnlyThroughViewsOther {
 	echo 'Namespace prefix without a separator';
 }
 

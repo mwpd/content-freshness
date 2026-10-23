@@ -1,11 +1,11 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Integration;
+namespace MWPD\ContentFreshness\Tests\Integration;
 
-use MWPD\BasicScaffold\Infrastructure\View\TemplatedView;
-use MWPD\BasicScaffold\Infrastructure\View\TemplatedViewFactory;
-use MWPD\BasicScaffold\Tests\ViewHelper;
+use MWPD\ContentFreshness\Infrastructure\View\TemplatedView;
+use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
+use MWPD\ContentFreshness\Tests\ViewHelper;
 
 final class TemplatedViewTest extends TestCase {
 

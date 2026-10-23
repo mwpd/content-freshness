@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Composer\Autoload\ClassLoader;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;

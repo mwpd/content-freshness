@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Exception;
+namespace MWPD\ContentFreshness\Exception;
 
 use RuntimeException;
 use Throwable;
@@ -19,7 +19,7 @@ use Throwable;
 /**
  * Exception thrown when a view file cannot be loaded.
  */
-final class FailedToLoadView extends RuntimeException implements BasicScaffoldException {
+final class FailedToLoadView extends RuntimeException implements ContentFreshnessException {
 
 	/**
 	 * Create a new instance of the exception if the view file itself created

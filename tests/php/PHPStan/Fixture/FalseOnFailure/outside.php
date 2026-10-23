@@ -18,7 +18,7 @@ namespace OtherPlugin {
 	$arrow = /** @return string|false */ static fn() => false;
 }
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\FalseOnFailure\Excluded {
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\FalseOnFailure\Excluded {
 
 	final class Service {
 

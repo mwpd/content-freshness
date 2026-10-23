@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Lifecycle;
+namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
 /**
  * Records construction and each lifecycle call under the fixture's NAME.

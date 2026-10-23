@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Lifecycle;
+namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
 /**
  * Collaborator the lifecycle fixtures receive through their constructor, so a

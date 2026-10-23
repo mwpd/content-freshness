@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -24,7 +24,7 @@ final class DependencyDirectionRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/Layers/';
 
-	private const LAYERS = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\Layers';
+	private const LAYERS = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\Layers';
 
 	private const TIP = 'Principle 4: SOLID at the top, WordPress at the edges, see '
 		. 'docs/design-principles.md#4-solid-at-the-top-wordpress-at-the-edges. '

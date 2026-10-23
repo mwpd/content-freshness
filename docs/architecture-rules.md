@@ -289,7 +289,7 @@ in the plugin's namespace are checked too.
 **Configuration:** `noStaticState.allowed` lists methods as `Class::method` and
 properties as `Class::$property`. As in PHP, class and method names match
 regardless of case, property names only exactly. The scaffold lists
-`BasicScaffoldPluginFactory::create`, which keeps the one plugin instance that
+`ContentFreshnessPluginFactory::create`, which keeps the one plugin instance that
 WordPress reaches from outside the object graph.
 
 **Fix:** keep the value on an instance, and let the injector share that
@@ -315,7 +315,7 @@ namespaces are outside the rule's scope; unrelated static calls are untouched.
 Calls through a class expression chosen at runtime are not checked.
 
 **Configuration:** `pluginFactoryOnlyAtEdges.factories` lists factory classes;
-the scaffold lists `MWPD\BasicScaffold\BasicScaffoldPluginFactory`.
+the scaffold lists `MWPD\ContentFreshness\ContentFreshnessPluginFactory`.
 `pluginFactoryOnlyAtEdges.bridges` lists reviewed methods as `Class::method`
 and is empty by default. Class and method names match without regard to case
 or a leading backslash. `dependencyDirection.views` supplies the production
@@ -355,7 +355,7 @@ and closures in templates without a class are not adapters.
 
 **Fix:** receive the value through the constructor. Configure a delegation in
 the composition root for collaborators such as `$wpdb` or `WP_Query`, as for
-`WP_Post` in `src/BasicScaffoldPlugin.php`. Read request input in a listed
+`WP_Post` in `src/ContentFreshnessPlugin.php`. Read request input in a listed
 adapter and pass its normalized internal type to the service. Sanitization
 itself remains with WordPress Coding Standards' `ValidatedSanitizedInput`
 sniff and review. See [I need WordPress state, such as the current post](patterns.md#i-need-wordpress-state-such-as-the-current-post).
@@ -411,7 +411,7 @@ made.
 **Principle:** [10. Errors are exceptions](design-principles.md#10-errors-are-exceptions).
 
 **Checks:** everything the plugin throws implements its marker interface,
-`BasicScaffoldException`. The rule checks two places: every exception the
+`ContentFreshnessException`. The rule checks two places: every exception the
 plugin creates with `new`, and every `throw` of anything but a variable.
 
 **Allows:** throwing a variable, such as passing on what a `catch` block
@@ -788,8 +788,8 @@ decide otherwise.
 
 **Configuration:** `dependencyDirection.infrastructure` names the
 infrastructure's namespace, and `dependencyDirection.compositionRoot` lists the
-classes of the composition root: `BasicScaffoldPlugin` and
-`BasicScaffoldPluginFactory`. `dependencyDirection.views` lists the
+classes of the composition root: `ContentFreshnessPlugin` and
+`ContentFreshnessPluginFactory`. `dependencyDirection.views` lists the
 directories of the view templates that run in production. The exceptions' namespace comes from
 `exceptions.namespace`, the tests' from `excludedNamespaces`.
 
@@ -820,8 +820,8 @@ this rule's scope. Feature subsystems are the other namespaces below the plugin
 root, exactly as defined by `dependencyDirection`.
 
 **Configuration:** `noServiceLocator.container` defaults to
-`MWPD\BasicScaffold\Infrastructure\ServiceContainer`, `noServiceLocator.injector`
-to `MWPD\BasicScaffold\Infrastructure\Injector`, and
+`MWPD\ContentFreshness\Infrastructure\ServiceContainer`, `noServiceLocator.injector`
+to `MWPD\ContentFreshness\Infrastructure\Injector`, and
 `noServiceLocator.allowedInjectorMethods` to `[make]`. Method names are matched
 without regard to case, and configured class names without regard to case or a
 leading backslash. Layer boundaries reuse `namespace`, `excludedNamespaces`,
@@ -1022,7 +1022,7 @@ prefix to use. Callable declarations are resolved through the root's own
 injector configuration.
 
 **Allows:** core actions in either configured list and plugin-prefixed actions,
-such as `mwpd.basic_scaffold.ready`. An empty hook prefix does not allow every
+such as `mwpd.content_freshness.ready`. An empty hook prefix does not allow every
 action. Empty or whitespace-only actions are reported only by
 `architecture.compositionRootContracts`, which already requires an action.
 Whether a core action fires in the service's request type, whether it runs
@@ -1055,19 +1055,19 @@ with the prefix for their kind:
 
 | Kind | Functions | Name | Default prefix |
 | --- | --- | --- | --- |
-| `hooks` | `do_action`, `do_action_ref_array`, `apply_filters`, `apply_filters_ref_array` | 1st argument | `mwpd.basic_scaffold.` |
-| `options` | `add_option`, `update_option`, `delete_option`, `get_option` and their `_site_option` variants | 1st argument | `mwpd_basic_scaffold_` |
-| `transients` | `set_transient`, `get_transient`, `delete_transient` and their `_site_transient` variants | 1st argument | `mwpd_basic_scaffold_` |
-| `meta` | `register_meta`, `register_post_meta`, `register_term_meta` | meta key, the 2nd argument | `mwpd_basic_scaffold_` |
-| `assets` | `wp_register_script`, `wp_register_style`, `wp_enqueue_script`, `wp_enqueue_style` | handle, the 1st argument | `mwpd-basic-scaffold-` |
-| `postTypes` | `register_post_type` | 1st argument; full name at most 20 characters | `mwpd_bs_` |
-| `taxonomies` | `register_taxonomy` | 1st argument; full name at most 32 characters | `mwpd_bs_` |
-| `shortcodes` | `add_shortcode` | 1st argument | `mwpd_basic_scaffold_` |
-| `restRoutes` | `register_rest_route` | namespace, the 1st argument | `mwpd/basic-scaffold` |
-| `cron` | `wp_schedule_event`; `wp_schedule_single_event`, `wp_unschedule_event`; `wp_next_scheduled`, `wp_clear_scheduled_hook` | hook: 3rd; 2nd; 1st argument, respectively | `mwpd_basic_scaffold_` |
-| `adminPages` | `add_menu_page`, `add_options_page`, `add_management_page`; `add_submenu_page` | menu slug: 4th; 5th argument, respectively | `mwpd-basic-scaffold-` |
-| `settings` | `register_setting` | option group and option name, the 1st and 2nd arguments | `mwpd_basic_scaffold_` |
-| `ajax` | `add_action` with a known `wp_ajax_` or `wp_ajax_nopriv_` action | the remainder after WordPress's action prefix | `mwpd_basic_scaffold_` |
+| `hooks` | `do_action`, `do_action_ref_array`, `apply_filters`, `apply_filters_ref_array` | 1st argument | `mwpd.content_freshness.` |
+| `options` | `add_option`, `update_option`, `delete_option`, `get_option` and their `_site_option` variants | 1st argument | `mwpd_content_freshness_` |
+| `transients` | `set_transient`, `get_transient`, `delete_transient` and their `_site_transient` variants | 1st argument | `mwpd_content_freshness_` |
+| `meta` | `register_meta`, `register_post_meta`, `register_term_meta` | meta key, the 2nd argument | `mwpd_content_freshness_` |
+| `assets` | `wp_register_script`, `wp_register_style`, `wp_enqueue_script`, `wp_enqueue_style` | handle, the 1st argument | `mwpd-content-freshness-` |
+| `postTypes` | `register_post_type` | 1st argument; full name at most 20 characters | `mwpd_cf_` |
+| `taxonomies` | `register_taxonomy` | 1st argument; full name at most 32 characters | `mwpd_cf_` |
+| `shortcodes` | `add_shortcode` | 1st argument | `mwpd_content_freshness_` |
+| `restRoutes` | `register_rest_route` | namespace, the 1st argument | `mwpd/content-freshness` |
+| `cron` | `wp_schedule_event`; `wp_schedule_single_event`, `wp_unschedule_event`; `wp_next_scheduled`, `wp_clear_scheduled_hook` | hook: 3rd; 2nd; 1st argument, respectively | `mwpd_content_freshness_` |
+| `adminPages` | `add_menu_page`, `add_options_page`, `add_management_page`; `add_submenu_page` | menu slug: 4th; 5th argument, respectively | `mwpd-content-freshness-` |
+| `settings` | `register_setting` | option group and option name, the 1st and 2nd arguments | `mwpd_content_freshness_` |
+| `ajax` | `add_action` with a known `wp_ajax_` or `wp_ajax_nopriv_` action | the remainder after WordPress's action prefix | `mwpd_content_freshness_` |
 
 A name passes when PHPStan knows it starts with the prefix, or when it is built
 from one of the kind's prefix constants of the class itself, as in
@@ -1093,11 +1093,11 @@ fails with the usual "cannot check" message.
 prefix `constants` and the `allowed` names. A kind absent from configuration
 is skipped. The defaults above follow WordPress conventions: underscores for
 stored keys, shortcodes, cron hooks, settings and AJAX actions; hyphens for
-asset handles and admin slugs; and the path-like `mwpd/basic-scaffold` for REST
-namespaces (for example, `mwpd/basic-scaffold/v1`). Post types and taxonomies
-use the shorter `mwpd_bs_` so the prefix leaves room for a name within their
+asset handles and admin slugs; and the path-like `mwpd/content-freshness` for REST
+namespaces (for example, `mwpd/content-freshness/v1`). Post types and taxonomies
+use the shorter `mwpd_cf_` so the prefix leaves room for a name within their
 limits; the option prefix alone is already 20 characters. Hooks retain
-`mwpd.basic_scaffold.` and the `HOOK_PREFIX` constant. A plugin generated from
+`mwpd.content_freshness.` and the `HOOK_PREFIX` constant. A plugin generated from
 the scaffold renames these settings together with `HOOK_PREFIX` and
 `SERVICE_PREFIX` in its composition root.
 

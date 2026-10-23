@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,9 +23,9 @@ use PHPStan\Type\FileTypeMapper;
 final class NoServiceLocatorRuleTest extends RuleTestCase {
 
 	private const FIXTURES  = __DIR__ . '/../Fixture/NoServiceLocator/';
-	private const ROOT      = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoServiceLocator';
-	private const CONTAINER = 'MWPD\BasicScaffold\Infrastructure\ServiceContainer';
-	private const INJECTOR  = 'MWPD\BasicScaffold\Infrastructure\Injector';
+	private const ROOT      = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoServiceLocator';
+	private const CONTAINER = 'MWPD\ContentFreshness\Infrastructure\ServiceContainer';
+	private const INJECTOR  = 'MWPD\ContentFreshness\Infrastructure\Injector';
 	private const TIP       = 'Principle 5: One composition root builds the object graph, see '
 		. 'docs/design-principles.md#5-one-composition-root-builds-the-object-graph. '
 		. 'Pattern: docs/patterns.md#i-need-a-service-locator. '

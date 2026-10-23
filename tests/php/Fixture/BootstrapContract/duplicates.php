@@ -2,7 +2,7 @@
 /**
  * Duplicate calls violate the contract even when hook storage would deduplicate.
  *
- * @package MWPD\BasicScaffold\Tests
+ * @package MWPD\ContentFreshness\Tests
  */
 
 declare( strict_types=1 );

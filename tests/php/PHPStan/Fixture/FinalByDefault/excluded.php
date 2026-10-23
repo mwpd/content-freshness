@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\FinalByDefault\Excluded;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\FinalByDefault\Excluded;
 
 class OpenClassInExcludedNamespace {
 }

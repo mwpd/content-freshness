@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace MWPD\BasicScaffold\Tests\Fixture\Lifecycle;
+namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
-use MWPD\BasicScaffold\Infrastructure\Activateable;
-use MWPD\BasicScaffold\Infrastructure\Deactivateable;
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\Registerable;
-use MWPD\BasicScaffold\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\Activateable;
+use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\Registerable;
+use MWPD\ContentFreshness\Infrastructure\Service;
 
 /**
  * Depends on the delayed service, so it waits for init to register.

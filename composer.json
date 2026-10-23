@@ -1,6 +1,6 @@
 {
-    "name": "mwpd/basic-scaffold",
-    "description": "Basic plugin boilerplate code for quick scaffolding.",
+    "name": "mwpd/content-freshness",
+    "description": "Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest.",
     "type": "wordpress-plugin",
     "license": "MIT",
     "authors": [
@@ -34,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "MWPD\\BasicScaffold\\": "src/"
+            "MWPD\\ContentFreshness\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MWPD\\BasicScaffold\\Tests\\": "tests/php/"
+            "MWPD\\ContentFreshness\\Tests\\": "tests/php/"
         },
         "classmap": [
             "tests/php/Fixture/WordPress/"

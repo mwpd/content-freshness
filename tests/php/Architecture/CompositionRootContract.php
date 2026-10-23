@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,20 +11,20 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Architecture;
+namespace MWPD\ContentFreshness\Tests\Architecture;
 
 use Brain\Monkey\Container;
 use Brain\Monkey\Functions;
-use MWPD\BasicScaffold\Infrastructure\Activateable;
-use MWPD\BasicScaffold\Infrastructure\Deactivateable;
-use MWPD\BasicScaffold\Infrastructure\Delayed;
-use MWPD\BasicScaffold\Infrastructure\HasDependencies;
-use MWPD\BasicScaffold\Infrastructure\Injector;
-use MWPD\BasicScaffold\Infrastructure\Injector\SimpleInjector;
-use MWPD\BasicScaffold\Infrastructure\Registerable;
-use MWPD\BasicScaffold\Infrastructure\Service;
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
-use MWPD\BasicScaffold\Tests\PHPStan\Rule\PluginNamespace;
+use MWPD\ContentFreshness\Infrastructure\Activateable;
+use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\Delayed;
+use MWPD\ContentFreshness\Infrastructure\HasDependencies;
+use MWPD\ContentFreshness\Infrastructure\Injector;
+use MWPD\ContentFreshness\Infrastructure\Injector\SimpleInjector;
+use MWPD\ContentFreshness\Infrastructure\Registerable;
+use MWPD\ContentFreshness\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Tests\PHPStan\Rule\PluginNamespace;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;

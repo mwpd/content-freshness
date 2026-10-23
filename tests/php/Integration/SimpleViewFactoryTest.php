@@ -1,12 +1,12 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Integration;
+namespace MWPD\ContentFreshness\Tests\Integration;
 
-use MWPD\BasicScaffold\Infrastructure\View;
-use MWPD\BasicScaffold\Infrastructure\View\SimpleView;
-use MWPD\BasicScaffold\Infrastructure\View\SimpleViewFactory;
-use MWPD\BasicScaffold\Tests\ViewHelper;
+use MWPD\ContentFreshness\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\View\SimpleView;
+use MWPD\ContentFreshness\Infrastructure\View\SimpleViewFactory;
+use MWPD\ContentFreshness\Tests\ViewHelper;
 
 final class SimpleViewFactoryTest extends TestCase {
 

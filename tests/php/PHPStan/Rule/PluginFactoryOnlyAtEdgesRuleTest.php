@@ -1,8 +1,8 @@
 <?php
 /**
- * MWPD Basic Plugin Scaffold.
+ * Content Freshness.
  *
- * @package   MWPD\BasicScaffold
+ * @package   MWPD\ContentFreshness
  * @author    Alain Schlesser <alain.schlesser@gmail.com>
  * @license   MIT
  * @link      https://www.mwpd.io/
@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Rule;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Rule;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -23,7 +23,7 @@ final class PluginFactoryOnlyAtEdgesRuleTest extends RuleTestCase {
 
 	private const FIXTURES = __DIR__ . '/../Fixture/PluginFactoryOnlyAtEdges/';
 
-	private const FIXTURE_NAMESPACE = 'MWPD\BasicScaffold\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges';
+	private const FIXTURE_NAMESPACE = 'MWPD\ContentFreshness\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges';
 
 	private const FIX = ' Receive what you need through the constructor,'
 		. ' or receive the injector for on-demand creation.'
@@ -43,7 +43,7 @@ final class PluginFactoryOnlyAtEdgesRuleTest extends RuleTestCase {
 			[
 				'\\' . strtoupper( self::FIXTURE_NAMESPACE . '\PluginFactory' ),
 				self::FIXTURE_NAMESPACE . '\OtherFactory',
-				'MWPD\BasicScaffold\BasicScaffoldPluginFactory',
+				'MWPD\ContentFreshness\ContentFreshnessPluginFactory',
 			],
 			[ '\\' . strtoupper( self::FIXTURE_NAMESPACE . '\Bridge::dispatch' ) ]
 		);
@@ -120,9 +120,9 @@ final class PluginFactoryOnlyAtEdgesRuleTest extends RuleTestCase {
 	}
 
 	public function test_it_allows_the_actual_bootstrap_but_not_files_with_the_same_basename(): void {
-		$this->analyse( [ __DIR__ . '/../../../../basic-scaffold.php' ], [] );
+		$this->analyse( [ __DIR__ . '/../../../../content-freshness.php' ], [] );
 		$this->analyse(
-			[ self::FIXTURES . 'basic-scaffold.php' ],
+			[ self::FIXTURES . 'content-freshness.php' ],
 			[ $this->error( 'PluginFactory', 'the file', 7, false ) ]
 		);
 	}

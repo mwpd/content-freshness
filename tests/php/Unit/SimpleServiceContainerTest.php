@@ -1,12 +1,12 @@
 <?php
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Unit;
+namespace MWPD\ContentFreshness\Tests\Unit;
 
-use MWPD\BasicScaffold\Exception\InvalidService;
-use MWPD\BasicScaffold\Infrastructure\Service;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer\LazilyInstantiatedService;
-use MWPD\BasicScaffold\Infrastructure\ServiceContainer\SimpleServiceContainer;
+use MWPD\ContentFreshness\Exception\InvalidService;
+use MWPD\ContentFreshness\Infrastructure\Service;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer\LazilyInstantiatedService;
+use MWPD\ContentFreshness\Infrastructure\ServiceContainer\SimpleServiceContainer;
 
 final class SimpleServiceContainerTest extends TestCase {
 

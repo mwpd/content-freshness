@@ -1,5 +1,5 @@
 <?php
-use MWPD\BasicScaffold\Infrastructure\View;
+use MWPD\ContentFreshness\Infrastructure\View;
 
 /**
  * @var View $this

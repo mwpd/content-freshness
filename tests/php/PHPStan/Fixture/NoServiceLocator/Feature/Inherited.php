@@ -2,6 +2,6 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\NoServiceLocator\Feature;
 
-interface Inherited extends \MWPD\BasicScaffold\Infrastructure\ServiceContainer {}
+interface Inherited extends \MWPD\ContentFreshness\Infrastructure\ServiceContainer {}

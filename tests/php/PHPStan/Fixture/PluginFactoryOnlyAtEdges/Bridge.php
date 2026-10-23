@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges;
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\PluginFactoryOnlyAtEdges;
 
 final class Bridge {
 	public static function dispatch(): void {

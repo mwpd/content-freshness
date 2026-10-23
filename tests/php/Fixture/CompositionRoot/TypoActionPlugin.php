@@ -2,13 +2,13 @@
 
 declare( strict_types=1 );
 
-namespace MWPD\BasicScaffold\Tests\Fixture\CompositionRoot;
+namespace MWPD\ContentFreshness\Tests\Fixture\CompositionRoot;
 
-use MWPD\BasicScaffold\Infrastructure\ServiceBasedPlugin;
+use MWPD\ContentFreshness\Infrastructure\ServiceBasedPlugin;
 
 final class TypoActionPlugin extends ServiceBasedPlugin {
 
-	protected const HOOK_PREFIX = 'mwpd.basic_scaffold.';
+	protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
 	protected function get_service_classes(): array {
 		return [
