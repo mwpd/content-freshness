@@ -1,0 +1,1 @@
+<p>Collision comes from the content-freshness override.</p>

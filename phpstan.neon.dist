@@ -142,6 +142,7 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\View\ViewLocations
                 - MWPD\ContentFreshness\Freshness\MaxAge
                 - MWPD\ContentFreshness\Freshness\PostAge
+                - MWPD\ContentFreshness\Infrastructure\View\ViewConfiguration
                 - DateTimeImmutable
                 - DateInterval
                 - ArrayIterator

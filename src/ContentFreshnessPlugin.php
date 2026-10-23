@@ -29,6 +29,7 @@ use MWPD\ContentFreshness\Infrastructure\{
 	Service\DebugMode,
 	Service\WordPressDebugMode,
 	View\TemplatedViewFactory,
+	View\ViewConfiguration,
 	ViewFactory
 };
 use MWPD\ContentFreshness\Notice\{
@@ -208,10 +209,10 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 		return [
 
 			/*
-			 * None needed. A delegation builds an object the injector cannot,
-			 * such as the current post at build time. The outdated post
-			 * notice resolves its post when the_content runs instead, through
-			 * MainLoop, so nothing here depends on when the service is built.
+			 * A delegation builds an object the injector cannot. The current
+			 * post is not one of them: the outdated post notice resolves its
+			 * post when the_content runs, through MainLoop, so nothing here
+			 * depends on when the service is built.
 			 *
 			 * The injector itself needs no delegation either. The
 			 * infrastructure hands the plugin's own injector to any
@@ -222,6 +223,22 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 			 * dependency stays visible in the constructor, and nothing static
 			 * is involved.
 			 */
+
+			/*
+			 * The view factories need to know where the plugin's views are.
+			 * The infrastructure cannot tell where the plugin root is from
+			 * its own location, so the composition root says so: it is the
+			 * parent of src/, the directory that holds this file. This is
+			 * the one place the plugin root is computed.
+			 *
+			 * The injector hands this configuration to the bound view
+			 * factory, which passes it on to its views. Themes override the
+			 * plugin's views in the VIEW_OVERRIDE_DIRECTORY defined below.
+			 */
+			ViewConfiguration::class => static fn(): ViewConfiguration => new ViewConfiguration(
+				\dirname( __DIR__ ),
+				self::VIEW_OVERRIDE_DIRECTORY
+			),
 		];
 	}
 
@@ -240,6 +257,19 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
 	protected const SERVICE_PREFIX = 'mwpd.content_freshness.';
+
+	/*
+	 * Directory inside a theme that holds the overrides for this plugin's
+	 * views. A theme overrides views/settings.php with
+	 * <child or parent theme>/content-freshness/views/settings.php.
+	 *
+	 * Rename it for your plugin, usually to its slug. It is a public path, so
+	 * it carries the plugin's prefix like the hooks do: two plugins built from
+	 * this scaffold, or a theme with a views/ folder of its own, then cannot
+	 * override each other's views. Existing theme overrides move along when
+	 * it changes.
+	 */
+	protected const VIEW_OVERRIDE_DIRECTORY = 'content-freshness';
 
 	/*
 	 * Service identifiers we know about.
