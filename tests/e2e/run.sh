@@ -12,7 +12,8 @@
 # through WP-CLI and HTTP requests. Email is captured by the must-use plugin in
 # tests/e2e/mu-plugins instead of being sent.
 #
-# Set E2E_KEEP_RUNNING=1 to leave the environment running afterwards.
+# Set E2E_KEEP_RUNNING=1 to leave the environment running afterwards, and
+# WP_ENV_PHP_VERSION or WP_ENV_CORE to test another PHP or WordPress version.
 
 set -euo pipefail
 
@@ -108,7 +109,9 @@ npx wp-env start >/dev/null
 echo "  WordPress $(wp core version), PHP $(wp eval 'echo PHP_VERSION;')"
 
 echo "Resetting the site"
-# A previous run may have used another WordPress version on the same database.
+# A previous run may have used an older WordPress on the same database. A
+# newer one cannot be undone: run `npx wp-env reset development` before testing
+# an older WordPress, such as WP_ENV_CORE=WordPress/WordPress#6.0.
 wp core update-db --quiet
 wp plugin deactivate content-freshness --quiet >/dev/null 2>&1 || true
 wp option delete "$OPTION" >/dev/null 2>&1 || true
