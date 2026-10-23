@@ -1,11 +1,11 @@
 # Architecture rules
 
-The [design principles](design-principles.md) describe how the scaffold is
+The [design principles](design-principles.md) describe how the plugin is
 built. The rules on this page turn the parts of them that a tool can check into
 checks that fail as soon as code breaks them, in the editor, in
 `composer lint` and in CI.
 
-They exist for whoever extends the scaffold next, person or coding agent. A
+They exist for whoever extends the plugin next, person or coding agent. A
 failure does not only say that a rule was broken. It says what to do instead,
 and links to the principle and to the rule's entry below.
 
@@ -23,7 +23,7 @@ composer api:snapshot          # regenerate the infrastructure API listing after
 CI also runs `php -n scripts/check-bundled-autoloader.php` on PHP 7.4 in a
 checkout without `vendor/`, before installing any dependencies. This loads every
 class, interface and trait under `src/` directly through the bundled autoloader,
-independently of the bootstrap's Composer detection (#10).
+independently of the bootstrap's Composer detection ([mwpd/basic-scaffold#10](https://github.com/mwpd/basic-scaffold/issues/10)).
 
 ## How the rules are built
 
@@ -51,12 +51,12 @@ Every failure has the same three parts:
 ## When a rule stops you
 
 Change the code so it follows the rule. The message says how, and
-[docs/patterns.md](patterns.md) shows the scaffold's way of meeting the need
+[docs/patterns.md](patterns.md) shows the plugin's way of meeting the need
 the code was after, with examples that pass the checks.
 
 Never silence an architecture rule with an inline `@phpstan-ignore`, an
 `ignoreErrors` entry or a baseline. If the rule is wrong for a real case, open
-an issue with `needs: decision` that names the case. Exceptions the maintainer
+an issue that names the case. Exceptions the maintainer
 accepts become configuration under `parameters.architecture` in
 `phpstan.neon.dist`, where they stay visible and reviewed.
 
@@ -117,7 +117,7 @@ says which rules enforce each principle, and what stays with review.
 | Principle | Checked by | Reviewed by hand |
 | --- | --- | --- |
 | [The core idea: complexity that grows linearly](design-principles.md#the-core-idea-complexity-that-grows-linearly) | `hooksInLifecycleMethods`, `queryContextNeedsDelay`, `registrationActionKnown`, `capabilitiesOnServices`, `servicesDeclared`, `compositionRootContracts` | Each service deciding its own lifecycle through capability interfaces |
-| [1. Runs on PHP and WordPress alone](design-principles.md#1-runs-on-php-and-wordpress-alone) | `noRuntimeDependencies`, `declarationsFollowPsr4`, `explicitNullableParameters`; bundled autoloader CI check | Bootstrap Composer detection (#10) |
+| [1. Runs on PHP and WordPress alone](design-principles.md#1-runs-on-php-and-wordpress-alone) | `noRuntimeDependencies`, `declarationsFollowPsr4`, `explicitNullableParameters`; bundled autoloader CI check | Bootstrap Composer detection ([mwpd/basic-scaffold#10](https://github.com/mwpd/basic-scaffold/issues/10)) |
 | [2. Self-contained infrastructure](design-principles.md#2-self-contained-infrastructure-replaceable-by-design) | `dependencyDirection` (subsystems depend on interfaces) | Keeping the simple implementations simple |
 | [3. Defaults out of the box](design-principles.md#3-defaults-out-of-the-box-poka-yoke) | `newOnlyWhereAllowed` (the shape of a poka-yoke default) | Whether a collaborator has an obvious default |
 | [4. SOLID at the top](design-principles.md#4-solid-at-the-top-wordpress-at-the-edges) | `dependencyDirection` | Single responsibility, open/closed and Liskov substitution |
@@ -126,10 +126,10 @@ says which rules enforce each principle, and what stays with review.
 | [7. WordPress anti-patterns](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns) | `constructorsOnlyAssign`, `noHooksInConstructor`, `hooksInLifecycleMethods`, `noContextChecksInRegister`, `queryContextNeedsDelay`, `registrationActionKnown`, `noSideEffectsOnInclude`, `noStaticState`, `pluginFactoryOnlyAtEdges`, `newOnlyWhereAllowed`, `noGlobalState`, `outputOnlyThroughViews` | God classes |
 | [8. Types name concepts](design-principles.md#8-types-name-concepts-not-just-data) | `namesWithoutTypeKind`; PHPStan at level `max` and Psalm at level 2, for consistency | Whether a value deserves a type of its own; whether implementation names describe their distinguishing behaviour |
 | [9. Never trust what WordPress hands over](design-principles.md#9-never-trust-what-wordpress-hands-over) | `noGlobalState` (request input only in adapters), `rawIsEscaped`, PHPCS (WordPress Coding Standards) for escaping output | Validating input at the boundary |
-| [10. Errors are exceptions](design-principles.md#10-errors-are-exceptions) | `noWordPressErrorMechanisms`, `noFalseOnFailure`, `throwOnlyPluginExceptions`, `exceptionShape`, `exceptionsThroughNamedConstructors`, `exceptionsKeepCause` | Graceful degradation at the boundary (#27, #30) |
-| [11. Lifecycle steps are idempotent](design-principles.md#11-lifecycle-steps-are-idempotent) | `compositionRootContracts` | Plugin registration orchestration (#26); effects outside Brain Monkey |
+| [10. Errors are exceptions](design-principles.md#10-errors-are-exceptions) | `noWordPressErrorMechanisms`, `noFalseOnFailure`, `throwOnlyPluginExceptions`, `exceptionShape`, `exceptionsThroughNamedConstructors`, `exceptionsKeepCause` | Graceful degradation at the boundary ([mwpd/basic-scaffold#27](https://github.com/mwpd/basic-scaffold/issues/27), [mwpd/basic-scaffold#30](https://github.com/mwpd/basic-scaffold/issues/30)) |
+| [11. Lifecycle steps are idempotent](design-principles.md#11-lifecycle-steps-are-idempotent) | `compositionRootContracts` | Plugin registration orchestration ([mwpd/basic-scaffold#26](https://github.com/mwpd/basic-scaffold/issues/26)); effects outside Brain Monkey |
 | [12. Extension points at a hook](design-principles.md#12-extension-points-run-at-a-hook-never-at-include-time) | `noSideEffectsOnInclude`, `noHooksInConstructor`, `bootstrapContract` | |
-| [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity) | `prefixedNames` | Prefixes of service identifiers and view override paths (#29) |
+| [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity) | `prefixedNames` | Prefixes of service identifiers and view override paths ([mwpd/basic-scaffold#29](https://github.com/mwpd/basic-scaffold/issues/29)) |
 | [14. The code teaches](design-principles.md#14-the-code-teaches) | `samplesAreTested`, `testsAreDiscovered`, `citationsResolve`, `infrastructureApiSnapshot` | Whether comments explain why and cited lines still support the prose |
 | [Hard rules](../AGENTS.md#hard-rules) | `strictTypes`, `noSuppression`, `testsAreDiscovered`, `gatesAtStrength`, `infrastructureApiSnapshot` | API compatibility and maintainer rulings on breaking changes |
 
@@ -148,7 +148,7 @@ that names the fix. The fixtures and tests listed prove it.
 | A class that is not `final` | `finalByDefault` | `tests/php/PHPStan/Fixture/FinalByDefault/classes.php` |
 | A bare SPL exception thrown | `throwOnlyPluginExceptions` | `tests/php/PHPStan/Fixture/Errors/Service.php` |
 | A public WordPress name without the plugin's prefix, or an overlong post type/taxonomy name | `prefixedNames` | `tests/php/PHPStan/Fixture/Names/Service.php`, `Registrations.php`, `NameLengths.php` |
-| A sample class or production view without a test | `samplesAreTested` | `SamplesAreTestedTest::test_it_reports_an_untested_subsystem_class_with_the_fix`, `SamplesAreTestedTest::test_it_reports_an_untested_view_with_the_fix` |
+| A feature class or production view without a test | `samplesAreTested` | `SamplesAreTestedTest::test_it_reports_an_untested_subsystem_class_with_the_fix`, `SamplesAreTestedTest::test_it_reports_an_untested_view_with_the_fix` |
 | A test file outside a test suite | `testsAreDiscovered` | `RepositoryStructureTest::test_it_reports_tests_phpunit_never_runs` |
 | A service calling the plugin factory as a static service locator | `pluginFactoryOnlyAtEdges` | `tests/php/PHPStan/Fixture/PluginFactoryOnlyAtEdges/Service.php` |
 | A documentation citation naming a missing file, an out-of-bounds line or a reversed range | `citationsResolve` | `RepositoryStructureTest::test_it_reports_broken_documentation_citations_with_full_messages` |
@@ -156,7 +156,7 @@ that names the fix. The fixtures and tests listed prove it.
 | HTML or a string printed directly by a service | `outputOnlyThroughViews` | `tests/php/PHPStan/Fixture/OutputOnlyThroughViews/Service.php` |
 | A raw view value printed without escaping | `rawIsEscaped` | `tests/php/PHPStan/Fixture/RawEscaping/views/unescaped.php` |
 | A subsystem receiving the container or configuring the injector | `noServiceLocator` | `tests/php/PHPStan/Fixture/NoServiceLocator/Feature/Constructor.php`, `Reconfigures.php` |
-| A sample service depending on a concrete infrastructure class | `dependencyDirection` | `tests/php/PHPStan/Fixture/Layers/Feature/Service.php` |
+| A feature service depending on a concrete infrastructure class | `dependencyDirection` | `tests/php/PHPStan/Fixture/Layers/Feature/Service.php` |
 | A lifecycle capability on a class that is not a service | `capabilitiesOnServices` | `tests/php/PHPStan/Fixture/Capabilities/RegisterableOnly.php` |
 | A delayed service with nothing to register | `capabilitiesOnServices` | `tests/php/PHPStan/Fixture/Capabilities/DelayedService.php` |
 | A subsystem service missing from the composition root | `servicesDeclared` | `ServicesDeclaredTest::test_it_reports_an_undeclared_subsystem_service_with_the_fix` |
@@ -236,7 +236,7 @@ classes listed as designed base classes. A `@final` tag in a docblock does not
 count: the class can still be extended.
 
 **Configuration:** `finalByDefault.baseClasses` lists the classes designed to be
-extended. The scaffold lists `SimpleView`, the base of `TemplatedView`.
+extended. The plugin lists `SimpleView`, the base of `TemplatedView`.
 
 **Fix:** declare the class `final`, and vary its behaviour through interfaces
 and injected collaborators. Add it to `baseClasses` only when it is designed
@@ -288,7 +288,7 @@ in the plugin's namespace are checked too.
 
 **Configuration:** `noStaticState.allowed` lists methods as `Class::method` and
 properties as `Class::$property`. As in PHP, class and method names match
-regardless of case, property names only exactly. The scaffold lists
+regardless of case, property names only exactly. The plugin lists
 `ContentFreshnessPluginFactory::create`, which keeps the one plugin instance that
 WordPress reaches from outside the object graph.
 
@@ -315,7 +315,7 @@ namespaces are outside the rule's scope; unrelated static calls are untouched.
 Calls through a class expression chosen at runtime are not checked.
 
 **Configuration:** `pluginFactoryOnlyAtEdges.factories` lists factory classes;
-the scaffold lists `MWPD\ContentFreshness\ContentFreshnessPluginFactory`.
+the plugin lists `MWPD\ContentFreshness\ContentFreshnessPluginFactory`.
 `pluginFactoryOnlyAtEdges.bridges` lists reviewed methods as `Class::method`
 and is empty by default. Class and method names match without regard to case
 or a leading backslash. `dependencyDirection.views` supplies the production
@@ -347,15 +347,16 @@ superglobals, such as `$_SESSION`, are outside this rule's scope. Listing an
 adapter never permits `global` or `$GLOBALS`.
 
 **Configuration:** `noGlobalState.inputAdapters` lists classes that sanitize
-and normalize request input into internal types; the scaffold needs none.
+and normalize request input into internal types; the plugin needs none.
 Class names match without regard to case or a leading backslash; subclasses
 need their own entry. Closures inside a listed class may read input; functions
 and closures in templates without a class are not adapters.
 `dependencyDirection.views` supplies the production view directories.
 
-**Fix:** receive the value through the constructor. Configure a delegation in
-the composition root for collaborators such as `$wpdb` or `WP_Query`, as for
-`WP_Post` in `src/ContentFreshnessPlugin.php`. Read request input in a listed
+**Fix:** receive the value through the constructor. Put WordPress state behind
+an interface whose WordPress implementation reads and checks it, as `MainLoop`
+does for the current post, and configure a delegation in the composition root
+for collaborators such as `$wpdb` or `WP_Query`. Read request input in a listed
 adapter and pass its normalized internal type to the service. Sanitization
 itself remains with WordPress Coding Standards' `ValidatedSanitizedInput`
 sniff and review. See [I need WordPress state, such as the current post](patterns.md#i-need-wordpress-state-such-as-the-current-post).
@@ -377,7 +378,7 @@ call is made. Classes listed as boundary adapters may create and return
 callback.
 
 **Configuration:** `noWordPressErrorMechanisms.boundaryAdapters` lists the
-classes that hand a `WP_Error` to WordPress. The scaffold has none yet.
+classes that hand a `WP_Error` to WordPress. The plugin has none.
 
 **Fix:** throw a dedicated exception. The code that hands control back to
 WordPress catches it and decides what the user sees.
@@ -440,7 +441,7 @@ exception namespace implements the marker interface.
 without a named constructor, and code listed as not being an exception.
 
 **Configuration:** `exceptions.notExceptions` lists the code in the exception
-namespace that is not an exception. The scaffold lists the `Stringify` trait.
+namespace that is not an exception. The plugin lists the `Stringify` trait.
 Whether exceptions are `final` is checked by `architecture.finalByDefault`.
 
 **Fix:** what the message says: extend `InvalidArgumentException` for invalid
@@ -484,7 +485,7 @@ variable aliases or inspect how a constructor uses its arguments.
 as `Class::method`, with a reason beside each entry. Class and method names
 match regardless of case and allow a leading backslash. An allowance does
 not extend to closures inside the method and does not permit losing a cause
-when throwing. The scaffold needs no empty catches.
+when throwing. The plugin needs no empty catches.
 
 **Fix:** pass the caught exception to the constructor or named constructor as
 its previous cause, or rethrow it. Handle the failure in an empty catch; list
@@ -512,7 +513,7 @@ listed classes are exempt. WordPress output functions such as
 `wp_send_json()` are outside this rule's scope.
 
 **Configuration:** `outputOnlyThroughViews.allowed` lists named classes
-allowed to output directly; the scaffold needs none. Names match without
+allowed to output directly; the plugin needs none. Names match without
 regard to case or a leading backslash; subclasses need their own entry.
 The rendering interfaces' namespace comes from
 `dependencyDirection.infrastructure`, and production template directories
@@ -520,7 +521,7 @@ from `dependencyDirection.views`.
 
 **Fix:** render a view from an injected `ViewFactory` and echo its result.
 Put markup and formatting in the template. Escaping inside templates is
-checked separately by `architecture.rawIsEscaped` and PHPCS. The sample's
+checked separately by `architecture.rawIsEscaped` and PHPCS. The services'
 PHPCS suppression is still needed because PHPCS does not recognize the
 rendering method as automatically escaped.
 
@@ -705,7 +706,7 @@ class with a `Test.php` suffix, or add a suite for its directory.
 ### `architecture.samplesAreTested`
 
 **Principle:** [14. The code teaches](design-principles.md#14-the-code-teaches):
-samples are copied into generated plugins, so they must have tests.
+the plugin's code is quoted as teaching material, so all of it must be tested.
 
 **Checks:** every concrete class in a feature subsystem is referenced by
 `::class` or a fully qualified `@covers` annotation in a file discovered by
@@ -713,7 +714,7 @@ the `unit` or `integration` suite. Class constants follow PHP's namespace and
 import rules, including aliases and grouped imports; `@covers Class::method`
 also references its class. Every production PHP view template is named in
 such a test by its path relative to the repository, with or without `.php`,
-for example `views/test-backend-service`. A test that renders through a service
+for example `views/outdated-post-notice`. A test that renders through a service
 can name the template in its docblock.
 
 **Allows:** abstract classes, interfaces, traits, classes directly in the
@@ -759,7 +760,7 @@ there for review.
 
 **Fix:** fix the code instead of weakening the gate; restore the required
 configuration. A deliberate change to the policy needs a maintainer ruling
-on an issue with `needs: decision` before changing the expectation.
+on an issue before changing the expectation.
 
 ### `architecture.dependencyDirection`
 
@@ -775,7 +776,7 @@ native types and in any documentation tag, such as `@var`, `@throws` or
 | --- | --- |
 | the exceptions (`src/Exception/`) | other exceptions |
 | the infrastructure (`src/Infrastructure/`) | the infrastructure and the exceptions |
-| a feature subsystem (any other top-level namespace, such as `src/SampleSubsystem/`) | the infrastructure's interfaces, the exceptions and the subsystems |
+| a feature subsystem (any other top-level namespace, such as `src/Notice/`) | the infrastructure's interfaces, the exceptions and the subsystems |
 | the composition root | everything |
 | any other class directly in the root namespace | the infrastructure's interfaces and the exceptions |
 | a view template (`views/`) | everything but the tests |
@@ -860,9 +861,9 @@ A class chosen at runtime, `new $class()`, is allowed when PHPStan can prove it
 is a value object or throwable.
 
 **Configuration:** `newOnlyWhereAllowed.factories` lists the factory
-interfaces: the scaffold lists `Injector` and `Instantiator`.
-`newOnlyWhereAllowed.valueObjects` lists the value objects: the scaffold lists
-`LazilyInstantiatedService`, `ViewLocations` and PHP's `DateTimeImmutable`,
+interfaces: the plugin lists `Injector` and `Instantiator`.
+`newOnlyWhereAllowed.valueObjects` lists the value objects: the plugin lists
+`LazilyInstantiatedService`, `ViewLocations`, its own `MaxAge` and `PostAge`, and PHP's `DateTimeImmutable`,
 `DateInterval`, `ArrayIterator` and `SplObjectStorage`.
 
 **Fix:** receive the object through the constructor, typed to its interface,
@@ -1048,7 +1049,7 @@ with its hook prefix. See [I need to hook in later](patterns.md#i-need-to-hook-i
 
 **Principle:** [13. One plugin, to arbitrary complexity](design-principles.md#13-one-plugin-to-arbitrary-complexity):
 everything public carries the plugin's prefix, so several plugins built from
-this scaffold run side by side.
+the scaffold run side by side.
 
 **Checks:** the names the plugin creates in WordPress's shared spaces start
 with the prefix for their kind:
@@ -1099,7 +1100,7 @@ stored keys, shortcodes, cron hooks, settings and AJAX actions; hyphens for
 asset handles and admin slugs; and the path-like `mwpd/content-freshness` for REST
 namespaces (for example, `mwpd/content-freshness/v1`). Post types and taxonomies
 use the shorter `mwpd_cf_` so the prefix leaves room for a name within their
-limits; the option prefix alone is already 20 characters. Hooks retain
+limits; the option prefix alone is already 23 characters. Hooks retain
 `mwpd.content_freshness.` and the `HOOK_PREFIX` constant. A plugin generated from
 the scaffold renames these settings together with `HOOK_PREFIX` and
 `SERVICE_PREFIX` in its composition root.
@@ -1127,7 +1128,7 @@ purpose. Ignores of other PHPStan, Psalm or PHPCS errors are not checked.
 **Configuration:** none.
 
 **Fix:** fix the code. If the rule is wrong for a real case, open an issue
-with `needs: decision`; an exception the maintainer accepts becomes an
+that names the case; an exception the maintainer accepts becomes an
 allowance in the rule's configuration.
 
 An ignore counts as aimed at a rule when it names its identifier, or when its
@@ -1198,7 +1199,7 @@ a different object or method, or a different priority adds an entry. Removing
 an existing entry changes state; removing a missing entry leaves it unchanged.
 Actions and filters share hook entries, and fired hooks retain their call
 history. This does not check the plugin's own
-`register_services()` orchestration (#26), which services activation and
+`register_services()` orchestration ([mwpd/basic-scaffold#26](https://github.com/mwpd/basic-scaffold/issues/26)), which services activation and
 deactivation reach (`tests/php/Unit/ServiceBasedPluginTest.php` covers that),
 or database and filesystem effects Brain Monkey cannot see. Dependency graph
 checks skip missing or invalid declarations already reported by the contract.
@@ -1225,7 +1226,7 @@ Keep constructors to storing dependencies. Guard
 each lifecycle step so a second run does nothing, or make it set rather than
 add.
 
-**Patterns:** [I need to add a feature](patterns.md#i-need-to-add-a-feature), [I need to set something up when the plugin is activated](patterns.md#i-need-to-set-something-up-when-the-plugin-is-activated).
+**Patterns:** [I need to add a feature](patterns.md#i-need-to-add-a-feature), [I need to set something up when the plugin is activated](patterns.md#i-need-to-set-something-up-when-the-plugin-is-activated), [I need to clean up when the plugin is deleted](patterns.md#i-need-to-clean-up-when-the-plugin-is-deleted).
 
 ### `architecture.capabilitiesOnServices`
 
@@ -1233,7 +1234,8 @@ add.
 and the capability interfaces of [the core idea](design-principles.md#how-services-map-to-it).
 
 **Checks:** a class implementing `Registerable`, `Conditional`, `Delayed`,
-`HasDependencies`, `Activateable` or `Deactivateable` also implements `Service`.
+`HasDependencies`, `Activateable`, `Deactivateable` or `Uninstallable` also
+implements `Service`.
 A `Delayed` class also implements `Registerable`: waiting for an action only
 makes sense when the service has hooks to register. Inherited interfaces count,
 including on abstract classes.

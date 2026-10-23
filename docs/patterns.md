@@ -1,22 +1,22 @@
 # Patterns
 
-The [design principles](design-principles.md) say why the scaffold is built
+The [design principles](design-principles.md) say why the plugin is built
 the way it is, and the [architecture rules](architecture-rules.md) say exactly
 what the checks reject. This page answers the question in between, the one you
 arrive with: **"I need X. How do I do that here?"**
 
 Each section is named after a need, in the words you would search for. Many
 of those needs have a well-known answer elsewhere in WordPress or PHP, often
-one this scaffold rejects, so every section has the same parts:
+one this plugin rejects, so every section has the same parts:
 
 - **What people reach for**: the common answer.
 - **Why not here**: the principles and the rules that reject it.
-- **Instead**: the scaffold's pattern. Where one need hides several, the
+- **Instead**: the plugin's pattern. Where one need hides several, the
   section tells them apart.
-- **Proven by**: code in the scaffold that follows the pattern and passes the
+- **Proven by**: code in this plugin that follows the pattern and passes the
   checks.
-- **Rules**: the checks that enforce it. A rule still being built names its
-  issue.
+- **Rules**: the checks that enforce it. A rule the scaffold is still building
+  names its issue in [`mwpd/basic-scaffold`](https://github.com/mwpd/basic-scaffold/issues).
 
 If a check stops you, its message names the principle and the rule. Look up
 what you were trying to do here before working around it. If no section fits,
@@ -29,6 +29,7 @@ the need may be new: ask on an issue rather than inventing a workaround.
 - [I need a service only in some requests](#i-need-a-service-only-in-some-requests)
 - [I need to hook in later](#i-need-to-hook-in-later)
 - [I need to set something up when the plugin is activated](#i-need-to-set-something-up-when-the-plugin-is-activated)
+- [I need to clean up when the plugin is deleted](#i-need-to-clean-up-when-the-plugin-is-deleted)
 - [I need to create objects on demand](#i-need-to-create-objects-on-demand)
 - [I need to choose an implementation at runtime](#i-need-to-choose-an-implementation-at-runtime)
 - [I need a service locator](#i-need-a-service-locator)
@@ -63,15 +64,19 @@ interfaces in the sections below. No other code changes.
 // src/ContentFreshnessPlugin.php
 protected function get_service_classes(): array {
 	return [
-		self::SAMPLE_BACKEND_SERVICE_ID => SampleBackendService::class,
-		self::SAMPLE_LOOP_SERVICE_ID    => SampleLoopService::class,
-		self::REPORTS_SERVICE_ID        => ReportsService::class, // The new feature (illustrative).
+		self::OUTDATED_POST_NOTICE_ID => OutdatedPostNotice::class,
+		self::POST_AGE_COLUMN_ID      => PostAgeColumn::class,
+		self::FRESHNESS_SETTING_ID    => FreshnessSetting::class,
+		self::STALE_CONTENT_DIGEST_ID => StaleContentDigest::class,
 	];
 }
 ```
 
-**Proven by:** `src/ContentFreshnessPlugin.php:59-66` declares the two sample
-services; neither knows about the other.
+**Proven by:** `src/ContentFreshnessPlugin.php:88-100` declares the four
+services; none knows about the others. The notice came first. Adding the
+column and then the digest each added one line here, a binding where they
+needed a new collaborator, and their own directory: `git log --stat` shows no
+other service changed.
 
 **Rules:** `architecture.compositionRootContracts` builds every declared
 service; `architecture.dependencyDirection` keeps a subsystem on the
@@ -89,23 +94,28 @@ creating an object must not change global state, and including a file must not
 do anything.
 
 **Instead:** implement `Registerable` and add the hooks in `register()`. The
-plugin calls it once, at the right point in the lifecycle. Activation and
-deactivation work the same way, through `Activateable` and `Deactivateable`.
+plugin calls it once, at the right point in the lifecycle. Activation,
+deactivation and uninstalling work the same way, through `Activateable`,
+`Deactivateable` and `Uninstallable`.
 
 ```php
-final class SampleBackendService implements Service, Registerable, Conditional {
+final class PostAgeColumn implements Service, Registerable, Conditional, Delayed {
 
-	public function __construct( ViewFactory $view_factory ) {
+	public function __construct( FreshnessPolicy $policy, ViewFactory $view_factory, DebugMode $debug_mode ) {
+		$this->policy       = $policy;
 		$this->view_factory = $view_factory;
+		$this->debug_mode   = $debug_mode;
 	}
 
 	public function register(): void {
-		\add_action( 'admin_notices', [ $this, 'render_notice' ], 10, 0 );
+		\add_filter( 'manage_post_posts_columns', [ $this, 'add_column' ] );
+		\add_filter( 'manage_edit-post_sortable_columns', [ $this, 'make_sortable' ] );
+		\add_action( 'manage_post_posts_custom_column', [ $this, 'render_cell' ], 10, 2 );
 	}
 }
 ```
 
-**Proven by:** `src/PostsList/PostAgeColumn.php:104-117`.
+**Proven by:** `src/PostsList/PostAgeColumn.php:104-116`.
 
 **Rules:** `architecture.noHooksInConstructor`,
 `architecture.hooksInLifecycleMethods`, `architecture.constructorsOnlyAssign`.
@@ -128,15 +138,25 @@ need it, the service never exists.
 
 ```php
 public static function is_needed(): bool {
-	return \is_admin() && ! \wp_doing_ajax();
+	$screen = \get_current_screen();
+
+	return null !== $screen && 'edit-post' === $screen->id;
 }
 ```
 
-**Proven by:** `src/PostsList/PostAgeColumn.php:82-86`.
+**Proven by:** `src/PostsList/PostAgeColumn.php:82-86`. The column is only built on
+the Posts list.
 
-When the answer depends on the query, such as `is_singular()`, also implement
-`Delayed` and wait for `wp` or a later action as shown in
-[I need to hook in later](#i-need-to-hook-in-later).
+When the answer depends on the query, such as `is_singular()`, or on the
+screen, also implement `Delayed` and wait for an action late enough to
+answer, as shown in [I need to hook in later](#i-need-to-hook-in-later).
+
+Do not add a condition the registration action already implies.
+`FreshnessSetting` waits for `admin_init`, which only fires in admin
+requests, so it has no `is_admin()` condition
+(`src/Settings/FreshnessSetting.php:34-38`). A condition would also keep it from
+taking part in lifecycle events where it is false, such as uninstalling
+through WP-CLI.
 
 **Rules:** `architecture.noContextChecksInRegister`,
 `architecture.queryContextNeedsDelay`.
@@ -168,7 +188,9 @@ final class OutdatedPostNotice implements Service, Registerable, Conditional, De
 }
 ```
 
-**Proven by:** `src/Notice/OutdatedPostNotice.php:33-81`.
+**Proven by:** `src/Notice/OutdatedPostNotice.php:33-81`, and
+`PostAgeColumn`, which waits for `current_screen` before it asks which screen
+it is on (`src/PostsList/PostAgeColumn.php:82-94`).
 
 **Rules:** `architecture.noContextChecksInRegister`,
 `architecture.queryContextNeedsDelay`, `architecture.registrationActionKnown`.
@@ -180,8 +202,7 @@ request type or runs late enough for its condition remains a review concern.
 
 **What people reach for:** `register_activation_hook()` next to the code that
 needs it, calling the `init` callback from the activation hook so a post type
-exists before the flush, or a hard `flush_rewrite_rules()` on every
-activation.
+exists before the flush, or scheduling a cron event on every request.
 
 **Why not here:** [principle 7](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns)
 and [the core idea](design-principles.md#how-services-map-to-it): the main
@@ -198,27 +219,29 @@ its usual constructor collaborators; its `register()` still runs at its own
 action. Then the plugin asks WordPress for one soft flush of the rewrite
 rules.
 
-So a service with rewrite rules sets them up in `activate()` and removes them
-in `deactivate()`, rather than relying on its normal registration having run
-in that request. Whether it has depends on how the plugin was activated.
+The digest schedules its weekly event on activation and clears it on
+deactivation. Its `register()` only hooks the callback, in every request,
+because WP-Cron runs in whatever request comes along:
 
 ```php
-final class BookPostType implements Service, Registerable, Delayed, Activateable, Deactivateable {
-
-	public static function get_registration_action(): string {
-		return 'init';
-	}
+final class StaleContentDigest implements Service, Registerable, Activateable, Deactivateable {
 
 	public function register(): void {
-		$this->register_post_type();
+		\add_action( self::CRON_HOOK, [ $this, 'send' ], 10, 0 );
 	}
 
 	public function activate(): void {
-		$this->register_post_type(); // Present for the flush that follows.
+		if ( false !== \wp_next_scheduled( self::CRON_HOOK ) ) {
+			return; // Activating twice must not send two digests a week.
+		}
+
+		$result = \wp_schedule_event( …, 'weekly', self::CRON_HOOK, [], true );
+		// …
 	}
 
 	public function deactivate(): void {
-		\unregister_post_type( self::POST_TYPE ); // Gone for the flush that follows.
+		$result = \wp_clear_scheduled_hook( self::CRON_HOOK, [], true );
+		// …
 	}
 }
 ```
@@ -230,22 +253,64 @@ Three things to know:
   calls `\flush_rewrite_rules( true )` at the end of its own `activate()` or
   `deactivate()`. WordPress postpones any flush requested before `wp_loaded`
   until then, and does a hard one if any of the requests asked for it.
-  Plugins generated before #25 got a hard flush by default; one that relies
-  on it to regenerate server configuration adds that call when it updates.
 - **`Conditional` still applies.** A service whose `is_needed()` is false in
   the activation request is neither built nor called. Setup or cleanup that
-  must run whatever the condition belongs in a separate service without it.
+  must run whatever the condition belongs in a service without it. That is
+  why the digest is not `Conditional`.
 - **`HasDependencies` does not order lifecycle calls.** It only governs
   registration, and no dependency is registered early for a lifecycle call.
   Steps that must run in sequence belong in one service that runs them in
   that order.
 
-**Proven by:** `tests/php/Fixture/Lifecycle/RewriteLifecycleService.php`,
-exercised by `tests/php/Unit/ServiceBasedPluginTest.php`.
+**Proven by:** `src/Digest/StaleContentDigest.php:137-176`, and the
+end-to-end tests, which check that the event is scheduled once, however often
+the plugin is activated, and gone after deactivation.
 
 **Rules:** `architecture.compositionRootContracts` runs `activate()` and
 `deactivate()` twice and reports a second run that changes anything, so guard
 each step or make it set rather than add.
+
+## I need to clean up when the plugin is deleted
+
+**What people reach for:** an `uninstall.php` file that repeats the option
+names, or `register_uninstall_hook()` with a function that deletes options
+by name, kept in step with the code that creates them by hand.
+
+**Why not here:** [the core idea](design-principles.md#how-services-map-to-it):
+each service owns what it stores, so it is the one to remove it. An
+`uninstall.php` would be a second file with side effects
+([principle 7](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns)),
+and a list of names somewhere else drifts from the code.
+
+**Instead:** implement `Uninstallable`. WordPress only uninstalls a plugin it
+has deactivated; then it includes the main plugin file and calls its
+uninstall callback, a bridge that asks the plugin to uninstall. The plugin
+calls every service implementing `Uninstallable`, chosen the same way as for
+activation.
+
+```php
+final class FreshnessSetting implements Service, Registerable, Delayed, Uninstallable {
+
+	public function uninstall(): void {
+		\delete_option( OptionFreshnessPolicy::OPTION_NAME );
+	}
+}
+```
+
+Deactivation is not uninstalling: a site that deactivates the plugin for a
+while keeps its setting. Remove data in `uninstall()`, and stop behaviour in
+`deactivate()`.
+
+As with activation, `Conditional` applies: a service that is not needed in the
+uninstall request is skipped. Uninstalling can happen in an admin request or
+through WP-CLI, so a service that cleans up must not depend on either.
+
+**Proven by:** `src/Settings/FreshnessSetting.php:116-118`, the bridge in
+`content-freshness.php:148-150`, and
+`tests/php/Integration/Settings/FreshnessSettingTest.php:55-61`.
+
+**Rules:** `architecture.compositionRootContracts` runs `uninstall()` twice
+too, and reports a second run that changes anything.
 
 ## I need to create objects on demand
 
@@ -261,12 +326,14 @@ creating things is its whole job.
 
 ```php
 // The consumer receives the factory, typed to its interface …
-public function __construct( ViewFactory $view_factory ) {
+public function __construct( FreshnessPolicy $policy, ViewFactory $view_factory, DebugMode $debug_mode ) {
 	$this->view_factory = $view_factory;
+	// …
 }
 
-// … and asks it for a fresh view each time it renders.
-echo $this->view_factory->create( 'views/test-backend-service' )->render( [ … ] );
+// … and asks it for a fresh view each time it renders a cell.
+$view = $this->view_factory->create( self::VIEW );
+echo $view->render( $context );
 ```
 
 ```php
@@ -286,7 +353,8 @@ final class TemplatedViewFactory implements Service, ViewFactory {
 `TemplatedViewFactory` only stores the optional locations in its constructor.
 When none are passed, it reads the theme directories on the first `create()`
 call and keeps those locations for later calls. Explicit locations keep their
-order and bypass theme lookups.
+order and bypass theme lookups; the unit tests pass the plugin directory
+alone.
 
 When writing a dedicated factory is overkill, receive the `Injector` itself
 and call `make()` on it. A constructor parameter typed `Injector` gets the
@@ -305,10 +373,11 @@ $report = $this->injector->make( Report::class );
 ```
 
 **Proven by:** `src/PostsList/PostAgeColumn.php:104-108` and
-`:82-89`, `src/Infrastructure/View/TemplatedViewFactory.php:29` and `:57-63`,
-bound at `src/ContentFreshnessPlugin.php:95`. The injector is made injectable at
-`src/Infrastructure/ServiceBasedPlugin.php:346-349`, proven by
-`tests/php/Unit/ServiceBasedPluginTest.php:685-737`.
+`src/PostsList/PostAgeColumn.php:189-192`, `src/Infrastructure/View/TemplatedViewFactory.php:29` and
+`src/Infrastructure/View/TemplatedViewFactory.php:56-59`, bound at `src/ContentFreshnessPlugin.php:129`.
+The injector is made injectable at
+`src/Infrastructure/ServiceBasedPlugin.php:371-374`, proven by
+`tests/php/Unit/ServiceBasedPluginTest.php:689-723`.
 
 **Rules:** `architecture.newOnlyWhereAllowed`, `architecture.noServiceLocator`;
 `architecture.dependencyDirection` keeps the consumer on the interface.
@@ -326,7 +395,7 @@ wants the choice typed.
 
 **Instead:** a typed factory or registry for that one concept. It takes the
 key as a value, returns the interface, and is injected like any other
-collaborator. The example below is illustrative; the scaffold does not ship a
+collaborator. The example below is illustrative; the plugin has no need for a
 registry yet.
 
 ```php
@@ -346,8 +415,8 @@ The composition root binds `PaymentGateways` to an implementation, which
 builds or receives the gateways it knows. Nothing outside it knows the
 concrete classes.
 
-**Proven by:** no registry in the scaffold yet. `ViewFactory` has the same
-outer shape (`src/Infrastructure/ViewFactory.php:33`): it is injected, takes a
+**Proven by:** no registry in the plugin yet. `ViewFactory` has the same
+outer shape (`src/Infrastructure/ViewFactory.php:25`): it is injected, takes a
 value (a view path) and returns an interface (`View`). It always builds the
 same implementation, though; the path only picks the template file.
 
@@ -358,7 +427,8 @@ the typed registry through the constructor instead of the service container.
 ## I need a service locator
 
 **What people reach for:** a static `Services::get( 'id' )` that any code can
-call. All three plugins known to be built on this scaffold added one (#22).
+call. Every plugin known to be built on the scaffold before this one added one
+([mwpd/basic-scaffold#22](https://github.com/mwpd/basic-scaffold/issues/22)).
 
 **Why not here:** [principle 5](design-principles.md#5-one-composition-root-builds-the-object-graph)
 and the singleton row of [principle 7](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns):
@@ -379,7 +449,7 @@ keeps the container out of feature subsystems.
 | One of several implementations, chosen by a value | [A typed registry](#i-need-to-choose-an-implementation-at-runtime) |
 | The same instance in several places | [`share()`](#i-need-a-singleton) |
 | Access from code WordPress calls statically, outside the object graph | [An edge bridge](#i-need-to-reach-the-plugin-from-a-static-wordpress-callback) |
-| A public PHP API for themes or other plugins | Not settled yet: #93 |
+| A public PHP API for themes or other plugins | Not settled in the scaffold yet: [mwpd/basic-scaffold#93](https://github.com/mwpd/basic-scaffold/issues/93) |
 
 **Proven by:** the sections linked above.
 
@@ -399,15 +469,17 @@ and [principle 7](design-principles.md#7-show-the-alternative-to-wordpress-anti-
 static state is global state, hidden behind a class name, and it cannot be
 replaced in a test.
 
-**Instead:** let the injector share the instance. List the class in the
-composition root's shared instances, and every object that asks for it
+**Instead:** let the injector share the instance. List the class or interface
+in the composition root's shared instances, and every object that asks for it
 receives the same one. The class itself stays an ordinary class.
 
 ```php
 // src/ContentFreshnessPlugin.php
 protected function get_shared_instances(): array {
 	return [
-		ReportCache::class, // Illustrative: built once, injected wherever it is asked for.
+		// One policy for the whole request: it reads the option once, and
+		// every service that asks gets the same answer.
+		FreshnessPolicy::class,
 	];
 }
 ```
@@ -415,9 +487,9 @@ protected function get_shared_instances(): array {
 The one exception is the plugin itself, which WordPress needs to reach from
 outside the object graph: see the next section.
 
-**Proven by:** `src/ContentFreshnessPlugin.php:136-146` is where shared instances
-are declared; `Injector::share()` (`src/Infrastructure/Injector.php:78`) is
-what the plugin calls for each one.
+**Proven by:** `src/ContentFreshnessPlugin.php:185-194` shares the policy;
+`Injector::share()` (`src/Infrastructure/Injector.php:78`) is what the plugin calls for
+each entry.
 
 **Rules:** `architecture.noStaticState`.
 
@@ -428,18 +500,31 @@ what the plugin calls for each one.
 **Why not here:** [principle 5](design-principles.md#5-one-composition-root-builds-the-object-graph)
 and [principle 7](design-principles.md#7-show-the-alternative-to-wordpress-anti-patterns).
 Some WordPress entry points still need static access: `register_uninstall_hook()`
-only accepts a static method or a function, and the activation hooks run
-outside the normal request flow.
+only accepts a static method or a function, because WordPress stores it in the
+database, and the activation hooks run outside the normal request flow.
 
 **Instead:** an *edge bridge*. The plugin factory is the one place allowed to
 keep the plugin instance; a bridge is a static callable that gets the plugin
 through it and delegates at once to instance methods:
 
 ```php
-\register_activation_hook( __FILE__, static function () {
-	ContentFreshnessPluginFactory::create()->activate();
-} );
+\register_activation_hook(
+	__FILE__,
+	static function () {
+		\register_uninstall_hook( __FILE__, __NAMESPACE__ . '\\uninstall' );
+		ContentFreshnessPluginFactory::create()->activate();
+	}
+);
+
+function uninstall(): void {
+	ContentFreshnessPluginFactory::create()->uninstall();
+}
 ```
+
+The uninstall callback is a named function in the main plugin file, the only
+file allowed to have side effects. It is registered on activation rather than
+on every request, as the Plugin Handbook recommends: registering it writes to
+the database whenever the stored callback differs.
 
 A bridge outside the main plugin file follows the same contract:
 
@@ -452,13 +537,12 @@ A bridge outside the main plugin file follows the same contract:
   [principle 10](design-principles.md#10-errors-are-exceptions) there: a call
   before `plugins_loaded`, a `Conditional` service that is not registered in
   this request, or any other failure becomes a dedicated exception, caught
-  before control goes back to WordPress. The activation hooks do not catch
-  yet; that is #27.
+  before control goes back to WordPress. The lifecycle bridges do not catch
+  yet, as in the scaffold
+  ([mwpd/basic-scaffold#27](https://github.com/mwpd/basic-scaffold/issues/27)).
 
-The uninstall bridge (#34) is the first bridge the scaffold itself adds.
-
-**Proven by:** `content-freshness.php:119-131`, and the factory at
-`src/ContentFreshnessPluginFactory.php:38-56`.
+**Proven by:** `content-freshness.php:125-149`, and the factory at
+`src/ContentFreshnessPluginFactory.php:38-55`.
 
 **Rules:** `architecture.noStaticState` allows static state only in the
 factory. [`architecture.pluginFactoryOnlyAtEdges`](architecture-rules.md#architecturepluginfactoryonlyatedges)
@@ -490,6 +574,12 @@ now.
 
 ```php
 // src/Notice/WordPressMainLoop.php: the boundary.
+public function is_rendering_queried_post(): bool {
+	return \in_the_loop()
+		&& \is_main_query()
+		&& \get_the_ID() === \get_queried_object_id();
+}
+
 public function queried_post(): WP_Post {
 	$post = \get_queried_object();
 
@@ -509,6 +599,7 @@ public function prepend_notice( $content ) {
 	if ( ! \is_string( $content ) || ! $this->main_loop->is_rendering_queried_post() ) {
 		return $content;
 	}
+
 	$post = $this->main_loop->queried_post();
 	// …
 }
@@ -516,20 +607,23 @@ public function prepend_notice( $content ) {
 
 A delegation in the composition root can still build a value the injector
 cannot, but it runs once, when the service is built. Use it for state that is
-fixed for the request, not for the current post.
+fixed for the request, never for the current post.
 
 Calling a WordPress function inside an implementation detail is still fine
 ([principle 4](design-principles.md#4-solid-at-the-top-wordpress-at-the-edges)).
 The interface is for state a service depends on.
 
-**Proven by:** `src/Notice/WordPressMainLoop.php:25-54`, bound at
-`src/ContentFreshnessPlugin.php:130`, and used at call time in
-`src/Notice/OutdatedPostNotice.php:128-149`.
+**Proven by:** `src/Notice/WordPressMainLoop.php:25-53`, bound at
+`src/ContentFreshnessPlugin.php:143`, and asked at call time in
+`src/Notice/OutdatedPostNotice.php:129-135`.
 
 For request input, a boundary adapter reads the superglobals, sanitizes and
 normalizes them into an internal type, and supplies that value to the service.
 List the adapter class in `parameters.architecture.noGlobalState.inputAdapters`;
-this permits request superglobals, never `global` or `$GLOBALS`.
+this permits request superglobals, never `global` or `$GLOBALS`. Form input
+that WordPress already reads for you, such as a setting saved through the
+Settings API, arrives through the sanitize callback instead
+(`src/Settings/FreshnessSetting.php:131`).
 
 **Rules:** `architecture.newOnlyWhereAllowed` (WordPress classes such as
 `WP_Query` come from the injector too), and `architecture.noGlobalState` for
@@ -555,7 +649,7 @@ public function __construct( string $path, ViewFactory $view_factory, ?DebugMode
 
 **Proven by:** `src/Infrastructure/View/SimpleView.php:73-76`, and the
 injector and container defaults of `ServiceBasedPlugin`
-(`src/Infrastructure/ServiceBasedPlugin.php:152-171`).
+(`src/Infrastructure/ServiceBasedPlugin.php:152-170`).
 
 **Rules:** `architecture.newOnlyWhereAllowed` allows `new` in exactly this
 shape: a nullable parameter typed to an interface the default implements.
@@ -574,14 +668,18 @@ types after the concept.
 **Instead:** start with one concrete class, named after the concept. When a
 second implementation is needed, turn that name into the interface and give
 each implementation a name that says how it differs (`Simple…`,
-`WordPress…`, `Cached…`). Every type hint, `instanceof` and `catch` keeps
+`WordPress…`, `Option…`). Every type hint, `instanceof` and `catch` keeps
 working. Only the composition root changes, because it is the only place that
 creates collaborators (principle 5), and nothing extends a `final` class
 (principle 6).
 
-**Proven by:** the infrastructure's names: `DebugMode` and
-`WordPressDebugMode` (`src/Infrastructure/Service/WordPressDebugMode.php`),
-`Injector` and `SimpleInjector`, `ViewFactory` and `TemplatedViewFactory`.
+An interface earns its place from the start when a test needs a second
+implementation, as `Clock` does: the tests use a clock that stands still.
+
+**Proven by:** `FreshnessPolicy` and `OptionFreshnessPolicy`
+(`src/Freshness/OptionFreshnessPolicy.php:25`), `Clock` and `WordPressClock`,
+`StalePosts` and `WordPressStalePosts`, and in the infrastructure `DebugMode`
+and `WordPressDebugMode`, `Injector` and `SimpleInjector`.
 
 **Rules:** `architecture.finalByDefault`, `architecture.namesWithoutTypeKind`.
 
@@ -595,22 +693,23 @@ service.
 [principle 9](design-principles.md#9-never-trust-what-wordpress-hands-over):
 output is escaped for the context it lands in.
 
-**Instead:** render a view from the injected `ViewFactory` and echo the result.
-In the template, values read as properties are escaped already. A value read
-with `raw()` is the explicit exception: escape it yourself, with the `esc_*`
-function for where it is printed.
+**Instead:** render a view from the injected `ViewFactory` and echo the result,
+or return it from a filter. In the template, values read as properties are
+escaped already. A value read with `raw()` is the explicit exception: escape it
+yourself, with the `esc_*` function for where it is printed.
 
 ```php
-// views/outdated-post-notice.php
+// views/post-age-column.php
 $age = $this->raw( 'age' );
 ?>
-<p class="mwpd-content-freshness-notice" role="note">
-	<?= esc_html( sprintf( __( 'This post was last updated %s ago; …', 'content-freshness' ), human_time_diff( … ) ) ) ?>
-</p>
+<time datetime="<?= esc_attr( $age->last_updated()->format( DATE_W3C ) ) ?>">
+	<?= esc_html( sprintf( __( '%s ago', 'content-freshness' ), human_time_diff( … ) ) ) ?>
+</time>
 ```
 
-**Proven by:** `src/Notice/OutdatedPostNotice.php:139-141` and
-`views/outdated-post-notice.php:14-32`.
+**Proven by:** `src/PostsList/PostAgeColumn.php:184-192` and
+`views/post-age-column.php:16-40`; `views/freshness-setting-field.php:15-30` prints
+only properties, which the view escapes for HTML and attributes alike.
 
 **Rules:** `architecture.outputOnlyThroughViews` requires direct method
 calls on typed `Renderable` or `View` objects when printing from services.
@@ -632,29 +731,33 @@ the previous one. Where control goes back to WordPress, catch it: loud with
 debug mode on, degrade gracefully with it off.
 
 ```php
-final class FailedToFindPost extends RuntimeException implements ContentFreshnessException {
+final class InvalidMaxAge extends InvalidArgumentException implements ContentFreshnessException {
 
-	public static function for_current_request(): self {
+	public static function from_value( $value ): self {
 		return new self(
-			'There is no current post. A service that needs the current post has to wait for the main query, for'
-			. ' example by implementing Delayed with the "wp" action, and only be needed on singular views.'
+			\sprintf( 'The maximum age "%s" is not a whole number of days.', self::stringify( $value ) )
 		);
 	}
 }
 ```
 
 ```php
+// The edge: a filter callback hands control back to WordPress.
 try {
-	include $this->path;
-} catch ( Throwable $throwable ) {
-	// … discard the partial output, then pass the cause on.
-	throw FailedToLoadView::from_view_exception( $this->path, $throwable );
+	// …
+} catch ( ContentFreshnessException $exception ) {
+	if ( $this->debug_mode->is_debug_mode() ) {
+		throw $exception;
+	}
+
+	return $content; // The post shows without the notice.
 }
 ```
 
-**Proven by:** `src/Exception/FailedToFindPost.php:27`,
-`src/Infrastructure/View/SimpleView.php:98-124` and
-`src/Exception/FailedToLoadView.php:39`.
+**Proven by:** `src/Exception/InvalidMaxAge.php:50-57`,
+`src/Notice/OutdatedPostNotice.php:129-151` and the end-to-end tests,
+which store a broken setting and check both modes. A translated cause is kept
+in `src/Infrastructure/View/SimpleView.php:114-123`.
 
 **Rules:** `architecture.noWordPressErrorMechanisms`, `architecture.noFalseOnFailure`,
 `architecture.throwOnlyPluginExceptions`, `architecture.exceptionShape`,
@@ -674,10 +777,10 @@ loads it.
 
 **Instead:** put the work in a service and let `register()` hook it in at the
 right action. The main plugin file is the only file with side effects, and it
-only loads the autoloader, hooks activation and deactivation, and registers
-the plugin.
+only loads the autoloader, hooks activation and deactivation, declares the
+uninstall bridge, and registers the plugin.
 
-**Proven by:** `content-freshness.php:74-137`.
+**Proven by:** `content-freshness.php:74-156`.
 
 **Rules:** `architecture.noSideEffectsOnInclude`;
 `architecture.bootstrapContract` limits the main file's hook API calls to
@@ -687,10 +790,10 @@ hooks, leaving extension points for registration.
 ## I need a name in a space WordPress shares
 
 **What people reach for:** a short, readable name such as `settings`,
-`my_option` or `admin-script`.
+`max_age` or `admin-script`.
 
 **Why not here:** [principle 13](design-principles.md#13-one-plugin-to-arbitrary-complexity):
-several plugins built from this scaffold run side by side, and a name without
+several plugins built from the scaffold run side by side, and a name without
 the plugin's prefix can clash with any of them.
 
 **Instead:** start every hook, option, transient, meta key, asset handle,
@@ -701,12 +804,18 @@ prefix. Build hook names and service identifiers from the prefix constants.
 ```php
 protected const HOOK_PREFIX = 'mwpd.content_freshness.';
 
-public const SAMPLE_LOOP_SERVICE_ID = self::SERVICE_PREFIX . 'sample-subsystem.sample-loop-service';
+public const OPTION_NAME = 'mwpd_content_freshness_max_age';
+
+public const CRON_HOOK = 'mwpd_content_freshness_send_digest';
 ```
 
-**Proven by:** `src/ContentFreshnessPlugin.php:206-218`.
+**Proven by:** `src/ContentFreshnessPlugin.php:240-256`,
+`src/Freshness/OptionFreshnessPolicy.php:32` and `src/Digest/StaleContentDigest.php:46`. The
+setting joins WordPress's own `reading` group, which the configuration allows;
+its option name carries the prefix.
 
 **Rules:** `architecture.prefixedNames` covers hooks, stored keys, asset
 handles, post types, taxonomies, shortcodes, REST namespaces, cron hooks,
 admin pages, settings and AJAX actions. Service identifiers and theme
-override paths remain tracked in #29.
+override paths remain tracked in the scaffold
+([mwpd/basic-scaffold#29](https://github.com/mwpd/basic-scaffold/issues/29)).
