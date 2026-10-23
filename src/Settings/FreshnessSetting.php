@@ -18,6 +18,7 @@ use MWPD\ContentFreshness\Exception\InvalidMaxAge;
 use MWPD\ContentFreshness\Freshness\MaxAge;
 use MWPD\ContentFreshness\Freshness\OptionFreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
+	DefaultRegistrationPriority,
 	Delayed,
 	Registerable,
 	Service,
@@ -39,6 +40,10 @@ use MWPD\ContentFreshness\Infrastructure\{
  * request, so the option would be left behind.
  */
 final class FreshnessSetting implements Service, Registerable, Delayed {
+
+	// Nothing else on "admin_init" needs to run before or after the setting,
+	// so it registers at the default priority.
+	use DefaultRegistrationPriority;
 
 	/**
 	 * Settings page the field is shown on, and the option group it is saved

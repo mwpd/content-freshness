@@ -17,6 +17,7 @@ use MWPD\ContentFreshness\Exception\ContentFreshnessException;
 use MWPD\ContentFreshness\Freshness\FreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
 	Conditional,
+	DefaultRegistrationPriority,
 	Delayed,
 	Registerable,
 	Service,
@@ -34,6 +35,10 @@ use WP_Post;
  * FreshnessPolicy, and decides for itself where it is needed.
  */
 final class PostAgeColumn implements Service, Registerable, Conditional, Delayed {
+
+	// Nothing else on "current_screen" needs to run before or after the
+	// column, so it registers at the default priority.
+	use DefaultRegistrationPriority;
 
 	/**
 	 * Key of the column. Other plugins add columns too, so it is prefixed.

@@ -6,6 +6,7 @@ namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
 use MWPD\ContentFreshness\Infrastructure\Activateable;
 use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\DefaultRegistrationPriority;
 use MWPD\ContentFreshness\Infrastructure\Delayed;
 use MWPD\ContentFreshness\Infrastructure\Registerable;
 use MWPD\ContentFreshness\Infrastructure\Service;
@@ -14,6 +15,7 @@ use MWPD\ContentFreshness\Infrastructure\Service;
  * Registers on init, which has not fired in the tests' lifecycle requests.
  */
 final class DelayedLifecycleService implements Service, Registerable, Delayed, Activateable, Deactivateable {
+	use DefaultRegistrationPriority;
 	use RecordsLifecycle;
 
 	private const NAME = 'delayed';

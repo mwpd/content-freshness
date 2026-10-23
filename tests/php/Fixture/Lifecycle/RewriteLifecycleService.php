@@ -6,6 +6,7 @@ namespace MWPD\ContentFreshness\Tests\Fixture\Lifecycle;
 
 use MWPD\ContentFreshness\Infrastructure\Activateable;
 use MWPD\ContentFreshness\Infrastructure\Deactivateable;
+use MWPD\ContentFreshness\Infrastructure\DefaultRegistrationPriority;
 use MWPD\ContentFreshness\Infrastructure\Delayed;
 use MWPD\ContentFreshness\Infrastructure\Registerable;
 use MWPD\ContentFreshness\Infrastructure\Service;
@@ -20,6 +21,8 @@ use MWPD\ContentFreshness\Infrastructure\Service;
  * deactivation hooks.
  */
 final class RewriteLifecycleService implements Service, Registerable, Delayed, Activateable, Deactivateable {
+
+	use DefaultRegistrationPriority;
 
 	public const POST_TYPE = 'bs_fixture_book';
 

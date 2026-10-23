@@ -17,6 +17,7 @@ use MWPD\ContentFreshness\Exception\ContentFreshnessException;
 use MWPD\ContentFreshness\Freshness\FreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
 	Conditional,
+	DefaultRegistrationPriority,
 	Delayed,
 	Registerable,
 	Service,
@@ -31,6 +32,10 @@ use MWPD\ContentFreshness\Infrastructure\{
  * query has run so WordPress can tell. In any other request it is never built.
  */
 final class OutdatedPostNotice implements Service, Registerable, Conditional, Delayed {
+
+	// Nothing else on "wp" needs to run before or after the notice, so it
+	// registers at the default priority.
+	use DefaultRegistrationPriority;
 
 	/**
 	 * View that renders the notice.
