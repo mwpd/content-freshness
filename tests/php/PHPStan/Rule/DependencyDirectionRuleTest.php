@@ -261,7 +261,7 @@ final class DependencyDirectionRuleTest extends RuleTestCase {
 			$this->fixtures( 'Feature/ReceivesOccasion' ),
 			[
 				$this->error(
-					16,
+					18,
 					'Feature\KeepsOccasion',
 					'the Feature subsystem',
 					'Infrastructure\Occasion',
