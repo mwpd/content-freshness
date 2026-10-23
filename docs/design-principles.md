@@ -69,9 +69,9 @@ Each lifecycle question a service has to answer is a small interface in
 The plugin itself only hooks into `plugins_loaded`
 (`src/Infrastructure/ServiceBasedPlugin.php:79`) and the activation and
 deactivation hooks (`content-freshness.php:119-131`). Everything else is decided
-per service. `SampleLoopService` shows the result: it declares that it runs at
-`wp` and only on singular views
-(`src/SampleSubsystem/SampleLoopService.php:55-72`), and no other code has to
+per service. `OutdatedPostNotice` shows the result: it declares that it runs at
+`wp` and only on single posts
+(`src/Notice/OutdatedPostNotice.php:70-81`), and no other code has to
 know.
 
 The questions are static methods on purpose: the plugin can **decide before it

@@ -141,13 +141,13 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 		);
 	}
 
-	public function test_the_sample_services_pass(): void {
+	public function test_the_feature_services_pass(): void {
 		$this->root     = 'MWPD\ContentFreshness';
 		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 		$this->analyse(
 			[
 				dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleBackendService.php',
-				dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleLoopService.php',
+				dirname( __DIR__, 4 ) . '/src/Notice/OutdatedPostNotice.php',
 			],
 			[]
 		);

@@ -156,21 +156,19 @@ example, means nothing before the query.
 it has already fired, and only then asks `is_needed()` and builds the service.
 
 ```php
-final class SampleLoopService implements Service, Registerable, Conditional, Delayed {
-
-	private const REGISTRATION_HOOK = 'wp';
+final class OutdatedPostNotice implements Service, Registerable, Conditional, Delayed {
 
 	public static function is_needed(): bool {
-		return \is_singular(); // Answers correctly, because the query has run.
+		return \is_singular( 'post' ); // Answers correctly, because the query has run.
 	}
 
 	public static function get_registration_action(): string {
-		return self::REGISTRATION_HOOK;
+		return 'wp';
 	}
 }
 ```
 
-**Proven by:** `src/SampleSubsystem/SampleLoopService.php:28-72`.
+**Proven by:** `src/Notice/OutdatedPostNotice.php:33-81`.
 
 **Rules:** `architecture.noContextChecksInRegister`,
 `architecture.queryContextNeedsDelay`, `architecture.registrationActionKnown`.
@@ -477,35 +475,56 @@ deep inside a service.
 [principle 9](design-principles.md#9-never-trust-what-wordpress-hands-over):
 what WordPress hands over is checked once, at the boundary.
 
-**Instead:** declare what you need in the constructor, and let a delegation in
-the composition root produce it. The delegation is the boundary: it fetches
-the value, checks it, and fails with a dedicated exception when it is not
-what the service needs.
+**Instead:** put the WordPress state behind a small interface, and receive
+that interface through the constructor. Its WordPress implementation is the
+boundary: it reads the state, checks it, and fails with a dedicated exception
+when it is not what the service needs. The service asks it when it needs the
+value, not when it is built.
+
+That last part matters for state that changes during a request. The current
+post is the clearest case: `the_content` runs for the queried post, but also
+for every post in a related-posts loop and for excerpts built in the head. A
+`WP_Post` injected when the service is built is the post of one moment; an
+interface asked inside the filter callback knows which post is being rendered
+now.
 
 ```php
-// src/ContentFreshnessPlugin.php
-WP_Post::class => static function (): WP_Post {
-	$post = \get_post();
+// src/Notice/WordPressMainLoop.php: the boundary.
+public function queried_post(): WP_Post {
+	$post = \get_queried_object();
 
 	if ( ! $post instanceof WP_Post ) {
-		throw FailedToFindPost::for_current_request();
+		throw FailedToFindPost::for_main_query();
 	}
 
 	return $post;
-},
+}
 ```
 
 ```php
-// The service only says what it needs.
-public function __construct( ViewFactory $view_factory, WP_Post $post ) { … }
+// The service only says what it needs, and asks when the filter runs.
+public function __construct( FreshnessPolicy $policy, MainLoop $main_loop, … ) { … }
+
+public function prepend_notice( $content ) {
+	if ( ! \is_string( $content ) || ! $this->main_loop->is_rendering_queried_post() ) {
+		return $content;
+	}
+	$post = $this->main_loop->queried_post();
+	// …
+}
 ```
+
+A delegation in the composition root can still build a value the injector
+cannot, but it runs once, when the service is built. Use it for state that is
+fixed for the request, not for the current post.
 
 Calling a WordPress function inside an implementation detail is still fine
 ([principle 4](design-principles.md#4-solid-at-the-top-wordpress-at-the-edges)).
-The delegation is for values a service depends on.
+The interface is for state a service depends on.
 
-**Proven by:** `src/ContentFreshnessPlugin.php:159-192` and
-`src/SampleSubsystem/SampleLoopService.php:81`.
+**Proven by:** `src/Notice/WordPressMainLoop.php:25-54`, bound at
+`src/ContentFreshnessPlugin.php:130`, and used at call time in
+`src/Notice/OutdatedPostNotice.php:128-149`.
 
 For request input, a boundary adapter reads the superglobals, sanitizes and
 normalizes them into an internal type, and supplies that value to the service.
@@ -582,14 +601,16 @@ with `raw()` is the explicit exception: escape it yourself, with the `esc_*`
 function for where it is printed.
 
 ```php
-// views/test-loop-service.php
-$current_post = $this->raw( 'post' );
+// views/outdated-post-notice.php
+$age = $this->raw( 'age' );
 ?>
-Post title: <?= esc_html( $current_post->post_title ) ?>
+<p class="mwpd-content-freshness-notice" role="note">
+	<?= esc_html( sprintf( __( 'This post was last updated %s ago; …', 'content-freshness' ), human_time_diff( … ) ) ) ?>
+</p>
 ```
 
-**Proven by:** `src/SampleSubsystem/SampleBackendService.php:82-89` and
-`views/test-loop-service.php:7-17`.
+**Proven by:** `src/Notice/OutdatedPostNotice.php:139-141` and
+`views/outdated-post-notice.php:14-32`.
 
 **Rules:** `architecture.outputOnlyThroughViews` requires direct method
 calls on typed `Renderable` or `View` objects when printing from services.

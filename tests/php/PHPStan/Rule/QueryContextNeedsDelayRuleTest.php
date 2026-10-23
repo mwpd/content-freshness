@@ -81,12 +81,12 @@ final class QueryContextNeedsDelayRuleTest extends RuleTestCase {
 		$this->analyse( [ self::FIXTURES . 'Feature/QueryConditional.php' ], [] );
 	}
 
-	public function test_the_sample_loop_service_passes(): void {
-		// The sample uses the real interfaces rather than the fixture ones.
+	public function test_the_outdated_post_notice_passes(): void {
+		// The notice uses the real interfaces rather than the fixture ones.
 		$this->root     = 'MWPD\ContentFreshness';
 		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 
-		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleLoopService.php' ], [] );
+		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/Notice/OutdatedPostNotice.php' ], [] );
 	}
 
 	/**

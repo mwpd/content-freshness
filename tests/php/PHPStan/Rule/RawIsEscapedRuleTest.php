@@ -88,7 +88,10 @@ final class RawIsEscapedRuleTest extends RuleTestCase {
 	public function test_the_production_templates_escape_their_raw_values(): void {
 		$views = dirname( __DIR__, 4 ) . '/views/';
 
-		$this->analyse( [ $views . 'test-backend-service.php', $views . 'test-loop-service.php' ], [] );
+		$templates = glob( $views . '*.php' );
+
+		$this->assertNotEmpty( $templates );
+		$this->analyse( (array) $templates, [] );
 	}
 
 	/**

@@ -13,15 +13,25 @@ declare( strict_types=1 );
 
 namespace MWPD\ContentFreshness;
 
-use MWPD\ContentFreshness\Exception\FailedToFindPost;
-use MWPD\ContentFreshness\SampleSubsystem\SampleBackendService;
-use MWPD\ContentFreshness\SampleSubsystem\SampleLoopService;
+use MWPD\ContentFreshness\Freshness\{
+	Clock,
+	FreshnessPolicy,
+	OptionFreshnessPolicy,
+	WordPressClock
+};
 use MWPD\ContentFreshness\Infrastructure\{
 	ServiceBasedPlugin,
+	Service\DebugMode,
+	Service\WordPressDebugMode,
 	View\TemplatedViewFactory,
 	ViewFactory
 };
-use WP_Post;
+use MWPD\ContentFreshness\Notice\{
+	MainLoop,
+	OutdatedPostNotice,
+	WordPressMainLoop
+};
+use MWPD\ContentFreshness\SampleSubsystem\SampleBackendService;
 
 /**
  * The ContentFreshnessPlugin class is the composition root of the plugin.
@@ -72,9 +82,7 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	protected function get_service_classes(): array {
 		return [
 			self::SAMPLE_BACKEND_SERVICE_ID => SampleBackendService::class,
-			self::SAMPLE_LOOP_SERVICE_ID    => SampleLoopService::class,
-
-			// Add your service definitions here.
+			self::OUTDATED_POST_NOTICE_ID   => OutdatedPostNotice::class,
 		];
 	}
 
@@ -104,10 +112,22 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 */
 	protected function get_bindings(): array {
 		return [
-			// Map the ViewFactory interface to a concrete implementation.
-			ViewFactory::class => TemplatedViewFactory::class,
+			// Views can be overridden by the theme.
+			ViewFactory::class     => TemplatedViewFactory::class,
 
-			// Add your bindings here.
+			// Failures surface when WP_DEBUG is on, and degrade when it is off.
+			DebugMode::class       => WordPressDebugMode::class,
+
+			// Ages are measured against the time WordPress tells.
+			Clock::class           => WordPressClock::class,
+
+			// A post is outdated once it is older than the maximum age set
+			// under Settings > Reading. Rebind this to change the rule for
+			// every service at once.
+			FreshnessPolicy::class => OptionFreshnessPolicy::class,
+
+			// The notice asks WordPress's main loop which post it renders.
+			MainLoop::class        => WordPressMainLoop::class,
 		];
 	}
 
@@ -126,11 +146,10 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 		return [
 
 			/*
-			 * Example - add a scalar value to an argument for SampleService:
-			 * SampleService::class => [ 'argument_name' => 'value' ],
+			 * None needed: every constructor here asks for collaborators, not
+			 * for scalar values. A scalar would be bound like this:
+			 * SomeService::class => [ 'argument_name' => 'value' ],
 			 */
-
-			// Add your argument mappings here.
 		];
 	}
 
@@ -151,11 +170,10 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 		return [
 
 			/*
-			 * Example - make SampleService be shared amongst instantiations:
-			 * SampleService::class,
+			 * One policy for the whole request: it reads the option once, and
+			 * every service that asks gets the same answer.
 			 */
-
-			// Add your shared instances here.
+			FreshnessPolicy::class,
 		];
 	}
 
@@ -174,34 +192,20 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 		return [
 
 			/*
-			 * WordPress hands out the current post through get_post(). The
-			 * delegation turns that into an object the injector can provide,
-			 * so SampleLoopService only declares that it needs a WP_Post.
+			 * None needed. A delegation builds an object the injector cannot,
+			 * such as the current post at build time. The outdated post
+			 * notice resolves its post when the_content runs instead, through
+			 * MainLoop, so nothing here depends on when the service is built.
 			 *
-			 * get_post() returns null when there is no current post. Rather than
-			 * passing that on, the delegation fails with a dedicated exception.
+			 * The injector itself needs no delegation either. The
+			 * infrastructure hands the plugin's own injector to any
+			 * constructor parameter typed Injector. A service that has to
+			 * make objects on demand takes the Injector and only ever calls
+			 * make() on it. That is the supported alternative to a static
+			 * service locator, such as Services::get( 'injector' ): the
+			 * dependency stays visible in the constructor, and nothing static
+			 * is involved.
 			 */
-			WP_Post::class => static function (): WP_Post {
-				$post = \get_post();
-
-				if ( ! $post instanceof WP_Post ) {
-					throw FailedToFindPost::for_current_request();
-				}
-
-				return $post;
-			},
-
-			/*
-			 * The injector itself needs no delegation. The infrastructure
-			 * hands the plugin's own injector to any constructor parameter
-			 * typed Injector. A service that has to make objects on demand
-			 * takes the Injector and only ever calls make() on it. That is
-			 * the supported alternative to a static service locator, such as
-			 * Services::get( 'injector' ): the dependency stays visible in
-			 * the constructor, and nothing static is involved.
-			 */
-
-			// Add your delegations here.
 		];
 	}
 
@@ -229,5 +233,5 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 */
 	public const SAMPLE_BACKEND_SERVICE_ID = self::SERVICE_PREFIX . 'sample-subsystem.sample-backend-service';
 
-	public const SAMPLE_LOOP_SERVICE_ID = self::SERVICE_PREFIX . 'sample-subsystem.sample-loop-service';
+	public const OUTDATED_POST_NOTICE_ID = self::SERVICE_PREFIX . 'notice.outdated-post-notice';
 }
