@@ -18,13 +18,13 @@ use ReflectionProperty;
  * Hook state, fired hook history and WordPress write state.
  *
  * Writes model stored values, not call counts: setting the same value twice
- * is safe, while appending another meta row or cron event is not. Hook entries use WordPress's
+ * is safe, while appending another meta row is not. Hook entries use WordPress's
  * hook name, priority and callback identity, so identical wiring is safe too.
  */
 final class LifecycleEffects {
 
 	/**
-	 * Stored option, transient, meta and cron values, keyed by their diagnostic.
+	 * Stored option, transient and meta values, keyed by their diagnostic.
 	 *
 	 * @var array<string,array<mixed>>
 	 */
@@ -58,6 +58,14 @@ final class LifecycleEffects {
 	 * @var array<string,mixed>
 	 */
 	private array $callbacks = [];
+
+	/**
+	 * Recurrences keyed by hook, timestamp and md5( serialize( $args ) ).
+	 * WordPress replaces events with the same identity, even if recurrence changes.
+	 *
+	 * @var array<string,array<int,array<string,string|false>>>
+	 */
+	private array $cron = [];
 
 	public function watch(): void {
 		foreach ( [ 'action', 'filter' ] as $type ) {
@@ -143,100 +151,89 @@ final class LifecycleEffects {
 		foreach ( [ 'post', 'user', 'term', 'comment' ] as $type ) {
 			$this->watch_meta( $type );
 		}
-
 		$this->watch_cron();
 	}
 
-	/**
-	 * Model scheduled cron events the way WordPress stores them.
-	 *
-	 * WordPress keys an event by its timestamp, hook and arguments.
-	 * Scheduling the same event again replaces it; scheduling a recurring
-	 * event at another time adds a second one, so an unguarded schedule shows
-	 * on the second run. Looking up and clearing events match their
-	 * arguments, so a step can guard itself with wp_next_scheduled().
-	 */
 	private function watch_cron(): void {
+		Functions\when( 'wp_schedule_event' )->alias(
+			/** @param array<mixed> $args Event arguments, whose serialization identifies the event. */
+			function ( int $timestamp, string $recurrence, string $hook, array $args = [] ): bool {
+				$this->cron[ $hook ][ $timestamp ][ self::cron_key( $args ) ] = $recurrence;
+
+				return true;
+			}
+		);
+		Functions\when( 'wp_schedule_single_event' )->alias(
+			/** @param array<mixed> $args */
+			function ( int $timestamp, string $hook, array $args = [] ): bool {
+				$this->cron[ $hook ][ $timestamp ][ self::cron_key( $args ) ] = false;
+
+				return true;
+			}
+		);
 		Functions\when( 'wp_next_scheduled' )->alias(
+			/**
+			 * @param array<mixed> $args
+			 * @return int|false
+			 */
 			function ( string $hook, array $args = [] ) {
+				$key  = self::cron_key( $args );
 				$next = false;
-				foreach ( $this->cron_events( $hook ) as $event ) {
-					if ( $event['args'] === $args ) {
-						$next = $next === false ? $event['timestamp'] : min( $next, $event['timestamp'] );
+				foreach ( $this->cron[ $hook ] ?? [] as $timestamp => $events ) {
+					if ( isset( $events[ $key ] ) && ( $next === false || $timestamp < $next ) ) {
+						$next = $timestamp;
 					}
 				}
 
 				return $next;
 			}
 		);
-		Functions\when( 'wp_schedule_event' )->alias(
-			function ( int $timestamp, string $recurrence, string $hook, array $args = [] ): bool {
-				$this->schedule_cron_event( $hook, $timestamp, $recurrence, $args );
-
-				return true;
-			}
-		);
-		Functions\when( 'wp_schedule_single_event' )->alias(
+		Functions\when( 'wp_unschedule_event' )->alias(
+			/** @param array<mixed> $args */
 			function ( int $timestamp, string $hook, array $args = [] ): bool {
-				$this->schedule_cron_event( $hook, $timestamp, false, $args );
+				$this->remove_cron_event( $hook, $timestamp, self::cron_key( $args ) );
 
+				// WordPress writes the cron array back even when no event matched.
 				return true;
 			}
 		);
 		Functions\when( 'wp_clear_scheduled_hook' )->alias(
+			/** @param array<mixed> $args */
 			function ( string $hook, array $args = [] ): int {
-				$events    = $this->cron_events( $hook );
-				$remaining = array_filter(
-					$events,
-					static fn( array $event ): bool => $event['args'] !== $args
-				);
-				$this->store_cron_events( $hook, $remaining );
+				$key     = self::cron_key( $args );
+				$removed = 0;
+				foreach ( $this->cron[ $hook ] ?? [] as $timestamp => $events ) {
+					if ( isset( $events[ $key ] ) ) {
+						$this->remove_cron_event( $hook, $timestamp, $key );
+						++$removed;
+					}
+				}
 
-				return count( $events ) - count( $remaining );
+				return $removed;
 			}
 		);
 	}
 
 	/**
-	 * @param string|false $recurrence  Recurrence, or false for a single event.
-	 * @param array<mixed> $args        Arguments of the event.
+	 * Preserve WordPress's distinction between argument types and array order.
+	 *
+	 * @param array<mixed> $args Event arguments.
 	 */
-	private function schedule_cron_event( string $hook, int $timestamp, $recurrence, array $args ): void {
-		$events = $this->cron_events( $hook );
-		$events[ $timestamp . ':' . md5( (string) json_encode( $args ) ) ] = [
-			'timestamp'  => $timestamp,
-			'recurrence' => $recurrence,
-			'args'       => $args,
-		];
-		$this->store_cron_events( $hook, $events );
+	private static function cron_key( array $args ): string {
+		// WordPress identifies an event by this exact serialization; the arguments are test input.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Mirrors wp_schedule_event().
+		return md5( serialize( $args ) );
 	}
 
-	/**
-	 * @return array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}>
-	 */
-	private function cron_events( string $hook ): array {
-		/** @var array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}> $events */
-		$events = $this->writes[ self::cron_key( $hook ) ][0] ?? [];
-
-		return $events;
-	}
-
-	/**
-	 * @param array<string,array{timestamp:int,recurrence:string|false,args:array<mixed>}> $events Events of the hook.
-	 */
-	private function store_cron_events( string $hook, array $events ): void {
-		if ( $events === [] ) {
-			unset( $this->writes[ self::cron_key( $hook ) ] );
-
-			return;
+	private function remove_cron_event( string $hook, int $timestamp, string $key ): void {
+		unset( $this->cron[ $hook ][ $timestamp ][ $key ] );
+		// Empty buckets must compare the same as a hook that never had events.
+		if ( ( $this->cron[ $hook ][ $timestamp ] ?? [] ) === [] ) {
+			unset( $this->cron[ $hook ][ $timestamp ] );
 		}
-
-		ksort( $events );
-		$this->writes[ self::cron_key( $hook ) ] = [ $events ];
-	}
-
-	private static function cron_key( string $hook ): string {
-		return sprintf( 'changes the cron events of "%s" again', $hook );
+		if ( ( $this->cron[ $hook ] ?? [] ) === [] ) {
+			unset( $this->cron[ $hook ] );
+		}
 	}
 
 	/**
@@ -331,6 +328,15 @@ final class LifecycleEffects {
 		/** @var array<string,array<string,array<string,array<mixed>>>> $hooks */
 		$hooks = $property->getValue( $storage );
 		$state = array_merge( $this->writes, $this->calls );
+
+		foreach ( $this->cron as $hook => $timestamps ) {
+			ksort( $timestamps );
+			foreach ( $timestamps as &$events ) {
+				ksort( $events );
+			}
+			unset( $events );
+			$state[ sprintf( 'changes the cron events of "%s" again', $hook ) ] = $timestamps;
+		}
 
 		foreach ( $this->hooks as $name => $priorities ) {
 			// Compare sets independently of the order entries were added in.
