@@ -258,6 +258,8 @@ service with setup, the digest, works per site, as the next section shows.
 ```php
 final class BookPostType implements Service, Registerable, Delayed, Activateable, Deactivateable {
 
+	use DefaultRegistrationPriority;
+
 	public static function get_registration_action(): string {
 		return 'init';
 	}
@@ -381,7 +383,7 @@ Things to know:
   starts in.
 
 **Proven by:** `src/Digest/StaleContentDigest.php:49-245`, and
-`tests/php/Integration/LifecycleTest.php:76-91`, which activates the real composition root
+`tests/php/Integration/LifecycleTest.php:109-122`, which activates the real composition root
 on an in-memory multisite installation. The infrastructure is covered by
 `tests/php/Unit/ScopedLifecycleTest.php` and
 `tests/php/Unit/SiteLifecycleHooksTest.php`, and the end-to-end tests check
@@ -474,7 +476,9 @@ Things to know:
   1.0.0 still has the callback that version stored, a function in the main
   file; the function stays and hands over to the bridge
   (`content-freshness.php:163-165`), until the next activation replaces the
-  callback.
+  callback. Updating does not run activation, so a network where 1.0.0 is
+  network-active is deactivated and activated again once, to set up the
+  digest in every site and the callback on every network's main site.
 - **Large installations.** The uninstall runs within the request that deletes
   the plugin. Sites are looked up in pages, which bounds memory but not time,
   so a very large installation can run into the time limit. A custom
@@ -482,7 +486,7 @@ Things to know:
 
 **Proven by:** `src/Settings/FreshnessSetting.php:137-139`, the bridge in
 `src/ContentFreshnessUninstallHook.php:31-39`, and
-`tests/php/Integration/LifecycleTest.php:108-136`. The end-to-end
+`tests/php/Integration/LifecycleTest.php:179-199`. The end-to-end
 tests delete the plugin in WordPress and check that the setting and a digest
 left behind are gone. The infrastructure is covered by
 `tests/php/Unit/UninstallLifecycleTest.php` and

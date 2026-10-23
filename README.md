@@ -177,6 +177,11 @@ surfaces; with it off, the notice is left out, the column cell stays empty,
 or the digest waits for next week, and the rest of the page works
 (`src/Notice/OutdatedPostNotice.php:156-161`).
 
+The site lifecycle events are the deliberate exception, as in the scaffold:
+when the digest cannot be scheduled while the plugin is activated in a site,
+or the uninstall fails, the exception propagates with `WP_DEBUG` off too, so
+the failure is visible and running the step again finishes it.
+
 ### Uninstalling
 
 The plugin uses the scaffold's uninstall design. WordPress stores the
@@ -192,7 +197,10 @@ Version 1.0.0 had an uninstall capability of its own, from before the
 scaffold settled the design. Its callback, a function in the main file,
 stays as a thin hand-over to the bridge
 (`content-freshness.php:163-165`), because a site that activated 1.0.0 keeps
-that callback until the plugin is activated again.
+that callback until the plugin is activated again. Updating does not run
+activation: where 1.0.0 is network-active, deactivate it for the network and
+activate it again after updating, so that every site gets its digest and
+every network's main site the new callback.
 
 ### Further reading
 

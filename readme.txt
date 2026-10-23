@@ -78,7 +78,7 @@ Deactivating stops the digest and hides the notice and the column, and keeps you
 == Upgrade Notice ==
 
 = 1.0.1 =
-Deleting the plugin now cleans up every site of a network. Theme overrides of the plugin's templates move into a `content-freshness/` directory of the theme.
+Deleting the plugin now cleans up every site of a network. If the plugin is network-active, deactivate it for the network and activate it again after updating, so every site gets its digest. Theme overrides of the plugin's templates move into a `content-freshness/` directory of the theme.
 
 = 1.0.0 =
 First release.

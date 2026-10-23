@@ -870,8 +870,10 @@ In the same way, a subsystem class may name an infrastructure class that a
 method of those interfaces takes or returns, such as the `SiteContext` of
 `SiteUninstallable::uninstall_site()`: implementing the interface means
 declaring that parameter type, and the infrastructure creates the value it
-passes. Naming such a class anywhere else is still reported. This allowance
-is Content Freshness's own, until the scaffold settles it.
+passes. The allowance holds for the whole class that implements the
+interface; a class that implements no such interface is still reported for
+naming the value. This allowance is Content Freshness's own, until the
+scaffold settles it.
 
 **Configuration:** `dependencyDirection.infrastructure` names the
 infrastructure's namespace, and `dependencyDirection.compositionRoot` lists the

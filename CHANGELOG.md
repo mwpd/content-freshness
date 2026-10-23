@@ -17,7 +17,10 @@ All notable changes to this plugin are documented here. The format follows
 - The weekly digest is set up per site: network activation schedules it in
   every site of the network, a site created on a network where the plugin is
   network-active gets its own, deactivation clears it in every site it
-  reaches, and uninstalling clears any event left behind.
+  reaches, and uninstalling clears any event left behind. Updating does not
+  run activation: where 1.0.0 is network-active, deactivate and activate it
+  for the network again once, so that every site gets its digest and every
+  network's main site the new uninstall callback.
 - Themes override the plugin's templates in a `content-freshness/` directory,
   for example `content-freshness/views/outdated-post-notice.php`, instead of
   the theme's own `views/` directory.
