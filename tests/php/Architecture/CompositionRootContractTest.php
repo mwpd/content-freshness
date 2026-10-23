@@ -53,6 +53,10 @@ final class CompositionRootContractTest extends TestCase {
 		Functions\when( 'get_post' )->justReturn( new WP_Post( new stdClass() ) );
 		Functions\when( 'get_stylesheet_directory' )->justReturn( '/nonexistent/child-theme' );
 		Functions\when( 'get_template_directory' )->justReturn( '/nonexistent/parent-theme' );
+		Functions\stubTranslationFunctions();
+		// Registering a setting or field again replaces it, as in WordPress.
+		Functions\when( 'register_setting' )->justReturn( null );
+		Functions\when( 'add_settings_field' )->justReturn( null );
 	}
 
 	protected function tear_down() {

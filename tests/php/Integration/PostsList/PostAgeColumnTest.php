@@ -19,7 +19,10 @@ final class PostAgeColumnTest extends TestCase {
 	protected function set_up() {
 		parent::set_up();
 
+		Functions\stubTranslationFunctions();
 		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'register_setting' )->justReturn( null );
+		Functions\when( 'add_settings_field' )->justReturn( null );
 		Functions\when( 'did_action' )->alias(
 			static fn( string $action ): bool => in_array( $action, [ 'admin_init', 'current_screen' ], true )
 		);
