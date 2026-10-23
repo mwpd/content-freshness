@@ -28,6 +28,11 @@ final class WordPressMainLoop implements MainLoop {
 	 * Check whether WordPress is rendering the queried post in the main loop
 	 * right now.
 	 *
+	 * One case looks the same as the main loop from here: a secondary query
+	 * run inside the main loop that lists the queried post again. Such a query
+	 * changes the current post but leaves the main query in place, so the
+	 * answer is yes for that copy of the post too.
+	 *
 	 * @return bool Whether the main loop is rendering the queried post.
 	 */
 	public function is_rendering_queried_post(): bool {
@@ -35,7 +40,8 @@ final class WordPressMainLoop implements MainLoop {
 			&& \is_main_query()
 			&& ! \is_feed()
 			// WordPress builds an excerpt by running the_content too, for
-			// whichever post it is asked about.
+			// whichever post it is asked about, for example for a meta
+			// description in the head.
 			&& ! \doing_filter( 'get_the_excerpt' )
 			&& \get_the_ID() === \get_queried_object_id();
 	}

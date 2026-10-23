@@ -26,8 +26,9 @@ final class FailedToFindPost extends RuntimeException implements ContentFreshnes
 	 */
 	public static function for_main_query(): self {
 		return new self(
-			'The main query did not ask for a post. Only ask for the queried post on a singular view, for example'
-			. ' from a service that is Conditional on is_singular() and Delayed until the "wp" action.'
+			'The main query did not ask for a post. A service that needs the queried post has to wait for the main'
+			. ' query, for example by implementing Delayed with the "wp" action, be needed only on singular views,'
+			. ' and ask for the post only while the main loop renders it.'
 		);
 	}
 }
