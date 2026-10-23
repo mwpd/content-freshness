@@ -105,7 +105,7 @@ final class SampleBackendService implements Service, Registerable, Conditional {
 }
 ```
 
-**Proven by:** `src/SampleSubsystem/SampleBackendService.php:60-77`.
+**Proven by:** `src/PostsList/PostAgeColumn.php:104-117`.
 
 **Rules:** `architecture.noHooksInConstructor`,
 `architecture.hooksInLifecycleMethods`, `architecture.constructorsOnlyAssign`.
@@ -132,7 +132,7 @@ public static function is_needed(): bool {
 }
 ```
 
-**Proven by:** `src/SampleSubsystem/SampleBackendService.php:45-52`.
+**Proven by:** `src/PostsList/PostAgeColumn.php:82-86`.
 
 When the answer depends on the query, such as `is_singular()`, also implement
 `Delayed` and wait for `wp` or a later action as shown in
@@ -304,7 +304,7 @@ public function __construct( Injector $injector ) {
 $report = $this->injector->make( Report::class );
 ```
 
-**Proven by:** `src/SampleSubsystem/SampleBackendService.php:60-66` and
+**Proven by:** `src/PostsList/PostAgeColumn.php:104-108` and
 `:82-89`, `src/Infrastructure/View/TemplatedViewFactory.php:29` and `:57-63`,
 bound at `src/ContentFreshnessPlugin.php:95`. The injector is made injectable at
 `src/Infrastructure/ServiceBasedPlugin.php:346-349`, proven by

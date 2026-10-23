@@ -31,7 +31,7 @@ use MWPD\ContentFreshness\Notice\{
 	OutdatedPostNotice,
 	WordPressMainLoop
 };
-use MWPD\ContentFreshness\SampleSubsystem\SampleBackendService;
+use MWPD\ContentFreshness\PostsList\PostAgeColumn;
 
 /**
  * The ContentFreshnessPlugin class is the composition root of the plugin.
@@ -81,8 +81,8 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 */
 	protected function get_service_classes(): array {
 		return [
-			self::SAMPLE_BACKEND_SERVICE_ID => SampleBackendService::class,
-			self::OUTDATED_POST_NOTICE_ID   => OutdatedPostNotice::class,
+			self::OUTDATED_POST_NOTICE_ID => OutdatedPostNotice::class,
+			self::POST_AGE_COLUMN_ID      => PostAgeColumn::class,
 		];
 	}
 
@@ -231,7 +231,7 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 * These can be used from outside code as well to directly refer to a
 	 * service when talking to the service container.
 	 */
-	public const SAMPLE_BACKEND_SERVICE_ID = self::SERVICE_PREFIX . 'sample-subsystem.sample-backend-service';
-
 	public const OUTDATED_POST_NOTICE_ID = self::SERVICE_PREFIX . 'notice.outdated-post-notice';
+
+	public const POST_AGE_COLUMN_ID = self::SERVICE_PREFIX . 'posts-list.post-age-column';
 }

@@ -124,10 +124,10 @@ final class OutputOnlyThroughViewsRuleTest extends RuleTestCase {
 		$this->analyse( [ self::FIXTURES . 'renamed.php' ], [] );
 	}
 
-	public function test_the_sample_backend_service_passes(): void {
+	public function test_the_post_age_column_passes(): void {
 		$this->root     = 'MWPD\ContentFreshness';
 		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
-		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/SampleSubsystem/SampleBackendService.php' ], [] );
+		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/PostsList/PostAgeColumn.php' ], [] );
 	}
 
 	/**
