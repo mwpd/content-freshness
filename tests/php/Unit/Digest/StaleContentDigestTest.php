@@ -38,7 +38,7 @@ final class StaleContentDigestTest extends TestCase {
 	/**
 	 * Emails sent, as recipient, subject, body and headers.
 	 *
-	 * @var list<array{string,string,string,array<string>}>
+	 * @var list<array{string,string,string,array<mixed>}>
 	 */
 	private array $sent = [];
 

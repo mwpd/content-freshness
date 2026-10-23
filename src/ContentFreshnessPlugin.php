@@ -144,10 +144,10 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	protected function get_bindings(): array {
 		return [
 			// Views can be overridden by the theme.
-			ViewFactory::class     => TemplatedViewFactory::class,
+			ViewFactory::class      => TemplatedViewFactory::class,
 
 			// Failures surface when WP_DEBUG is on, and degrade when it is off.
-			DebugMode::class       => WordPressDebugMode::class,
+			DebugMode::class        => WordPressDebugMode::class,
 
 			/*
 			 * The factories the optional Query Monitor panel creates its
@@ -158,18 +158,18 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 			OutputFactory::class    => RegistrationOutputFactory::class,
 
 			// Ages are measured against the time WordPress tells.
-			Clock::class           => WordPressClock::class,
+			Clock::class            => WordPressClock::class,
 
 			// A post is outdated once it is older than the maximum age set
 			// under Settings > Reading. Rebind this to change the rule for
 			// every service at once.
-			FreshnessPolicy::class => OptionFreshnessPolicy::class,
+			FreshnessPolicy::class  => OptionFreshnessPolicy::class,
 
 			// The notice asks WordPress's main loop which post it renders.
-			MainLoop::class        => WordPressMainLoop::class,
+			MainLoop::class         => WordPressMainLoop::class,
 
 			// The digest asks the database for the stalest posts.
-			StalePosts::class      => WordPressStalePosts::class,
+			StalePosts::class       => WordPressStalePosts::class,
 		];
 	}
 
@@ -188,10 +188,11 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 		return [
 
 			/*
-			 * None needed: every constructor here asks for collaborators, not
-			 * for scalar values. A scalar would be bound like this:
+			 * The plugin's own services ask for collaborators, not for scalar
+			 * values. A scalar is bound like this:
 			 * SomeService::class => [ 'argument_name' => 'value' ],
 			 */
+
 			/*
 			 * How the optional Query Monitor panel is named. Its identifier
 			 * carries the plugin's prefix, and its title names the plugin, so

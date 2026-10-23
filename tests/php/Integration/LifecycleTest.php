@@ -43,7 +43,7 @@ final class LifecycleTest extends TestCase {
 
 		// WP-Cron keeps its events per site, like any other option.
 		Functions\when( 'wp_next_scheduled' )->alias(
-			fn( string $hook ) => $this->digests[ \get_current_blog_id() ] ?? false
+			fn() => $this->digests[ \get_current_blog_id() ] ?? false
 		);
 		Functions\when( 'wp_schedule_event' )->alias(
 			function ( int $timestamp ): bool {
@@ -74,7 +74,15 @@ final class LifecycleTest extends TestCase {
 	}
 
 	public function test_network_activation_schedules_a_digest_in_every_site_of_the_network(): void {
-		$this->install( Multisite::with_networks( [ 1 => [ 1, 2 ], 2 => [ 3 ] ], 1 ) );
+		$this->install(
+			Multisite::with_networks(
+				[
+					1 => [ 1, 2 ],
+					2 => [ 3 ],
+				],
+				1
+			)
+		);
 
 		( new ContentFreshnessPlugin() )->activate_in( LifecycleScope::network_wide() );
 
@@ -98,7 +106,15 @@ final class LifecycleTest extends TestCase {
 	 * setting or a digest is there, and returns to the site it started in.
 	 */
 	public function test_uninstalling_on_multisite_cleans_up_every_site_of_every_network(): void {
-		$this->install( Multisite::with_networks( [ 1 => [ 1, 2 ], 2 => [ 3, 4 ] ], 1 ) );
+		$this->install(
+			Multisite::with_networks(
+				[
+					1 => [ 1, 2 ],
+					2 => [ 3, 4 ],
+				],
+				1
+			)
+		);
 		foreach ( [ 1, 2, 3 ] as $site ) {
 			$this->installation->set_option( $site, OptionFreshnessPolicy::OPTION_NAME, 90 );
 		}
