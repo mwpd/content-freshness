@@ -146,8 +146,10 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
 		$this->analyse(
 			[
-				dirname( __DIR__, 4 ) . '/src/PostsList/PostAgeColumn.php',
 				dirname( __DIR__, 4 ) . '/src/Notice/OutdatedPostNotice.php',
+				dirname( __DIR__, 4 ) . '/src/PostsList/PostAgeColumn.php',
+				dirname( __DIR__, 4 ) . '/src/Settings/FreshnessSetting.php',
+				dirname( __DIR__, 4 ) . '/src/Digest/StaleContentDigest.php',
 			],
 			[]
 		);

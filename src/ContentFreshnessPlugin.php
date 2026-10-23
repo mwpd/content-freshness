@@ -13,6 +13,11 @@ declare( strict_types=1 );
 
 namespace MWPD\ContentFreshness;
 
+use MWPD\ContentFreshness\Digest\{
+	StaleContentDigest,
+	StalePosts,
+	WordPressStalePosts
+};
 use MWPD\ContentFreshness\Freshness\{
 	Clock,
 	FreshnessPolicy,
@@ -85,6 +90,7 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 			self::OUTDATED_POST_NOTICE_ID => OutdatedPostNotice::class,
 			self::POST_AGE_COLUMN_ID      => PostAgeColumn::class,
 			self::FRESHNESS_SETTING_ID    => FreshnessSetting::class,
+			self::STALE_CONTENT_DIGEST_ID => StaleContentDigest::class,
 		];
 	}
 
@@ -130,6 +136,9 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 
 			// The notice asks WordPress's main loop which post it renders.
 			MainLoop::class        => WordPressMainLoop::class,
+
+			// The digest asks the database for the stalest posts.
+			StalePosts::class      => WordPressStalePosts::class,
 		];
 	}
 
@@ -238,4 +247,6 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	public const POST_AGE_COLUMN_ID = self::SERVICE_PREFIX . 'posts-list.post-age-column';
 
 	public const FRESHNESS_SETTING_ID = self::SERVICE_PREFIX . 'settings.freshness-setting';
+
+	public const STALE_CONTENT_DIGEST_ID = self::SERVICE_PREFIX . 'digest.stale-content-digest';
 }

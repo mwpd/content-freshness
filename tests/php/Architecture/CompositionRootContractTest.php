@@ -57,6 +57,8 @@ final class CompositionRootContractTest extends TestCase {
 		// Registering a setting or field again replaces it, as in WordPress.
 		Functions\when( 'register_setting' )->justReturn( null );
 		Functions\when( 'add_settings_field' )->justReturn( null );
+		Functions\when( 'is_wp_error' )->alias( static fn( $thing ): bool => $thing instanceof \WP_Error );
+		Functions\when( 'current_datetime' )->justReturn( new \DateTimeImmutable( '2026-10-23 12:00:00 UTC' ) );
 	}
 
 	protected function tear_down() {

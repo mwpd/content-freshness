@@ -124,10 +124,16 @@ final class OutputOnlyThroughViewsRuleTest extends RuleTestCase {
 		$this->analyse( [ self::FIXTURES . 'renamed.php' ], [] );
 	}
 
-	public function test_the_post_age_column_passes(): void {
+	public function test_the_services_that_print_pass(): void {
 		$this->root     = 'MWPD\ContentFreshness';
 		$this->excluded = [ 'MWPD\ContentFreshness\Tests' ];
-		$this->analyse( [ dirname( __DIR__, 4 ) . '/src/PostsList/PostAgeColumn.php' ], [] );
+		$this->analyse(
+			[
+				dirname( __DIR__, 4 ) . '/src/PostsList/PostAgeColumn.php',
+				dirname( __DIR__, 4 ) . '/src/Settings/FreshnessSetting.php',
+			],
+			[]
+		);
 	}
 
 	/**
