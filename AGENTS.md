@@ -18,9 +18,10 @@ tested and readable on its own.
 | `src/ContentFreshnessPlugin.php` | Composition root: services, injector bindings, shared instances, prefixes. |
 | `src/Freshness/` | The domain: `FreshnessPolicy` and its option-backed implementation, the `MaxAge` and `PostAge` value objects, the `Clock`. |
 | `src/Notice/`, `src/PostsList/`, `src/Settings/`, `src/Digest/` | The four features, one service each, with their WordPress adapters. |
-| `src/Infrastructure/` | The scaffold's infrastructure, as of `mwpd/basic-scaffold@61a9b00`: service container, injector, views, autoloader, capability interfaces, multisite and uninstall lifecycle, the optional Query Monitor panel. |
+| `src/Infrastructure/` | The scaffold's infrastructure, as of `mwpd/basic-scaffold@61a9b00` plus the asset capability of [mwpd/basic-scaffold#37](https://github.com/mwpd/basic-scaffold/issues/37): service container, injector, views, autoloader, capability interfaces, multisite and uninstall lifecycle, scripts and styles, the optional Query Monitor panel. |
 | `src/Exception/` | The plugin's exception types. |
 | `views/` | Templates the services render, and `views/query-monitor-registration.php`, the template of the scaffold's optional Query Monitor panel. |
+| `assets/` | The notice's stylesheet, shipped as it is, without a build step. |
 | `tests/php/Unit`, `tests/php/Integration` | PHPUnit suites. Both use Brain Monkey; neither needs a WordPress install. |
 | `tests/php/Fixture/` | Test doubles, stand-ins for WordPress classes, view fixtures. |
 | `tests/php/Architecture/`, `tests/php/PHPStan/` | Architecture rules: the `architecture` suite, PHPStan rules, their tests and fixtures. |
@@ -68,10 +69,10 @@ pattern shows the plugin's way, with code that passes the checks.
 **The core idea: complexity grows linearly.** Every concern is its own
 service, and each service decides in isolation where and when it acts in the
 WordPress lifecycle, by implementing small capability interfaces
-(`Conditional`, `Delayed`, `HasDependencies`, `Registerable`, `Activateable`,
-`Deactivateable`, and the site- and network-scoped lifecycle interfaces such as
-`SiteActivateable` and `SiteUninstallable`). The infrastructure works out when
-to trigger what. New logic is one more service, never one more condition threaded
+(`Conditional`, `Delayed`, `HasDependencies`, `Registerable`, `HasAssets`,
+`Activateable`, `Deactivateable`, and the site- and network-scoped lifecycle
+interfaces such as `SiteActivateable` and `SiteUninstallable`). The
+infrastructure works out when to trigger what. New logic is one more service, never one more condition threaded
 through the others. A lifecycle point no interface covers gets a new
 interface, not a conditional inside a service.
 

@@ -16,9 +16,12 @@ namespace MWPD\ContentFreshness\Notice;
 use MWPD\ContentFreshness\Exception\ContentFreshnessException;
 use MWPD\ContentFreshness\Freshness\FreshnessPolicy;
 use MWPD\ContentFreshness\Infrastructure\{
+	Asset\AssetContext,
+	Asset\Style,
 	Conditional,
 	DefaultRegistrationPriority,
 	Delayed,
+	HasAssets,
 	Registerable,
 	Service,
 	Service\DebugMode,
@@ -30,8 +33,11 @@ use MWPD\ContentFreshness\Infrastructure\{
  *
  * The service says, once, where it acts: on a single post, and only once the
  * query has run so WordPress can tell. In any other request it is never built.
+ *
+ * The notice ships with a default style, declared in get_assets(), so it
+ * stands out from the post in any theme without one of its own.
  */
-final class OutdatedPostNotice implements Service, Registerable, Conditional, Delayed {
+final class OutdatedPostNotice implements Service, Registerable, Conditional, Delayed, HasAssets {
 
 	// Nothing else on "wp" needs to run before or after the notice, so it
 	// registers at the default priority.
@@ -43,6 +49,23 @@ final class OutdatedPostNotice implements Service, Registerable, Conditional, De
 	 * @var non-empty-string
 	 */
 	private const VIEW = 'views/outdated-post-notice';
+
+	/**
+	 * Handle of the notice's default style.
+	 *
+	 * It is public API, like the hooks: a theme that styles the notice itself
+	 * removes the default with wp_dequeue_style( 'mwpd-content-freshness-notice' ).
+	 *
+	 * @var non-empty-string
+	 */
+	private const STYLE_HANDLE = 'mwpd-content-freshness-notice';
+
+	/**
+	 * Stylesheet of the notice, relative to the plugin root.
+	 *
+	 * @var non-empty-string
+	 */
+	private const STYLE_PATH = 'assets/css/notice.css';
 
 	/**
 	 * Policy that decides whether the post is outdated.
@@ -111,6 +134,39 @@ final class OutdatedPostNotice implements Service, Registerable, Conditional, De
 	 */
 	public function register(): void {
 		\add_filter( 'the_content', [ $this, 'prepend_notice' ] );
+	}
+
+	/**
+	 * Get the assets the service needs at an enqueue point.
+	 *
+	 * The service only exists on a single post, so this picks the front end
+	 * out of the enqueue points, and the style only loads where the notice
+	 * will show: on a post that is outdated. A fresh post gets no stylesheet.
+	 *
+	 * WordPress asks for the styles in the head, before the loop runs, so the
+	 * question is about the queried post rather than about what the loop is
+	 * rendering, which is what prepend_notice() asks later. Printed in the
+	 * head, the style is there when the notice appears, so the notice never
+	 * shows unstyled first. A theme that styles the notice itself dequeues the
+	 * handle, or overrides .mwpd-content-freshness-notice.
+	 *
+	 * The plugin calls this from its own enqueue listener, which is where
+	 * control comes back from WordPress, so it also stops a failure: loud with
+	 * debug mode on, no style with it off.
+	 *
+	 * @param AssetContext $context Where in the request the assets are loaded.
+	 *
+	 * @throws ContentFreshnessException If the post or its age cannot be
+	 *                                   determined.
+	 *
+	 * @return iterable<Style> Stylesheet of the notice on an outdated post.
+	 */
+	public function get_assets( AssetContext $context ): iterable {
+		if ( ! $context->is_front_end() || ! $this->policy->is_outdated( $this->main_loop->queried_post() ) ) {
+			return [];
+		}
+
+		return [ Style::file( self::STYLE_HANDLE, self::STYLE_PATH ) ];
 	}
 
 	/**

@@ -158,6 +158,7 @@ pass "created an old post ($old_id) and a fresh post ($fresh_id)"
 
 echo "Outdated post notice"
 expect_equals "the old post loads" "200" "$(fetch "/?p=$old_id")"
+expect_contains "the notice is styled from the head" "id='mwpd-content-freshness-notice-css'" "$PAGE"
 expect_contains "the old post warns readers" 'class="mwpd-content-freshness-notice"' "$PAGE"
 expect_contains "the notice says how old the post is" 'This post was last updated' "$PAGE"
 expect_contains "the content still follows the notice" 'Old content.' "$PAGE"

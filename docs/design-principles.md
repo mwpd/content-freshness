@@ -75,26 +75,28 @@ Each lifecycle question a service has to answer is a small interface in
 | What happens in each site, or once for the network, on activation or deactivation? | `SiteActivateable`, `NetworkActivateable`, `SiteDeactivateable`, `NetworkDeactivateable` | Called with a `SiteContext` in every site the event reaches, switched to, or with a `NetworkContext` once for the network. Any of them replaces the parameterless call of that event. |
 | What happens when a site is created or deleted? | `SiteInitializable`, `SiteUninitializable` | Called in a new site of a network where the plugin is network-active, and in a site about to be deleted, in requests where the plugin is loaded. |
 | What happens when the plugin is uninstalled? | `SiteUninstallable`, `NetworkUninstallable` | Called through the uninstall bridge in every site, then once for each network on multisite, or in the one site of a single-site installation. |
+| Which scripts and styles does it need? | `HasAssets::get_assets()` | Asked at each enqueue action (front end, admin, block editor, login) once the service is registered, and asked at once for the actions that have already run. The plugin loads what it returns through `Assets`, served from the main file's directory with its `Version` header. [Pattern](patterns.md#i-need-to-load-a-script-or-style) |
 | Does it show how the services were registered? | `ObservesRegistration::observes_registration()` | Asked by class before any service is scheduled. If one says yes, the plugin records every registration decision of the request. The optional Query Monitor panel is the built-in observer. [Pattern](patterns.md#i-need-to-see-why-a-service-did-not-run) |
 
 The four services of this plugin answer them like this:
 
 | Service | Implements | So it acts |
 | --- | --- | --- |
-| `OutdatedPostNotice` | `Registerable`, `Conditional`, `Delayed` | on a single post (`is_singular( 'post' )`), once the query has run (`wp`) |
+| `OutdatedPostNotice` | `Registerable`, `Conditional`, `Delayed`, `HasAssets` | on a single post (`is_singular( 'post' )`), once the query has run (`wp`); loads its stylesheet in the head when that post is outdated |
 | `PostAgeColumn` | `Registerable`, `Conditional`, `Delayed` | on the Posts list screen (`edit-post`), once the screen is known (`current_screen`) |
 | `FreshnessSetting` | `Registerable`, `Delayed`, `SiteUninstallable` | in admin requests (`admin_init`), and removes its option from every site on uninstall |
 | `StaleContentDigest` | `Registerable`, `SiteActivateable`, `SiteDeactivateable`, `SiteInitializable`, `SiteUninstallable` | in every request, because WP-Cron can run in any of them; schedules its event in each site an activation reaches and in new sites of a network, clears it in each site a deactivation reaches and on uninstall |
 
 The plugin itself only hooks into `plugins_loaded`
-(`src/Infrastructure/ServiceBasedPlugin.php:97`) and the activation and
-deactivation hooks (`content-freshness.php:130-152`). On multisite, registration
+(`src/Infrastructure/ServiceBasedPlugin.php:97`), the activation and
+deactivation hooks (`content-freshness.php:130-152`), and, because the notice
+has a stylesheet, the enqueue actions, once each. On multisite, registration
 also hooks into the creation and deletion of sites when a service needs it,
 as the digest does, and activation stores the uninstall callback
 (`src/ContentFreshnessUninstallHook.php:36-38`), which WordPress calls when the
 plugin is deleted. Everything else is decided per service. `OutdatedPostNotice` declares that it
 runs at `wp` and only on single posts
-(`src/Notice/OutdatedPostNotice.php:76-86`), and no other code has to
+(`src/Notice/OutdatedPostNotice.php:99-110`), and no other code has to
 know.
 
 The questions are static methods on purpose: the plugin can **decide before it
@@ -216,14 +218,14 @@ another part of the plugin depends on:
   `FreshnessPolicy` for a fixed one and no service changes
   (`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:78-100`).
 - **Interface segregation:** small capability interfaces (`Registerable`,
-  `Conditional`, `Delayed`, `HasDependencies`, `Activateable`,
+  `Conditional`, `Delayed`, `HasDependencies`, `HasAssets`, `Activateable`,
   `Deactivateable`, and the site- and network-scoped lifecycle interfaces
   such as `SiteActivateable` and `SiteUninstallable`) that a service
   implements only when it needs them.
 - **Dependency inversion:** high-level code depends on interfaces, and the
   injector supplies the implementations. `OutdatedPostNotice` receives a
   `FreshnessPolicy`, a `MainLoop` and a `ViewFactory` through its constructor
-  (`src/Notice/OutdatedPostNotice.php:97-102`) and never creates one.
+  (`src/Notice/OutdatedPostNotice.php:120-125`) and never creates one.
 
 **Implementation details may take shortcuts.** Inside a class, behind its
 interface, it is fine to call WordPress functions, use the plugin API and read
@@ -424,7 +426,7 @@ In the code:
   the same value object (`src/Settings/FreshnessSetting.php:152-169`).
 - Filters hand over whatever the last callback returned. The notice and the
   column only change a value of the type they expect, and pass anything else
-  on (`src/Notice/OutdatedPostNotice.php:135-136`).
+  on (`src/Notice/OutdatedPostNotice.php:191-192`).
 - The digest keeps only the posts the query returned
   (`src/Digest/WordPressStalePosts.php:70-75`), and only the users who really have the
   capability and a valid email address
@@ -513,7 +515,7 @@ The scaffold does not yet catch an exception from a service's own code
 so each of the plugin's hook callbacks is its own edge. The notice catches
 its failures, from the policy as much as from the view, and returns the
 content as it was
-(`src/Notice/OutdatedPostNotice.php:156-161`); the column leaves its cell empty;
+(`src/Notice/OutdatedPostNotice.php:212-217`); the column leaves its cell empty;
 the digest ends the run and tries again next week. The end-to-end tests break
 the stored setting on purpose and check both modes.
 

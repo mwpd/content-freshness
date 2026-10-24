@@ -6,6 +6,8 @@ namespace MWPD\ContentFreshness\Tests\Unit\Notice;
 
 use Brain\Monkey\Functions;
 use MWPD\ContentFreshness\Exception\FailedToFindPost;
+use MWPD\ContentFreshness\Infrastructure\Asset\AssetContext;
+use MWPD\ContentFreshness\Infrastructure\Asset\Style;
 use MWPD\ContentFreshness\Infrastructure\View\TemplatedViewFactory;
 use MWPD\ContentFreshness\Notice\OutdatedPostNotice;
 use MWPD\ContentFreshness\Tests\Fixture\FixedDebugMode;
@@ -103,6 +105,75 @@ final class OutdatedPostNoticeTest extends TestCase {
 		$this->expectException( FailedToFindPost::class );
 
 		$notice->prepend_notice( '<p>Content.</p>' );
+	}
+
+	public function test_it_declares_its_style_on_the_front_end_of_an_outdated_post(): void {
+		// The head comes before the loop, so the loop is not rendering yet.
+		$notice = $this->make_notice( new FixedFreshnessPolicy( true ), new FixedMainLoop( false, $this->post() ) );
+
+		$assets = $this->assets_of( $notice, AssetContext::front_end() );
+
+		$this->assertCount( 1, $assets );
+		$style = $assets[0];
+		$this->assertInstanceOf( Style::class, $style );
+		$this->assertSame( 'mwpd-content-freshness-notice', $style->get_handle() );
+		$this->assertNotNull( $style->get_path() );
+		$this->assertSame( 'assets/css/notice.css', $style->get_path()->to_string() );
+		$this->assertFileExists( dirname( __DIR__, 4 ) . '/assets/css/notice.css', 'The stylesheet ships.' );
+	}
+
+	public function test_it_declares_no_style_on_a_fresh_post(): void {
+		$notice = $this->make_notice( new FixedFreshnessPolicy( false ), new FixedMainLoop( false, $this->post() ) );
+
+		$this->assertSame( [], $this->assets_of( $notice, AssetContext::front_end() ) );
+	}
+
+	/**
+	 * @dataProvider other_enqueue_points
+	 */
+	public function test_it_declares_no_style_at_other_enqueue_points( AssetContext $context ): void {
+		$notice = $this->make_notice( new FixedFreshnessPolicy( true ), new FixedMainLoop( false, $this->post() ) );
+
+		$this->assertSame( [], $this->assets_of( $notice, $context ) );
+	}
+
+	/**
+	 * @return array<string,array{AssetContext}>
+	 */
+	public static function other_enqueue_points(): array {
+		return [
+			'admin'        => [ AssetContext::admin( 'post.php' ) ],
+			'block editor' => [ AssetContext::block_editor() ],
+			'login'        => [ AssetContext::login() ],
+		];
+	}
+
+	/**
+	 * The plugin asks for the assets from its own enqueue listener, which
+	 * catches a failure the way prepend_notice() does for the_content, so
+	 * the service lets it through rather than deciding twice.
+	 */
+	public function test_a_failure_while_declaring_the_style_is_left_to_the_plugin(): void {
+		$notice = $this->make_notice( new FixedFreshnessPolicy( true ), new FixedMainLoop( false, null ) );
+
+		$this->expectException( FailedToFindPost::class );
+
+		$this->assets_of( $notice, AssetContext::front_end() );
+	}
+
+	/**
+	 * Collect what the notice declares at an enqueue point.
+	 *
+	 * @return list<mixed> Declared assets.
+	 */
+	private function assets_of( OutdatedPostNotice $notice, AssetContext $context ): array {
+		$assets = [];
+
+		foreach ( $notice->get_assets( $context ) as $asset ) {
+			$assets[] = $asset;
+		}
+
+		return $assets;
 	}
 
 	private function make_notice(
