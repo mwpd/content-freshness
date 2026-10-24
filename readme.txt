@@ -51,7 +51,7 @@ Only on single posts of the "post" type, and only in the post's main content. Pa
 
 = Can I change how the notice looks? =
 
-The notice has the class `mwpd-content-freshness-notice` for styling. To change its markup, copy `views/outdated-post-notice.php` from the plugin into your theme as `content-freshness/views/outdated-post-notice.php`, and edit it there.
+Yes. The plugin ships a default style, a soft amber box that follows your theme's font size, and loads it only on posts that show the notice. To adjust it, override the class `mwpd-content-freshness-notice` in your theme's stylesheet. To start from scratch, dequeue the style's handle, `mwpd-content-freshness-notice`, on `wp_enqueue_scripts`. To change its markup, copy `views/outdated-post-notice.php` from the plugin into your theme as `content-freshness/views/outdated-post-notice.php`, and edit it there.
 
 = Can I change the rule for what counts as outdated? =
 

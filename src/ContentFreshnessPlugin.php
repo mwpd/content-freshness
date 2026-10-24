@@ -18,6 +18,7 @@ use MWPD\ContentFreshness\Digest\{
 	StalePosts,
 	WordPressStalePosts
 };
+use MWPD\ContentFreshness\Exception\FailedToMakeInstance;
 use MWPD\ContentFreshness\Freshness\{
 	Clock,
 	FreshnessPolicy,
@@ -286,12 +287,35 @@ final class ContentFreshnessPlugin extends ServiceBasedPlugin {
 	 *
 	 * WordPress records whether the plugin is active, and its uninstall
 	 * callback, under this file. Services that implement SiteDeactivateable or
-	 * SiteInitializable, and the uninstall callback, need it.
+	 * SiteInitializable, and the uninstall callback, need it. The assets the
+	 * notice declares are served from its directory, with its Version header.
 	 *
 	 * @return string Absolute path of the main plugin file.
 	 */
 	protected function get_main_file(): string {
 		return \dirname( __DIR__ ) . '/content-freshness.php';
+	}
+
+	/**
+	 * Get the debug mode the plugin's own error boundaries check.
+	 *
+	 * The infrastructure's default reads WP_DEBUG. This plugin binds DebugMode
+	 * for its services above, so a failure while loading the notice's style is
+	 * judged by the same debug mode as a failure in the notice itself: rebind
+	 * DebugMode once, through the bindings filter or here, and both follow.
+	 *
+	 * @throws FailedToMakeInstance If the injector does not make a debug mode.
+	 *
+	 * @return DebugMode Debug mode to check.
+	 */
+	protected function get_debug_mode(): DebugMode {
+		$debug_mode = $this->injector->make( DebugMode::class );
+
+		if ( ! $debug_mode instanceof DebugMode ) {
+			throw FailedToMakeInstance::for_unexpected_instance( DebugMode::class, $debug_mode );
+		}
+
+		return $debug_mode;
 	}
 
 	/**

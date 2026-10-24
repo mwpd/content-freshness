@@ -38,6 +38,8 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 
 	private string $delayed = 'MWPD\ContentFreshness\Infrastructure\Delayed';
 
+	private string $has_assets = 'MWPD\ContentFreshness\Infrastructure\HasAssets';
+
 	/** @var array<string> */
 	private array $capabilities = [
 		'MWPD\ContentFreshness\Infrastructure\Registerable',
@@ -46,6 +48,7 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 		'MWPD\ContentFreshness\Infrastructure\HasDependencies',
 		'MWPD\ContentFreshness\Infrastructure\Activateable',
 		'MWPD\ContentFreshness\Infrastructure\Deactivateable',
+		'MWPD\ContentFreshness\Infrastructure\HasAssets',
 	];
 
 	/** @var array<string> */
@@ -63,6 +66,7 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 			$this->capabilities,
 			$this->delayed,
 			$this->registerable,
+			$this->has_assets,
 			$this->infrastructure,
 			$this->composition_root
 		);
@@ -76,6 +80,7 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 			'HasDependencies',
 			'Activateable',
 			'Deactivateable',
+			'HasAssets',
 		];
 		foreach ( $capabilities as $name ) {
 			$errors = [ [ $this->service_message( self::NAMESPACE_ROOT . '\\' . $name . 'Only' ), 9, self::TIP ] ];
@@ -91,6 +96,10 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 			[ self::FIXTURES . 'DelayedService.php' ],
 			[ [ $this->delayed_message( self::NAMESPACE_ROOT . '\DelayedService' ), 10, self::TIP ] ]
 		);
+	}
+
+	public function test_delayed_services_with_assets_have_work_to_run(): void {
+		$this->analyse( [ self::FIXTURES . 'DelayedAssetService.php' ], [] );
 	}
 
 	public function test_capabilities_inherited_from_a_base_class_are_checked(): void {
@@ -186,12 +195,13 @@ final class CapabilitiesOnServicesRuleTest extends RuleTestCase {
 
 	private function delayed_message( string $class_name ): string {
 		return sprintf(
-			'Class %s implements %s without %s. Implement %s and add its hooks in register()'
-			. ' so delayed registration has work to run.',
+			'Class %s implements %s without %s. Implement %s and add its hooks in register(),'
+			. ' or %s to declare its assets, so delayed registration has work to run.',
 			$class_name,
 			$this->delayed,
 			$this->registerable,
-			$this->registerable
+			$this->registerable,
+			$this->has_assets
 		);
 	}
 }

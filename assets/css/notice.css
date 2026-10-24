@@ -1,0 +1,51 @@
+/*
+ * Default style of the outdated post notice.
+ *
+ * OutdatedPostNotice declares this stylesheet in get_assets(), and the plugin
+ * loads it in the head of a single post that is outdated, and nowhere else.
+ * The markup it styles is the one in views/outdated-post-notice.php:
+ *
+ *     <p class="mwpd-content-freshness-notice" role="note">…</p>
+ *
+ * It is a default, not a requirement. A theme replaces it by dequeuing the
+ * "mwpd-content-freshness-notice" handle, or adjusts it by overriding the
+ * class. Everything scales with the theme's font size, so the notice fits in
+ * with the post around it.
+ */
+.mwpd-content-freshness-notice {
+	display: flex;
+	gap: 0.75em;
+	align-items: baseline;
+	box-sizing: border-box;
+	margin: 0 0 1.5em;
+	padding: 0.875em 1em;
+	border-radius: 0.875em;
+	background: #fbefd6;
+	color: #3d2e12;
+	font-size: 0.9375em;
+	line-height: 1.5;
+}
+
+/* A dot marks the notice as a note, without an icon font or an image. */
+.mwpd-content-freshness-notice::before {
+	content: "";
+	flex: none;
+	width: 0.625em;
+	height: 0.625em;
+	border-radius: 50%;
+	background: #c25e1f;
+}
+
+/*
+ * Windows High Contrast and other forced-colors modes drop backgrounds, so
+ * the notice keeps a border and the dot keeps the text color.
+ */
+@media (forced-colors: active) {
+	.mwpd-content-freshness-notice {
+		border: 1px solid CanvasText;
+	}
+
+	.mwpd-content-freshness-notice::before {
+		background: CanvasText;
+	}
+}

@@ -4,6 +4,24 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the plugin uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- A default style for the outdated post notice, `assets/css/notice.css`: a
+  soft amber box, sized in `em` so it follows the theme's type, with a
+  high-contrast fallback. The plugin loads it in the head of a single post
+  that is outdated, and nowhere else. Themes override the
+  `mwpd-content-freshness-notice` class to adjust it, or dequeue the
+  `mwpd-content-freshness-notice` style handle to replace it.
+- The scaffold's asset capability, ported from
+  [mwpd/basic-scaffold#37](https://github.com/mwpd/basic-scaffold/issues/37):
+  a service that implements `HasAssets` declares the scripts and styles it
+  needs from `get_assets()`, and the plugin hooks the enqueue actions once,
+  asks every registered service at each of them, and loads the declarations
+  through the `Assets` boundary. Handles are checked for the plugin's prefix
+  where they are declared.
+
 ## [1.0.1] - 2026-10-23
 
 ### Changed

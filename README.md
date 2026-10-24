@@ -83,14 +83,33 @@ policy's `outdated_before()`, then lets `is_outdated()` decide about each
 one, so a rule that leaves some old posts out applies to the email too. The plugin's tests do the same with a fixed policy
 (`tests/php/Integration/Notice/OutdatedPostNoticeTest.php:78-100`).
 
+### Changing the look of the notice
+
+The notice comes with a default style, `assets/css/notice.css`: a soft amber
+box with a dot in front of the text, sized in `em` so it follows the theme's
+type. The plugin loads it in the head of a post that is outdated, and nowhere
+else. To restyle the notice, override the class `mwpd-content-freshness-notice`
+in your theme's stylesheet. To drop the default style altogether and start from
+scratch, dequeue its handle:
+
+```php
+add_action(
+	'wp_enqueue_scripts',
+	static function (): void {
+		wp_dequeue_style( 'mwpd-content-freshness-notice' );
+	},
+	20 // After the plugin has enqueued it, at the default priority of 10.
+);
+```
+
 ### Changing the markup
 
 The notice, the column cell, the setting field and the email body are views
 in `views/`. A theme overrides one in a `content-freshness/` directory of its
 own, at the same relative path: the notice, for example, with
 `content-freshness/views/outdated-post-notice.php` in the child or parent
-theme. The notice
-has the class `mwpd-content-freshness-notice` for styling.
+theme. Keep the class `mwpd-content-freshness-notice` on the notice's element,
+or dequeue the default style as shown above.
 
 ## How it is built
 
@@ -113,7 +132,7 @@ protected function get_service_classes(): array {
 
 | Service | Declares | Which means |
 | --- | --- | --- |
-| [`OutdatedPostNotice`](src/Notice/OutdatedPostNotice.php) | `Conditional` (`is_singular( 'post' )`), `Delayed` (`wp`), `Registerable` | Only exists on a single post, once the query has run, and filters `the_content` there. |
+| [`OutdatedPostNotice`](src/Notice/OutdatedPostNotice.php) | `Conditional` (`is_singular( 'post' )`), `Delayed` (`wp`), `Registerable`, `HasAssets` | Only exists on a single post, once the query has run, filters `the_content` there, and declares its stylesheet for the head of an outdated post. |
 | [`PostAgeColumn`](src/PostsList/PostAgeColumn.php) | `Conditional` (screen `edit-post`), `Delayed` (`current_screen`), `Registerable` | Only exists on the Posts list, and adds its column there. |
 | [`FreshnessSetting`](src/Settings/FreshnessSetting.php) | `Delayed` (`admin_init`), `Registerable`, `SiteUninstallable` | Registers the setting in admin requests, and removes its option from every site when the plugin is deleted. |
 | [`StaleContentDigest`](src/Digest/StaleContentDigest.php) | `Registerable`, `SiteActivateable`, `SiteDeactivateable`, `SiteInitializable`, `SiteUninstallable` | Hooks the cron callback in every request, schedules the weekly event in each site an activation reaches and in new sites of a network, and clears it in each site a deactivation reaches and on uninstall. |
@@ -127,7 +146,7 @@ Look at what each service does *not* do:
 
 - The notice does not check `is_admin()`, and the column does not check
   `is_singular()`. Each states its own condition once
-  (`src/Notice/OutdatedPostNotice.php:76-78`,
+  (`src/Notice/OutdatedPostNotice.php:99-101`,
   `src/PostsList/PostAgeColumn.php:87-91`).
 - The digest is deliberately **not** `Conditional`. WP-Cron runs in whatever
   request comes along, so its callback has to be hooked in every request, and
@@ -148,7 +167,12 @@ Look at what each service does *not* do:
 - No service fetches the current post when it is built. The notice asks
   `MainLoop` inside its filter, so it only acts on the queried post in the
   main loop, not on a related-posts widget further down
-  (`src/Notice/OutdatedPostNotice.php:134-140`).
+  (`src/Notice/OutdatedPostNotice.php:190-196`).
+- The notice does not hook `wp_enqueue_scripts` for its stylesheet. It
+  declares the style in `get_assets()`, and only for the front end of an
+  outdated post; the infrastructure hooks the enqueue actions once and asks
+  (`src/Notice/OutdatedPostNotice.php:139-170`). A fresh post, an archive or
+  an admin screen loads nothing.
 
 ### Why adding a feature changed nothing else
 
@@ -175,7 +199,7 @@ Inside the plugin, every failure is an exception with a name, such as
 before control goes back to WordPress: with `WP_DEBUG` on, the exception
 surfaces; with it off, the notice is left out, the column cell stays empty,
 or the digest waits for next week, and the rest of the page works
-(`src/Notice/OutdatedPostNotice.php:156-161`).
+(`src/Notice/OutdatedPostNotice.php:212-217`).
 
 The site lifecycle events are the deliberate exception, as in the scaffold:
 when the digest cannot be scheduled while the plugin is activated in a site,
