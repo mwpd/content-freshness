@@ -4,12 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect x=%272%27 y=%272%27 width=%2728%27 height=%2728%27 rx=%278%27 fill=%27oklch(0.72%200.14%2050)%27/%3E%3C/svg%3E">
 <title>Content Freshness: tell readers when a post may be out of date</title>
-<meta name="description" content="A WordPress plugin that warns readers about outdated posts, shows editors what is going stale in the Posts list, and emails a weekly digest. The worked example of the MWPD Basic Scaffold.">
+<meta name="description" content="A WordPress plugin that warns readers about outdated posts, shows editors what is going stale in the Posts list, and emails a weekly digest. Built on mwpd/basic-scaffold, a WordPress plugin scaffold where every feature is its own service.">
 <meta property="og:title" content="Content Freshness for WordPress">
-<meta property="og:description" content="Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest. The worked example of the MWPD Basic Scaffold.">
+<meta property="og:description" content="Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest. Built on mwpd/basic-scaffold, a WordPress plugin scaffold where every feature is its own service.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mwpd.github.io/content-freshness/">
+<meta property="og:image" content="https://mwpd.github.io/content-freshness/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Content Freshness: a blog post about pruning tomato plants, with the plugin’s notice that it was last updated 3 years ago.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -105,7 +111,7 @@ a:focus-visible{outline:2px solid var(--accent-deep);outline-offset:3px;border-r
    --------------------------------------------------------------------------- */
 .site-header{position:sticky;top:0;z-index:10;background:rgba(251,248,243,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .nav{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"brand links github";align-items:center;gap:16px;padding:14px 24px}
-.brand{grid-area:brand;display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;line-height:1;text-decoration:none;white-space:nowrap}
+.brand{grid-area:brand;display:inline-flex;min-width:24px;min-height:24px;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;line-height:1;text-decoration:none;white-space:nowrap}
 .brand:hover{text-decoration:none}
 .brand .dot{width:24px;height:24px;background:var(--accent)}
 .nav-links{grid-area:links;display:flex;justify-content:flex-end;gap:4px;font-family:var(--display);font-size:15px;font-weight:600}
@@ -141,12 +147,11 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 .caption code{font-size:12px}
 
 /* The lead message: this is a scaffold showcase that also ships a plugin. */
-.lead{margin-top:16px;display:grid;grid-template-columns:1fr auto;gap:12px 32px;align-items:center;text-decoration:none;background:var(--dark);color:var(--dark-text);border-radius:var(--radius-m);padding:22px 28px;transition:background-color .15s ease,box-shadow .15s ease}
-.lead:hover{background:#242d41;text-decoration:none;box-shadow:0 10px 30px rgba(29,36,51,.18)}
-.lead:focus-visible{outline-color:var(--gold)}
-.lead p{font-size:17px;line-height:1.5;max-width:70ch;text-wrap:pretty}
+.lead{margin-top:16px;display:grid;grid-template-columns:1fr auto;gap:12px 32px;align-items:center;background:var(--dark);color:var(--dark-text);border-radius:var(--radius-m);padding:22px 28px}
+.lead p{font-size:17px;line-height:1.5;max-width:64ch;text-wrap:pretty}
 .lead strong{font-family:var(--display);font-weight:800;color:#fff;letter-spacing:-.01em}
-.lead-cta{font-family:var(--display);font-weight:600;font-size:16px;color:var(--gold);white-space:nowrap;justify-self:end}
+.lead-cta{font-family:var(--display);font-weight:600;font-size:16px;color:var(--gold);white-space:nowrap;justify-self:end;padding:10px 0;text-decoration-color:transparent}
+.lead-cta:hover{text-decoration-color:var(--gold)}
 
 /* ---------------------------------------------------------------------------
    Features
@@ -250,7 +255,7 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 .trust li{background:var(--dark-2);padding:18px 20px;display:flex;flex-direction:column;gap:6px}
 .trust .label{font-size:13px;color:var(--dark-faint)}
 .trust .value{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.3;color:#fff}
-.trust .value a{color:#fff}
+.trust .more{font-size:14px;font-weight:600;color:var(--dark-text);align-self:flex-start;margin-top:2px}
 .step{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:start}
 .step-stack{display:flex;flex-direction:column;gap:24px}
 .step-copy{display:flex;flex-direction:column;gap:12px;max-width:720px}
@@ -278,6 +283,21 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 .service-row a:hover{text-decoration:underline}
 .service-row .where{font-size:15px;color:var(--dark-muted)}
 .service-row .caps{font-family:var(--mono);font-size:12px;color:var(--dark-faint)}
+.caps-key{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px 32px;margin:0;font-size:14px;line-height:1.45}
+.caps-key div{display:flex;flex-direction:column;gap:2px}
+.caps-key dt{font-family:var(--mono);font-size:12px;color:var(--dark-text)}
+.caps-key dd{margin:0;color:var(--dark-faint)}
+/* The feature commits: what each one added, and what it had to touch. */
+.commits{list-style:none;margin:0;padding:0;border:1px solid var(--dark-line);border-radius:var(--radius-m);overflow:hidden}
+.commit{display:grid;grid-template-columns:minmax(0,16.5em) 6.5em 9em minmax(0,1fr);gap:6px 24px;align-items:baseline;padding:14px 22px;border-bottom:1px solid var(--dark-line);font-size:14px;line-height:1.5}
+.commit:last-child{border-bottom:0}
+.commit .subject{font-family:var(--display);font-weight:600;font-size:15px;color:#fff}
+.commit .sha{font-family:var(--mono);font-size:13px;color:var(--gold)}
+.commit .diff{font-family:var(--mono);font-size:13px;color:var(--dark-text);white-space:nowrap}
+.commit .diff .add{color:#c3e88d}
+.commit .diff .del{color:oklch(0.78 0.12 30)}
+.commit .touched{color:var(--dark-muted)}
+.commit .touched strong{color:#fff;font-weight:600}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
 .rule{background:var(--dark-3);border-radius:var(--radius-m);padding:22px;display:flex;flex-direction:column;gap:8px}
 .rule h4{margin:0;font-family:var(--display);font-weight:800;font-size:17px;color:#fff;letter-spacing:-.01em}
@@ -298,28 +318,25 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 .contrib p{font-size:15px;line-height:1.65;margin-top:12px}
 .contrib .code{font-size:13px;border-radius:16px;padding:18px 22px}
 
-/* The book, the scaffold: two deliberate blocks. */
-.origins{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px}
-.book{background:var(--amber);color:var(--amber-ink);border-radius:var(--radius-l);padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:20px;min-height:100%}
-.book .label{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-text)}
-.book .title{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.2vw,40px);line-height:.98;letter-spacing:-.03em;color:var(--amber-ink);text-wrap:balance;max-width:11ch}
-.book .title em{font-style:normal;color:var(--accent-deep)}
-.book p{font-size:16px;line-height:1.55;color:var(--amber-ink)}
-.book .actions{margin-top:auto}
-.book .btn-ink{background:var(--amber-ink)}
-.book .btn-ink:hover{background:#5a4420}
-.book .btn:focus-visible{outline-color:var(--accent-deep)}
-.walk{background:var(--green);color:var(--ink);border-radius:var(--radius-l);padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:20px}
-.walk .title{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.02em}
-.walk p{font-size:16px;line-height:1.55;color:var(--ink-2)}
-.walk .actions{margin-top:auto}
-.walk a:focus-visible{outline-color:var(--accent-deep)}
+/* Where the developer journey ends: one block, one primary action. */
+.start{background:var(--amber);color:var(--amber-ink);border-radius:var(--radius-l);padding:clamp(24px,4vw,48px);display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:20px 56px;align-items:start}
+.start-head{display:flex;flex-direction:column;gap:14px}
+.start .label{font-family:var(--display);font-size:14px;font-weight:600;color:var(--accent-text)}
+.start .title{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.2vw,40px);line-height:1;letter-spacing:-.03em;color:var(--amber-ink);text-wrap:balance;max-width:13ch}
+.start-body{display:flex;flex-direction:column;gap:14px}
+.start p{font-size:16px;line-height:1.6;color:var(--amber-ink);max-width:var(--measure);text-wrap:pretty}
+.start p code{font-size:14px}
+.start .actions{margin-top:10px}
+.start .btn-ink{background:var(--amber-ink)}
+.start .btn-ink:hover{background:#5a4420}
+.start a:focus-visible,.start .btn:focus-visible{outline-color:var(--accent-deep)}
 
 /* ---------------------------------------------------------------------------
    Footer
    --------------------------------------------------------------------------- */
 .site-footer{max-width:1120px;margin:0 auto;padding:24px 24px 48px;display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;font-size:14px;line-height:1.6;color:var(--ink-3)}
 .site-footer p{max-width:620px}
+.site-footer a{display:inline-block;min-width:24px;min-height:24px;line-height:24px}
 .site-footer nav{display:flex;flex-wrap:wrap;gap:20px;font-weight:600}
 
 /* ---------------------------------------------------------------------------
@@ -365,6 +382,9 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
    --------------------------------------------------------------------------- */
 @media (max-width: 899px){
 	.mocks{grid-template-columns:1fr}
+	.start{grid-template-columns:1fr}
+	.commit{grid-template-columns:auto auto 1fr;padding:14px 18px}
+	.commit .subject,.commit .touched{grid-column:1 / -1}
 	.mock-phone{display:none}
 }
 @media (max-width: 699px){
@@ -384,11 +404,13 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 	.ageing-axis{display:none}
 }
 @media (max-width: 639px){
-	:root{--nav-offset:16px}
+	:root{--nav-offset:76px}
 	/* One row of brand and GitHub; the section links become a strip that
-	   scrolls sideways, and the header no longer sticks. */
+	   scrolls sideways. The header sticks by that strip alone: its negative
+	   top lets the brand row scroll away, so a long page keeps its sections
+	   one tap away at a cost of one short line. */
 	.wrap{padding:0 16px}
-	.site-header{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}
+	.site-header{top:-65px;background:rgba(251,248,243,.96);box-shadow:0 1px 0 var(--line)}
 	.nav{grid-template-columns:1fr auto;grid-template-areas:"brand github" "links links";gap:8px 12px;padding:12px 16px 8px}
 	.brand{font-size:17px}
 	.brand .dot{width:20px;height:20px}
@@ -397,7 +419,7 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 	.nav-github{font-size:14px;padding:9px 14px}
 	main{gap:80px}
 	.hero-tile{border-radius:var(--radius-l)}
-	.lead{grid-template-columns:1fr;padding:20px 22px}
+	.lead{grid-template-columns:1fr;padding:20px 22px;gap:4px}
 	.lead-cta{justify-self:start}
 	.built-tile{border-radius:var(--radius-l)}
 	.btn{font-size:16px;padding:14px 22px}
@@ -421,7 +443,7 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <a class="nav-link" href="#install">Install</a>
 <a class="nav-link" href="#built">How it is built</a>
 </div>
-<a class="btn btn-ink nav-github" href="https://github.com/mwpd/content-freshness">GitHub</a>
+<a class="btn btn-ink nav-github ext" href="https://github.com/mwpd/content-freshness">GitHub</a>
 </nav>
 </header>
 
@@ -430,12 +452,11 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <section class="hero wrap" aria-labelledby="hero-title">
 <div class="hero-tile">
 <div class="hero-copy">
-<span class="pill">A WordPress plugin · v1.0.1 · MIT</span>
+<span class="pill">A WordPress plugin · v1.0.2 · MIT</span>
 <h1 id="hero-title">Old posts, honestly labelled.</h1>
-<p class="lede">Tells your readers when a post may be out of date, and tells your editors which posts need a refresh.</p>
+<p class="lede">Tells your readers when a post may be out of date, marks the stale ones in the Posts list, and emails your editors a weekly list.</p>
 <div class="actions">
-<a class="btn btn-ink" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download the plugin</a>
-<a class="btn btn-paper" href="#install">Install</a>
+<a class="btn btn-ink ext" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download the plugin</a>
 </div>
 </div>
 <figure class="hero-figure">
@@ -445,13 +466,13 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <p class="mwpd-content-freshness-notice">This post was last updated 3 years ago; some information may be out of date.</p>
 <p class="body">Pruning keeps a tomato plant’s energy where you want it: in the fruit. Start when the first flowers appear, and work from the bottom up.</p>
 </div>
-<figcaption class="caption">A post nobody has touched for three years, with the notice in the plugin’s default style. Themes restyle it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle and bring their own.</figcaption>
+<figcaption class="caption">A post nobody has touched for three years, with the notice in the plugin’s default style.</figcaption>
 </figure>
 </div>
-<a class="lead on-dark" href="#built">
-<p><strong>The worked example of the MWPD Basic Scaffold.</strong> Four features in four parts of WordPress, one service each, none of them aware of the others. Read it as a plugin, or as a way of structuring one.</p>
-<span class="lead-cta">How it is built →</span>
-</a>
+<div class="lead on-dark">
+<p><strong>Built on mwpd/basic-scaffold.</strong> Four features in four parts of WordPress, one service each, none of them aware of the others. Read it as a plugin, or as a way of structuring one.</p>
+<a class="lead-cta" href="#built">See how it’s built →</a>
+</div>
 </section>
 
 <section id="features" class="features wrap" aria-labelledby="features-title">
@@ -466,11 +487,11 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <ol class="ageing-list">
 <li class="ageing-post" style="--x:12%;--y:52px"><span class="dot" aria-hidden="true"></span><span class="title">Autumn bulb planting checklist</span><span class="age">3 weeks ago</span></li>
 <li class="ageing-post" style="--x:36%;--y:122px"><span class="dot" aria-hidden="true"></span><span class="title">Composting through the winter</span><span class="age">5 months ago</span></li>
-<li class="ageing-limit"><span>365 days<br>the limit you set</span></li>
+<li class="ageing-limit"><span>365 days <br>the limit you set</span></li>
 <li class="ageing-post is-outdated" style="--x:62%;--y:48px"><span class="dot" aria-hidden="true"></span><span class="title">Choosing a rain barrel</span><span class="age">1 year ago · outdated</span></li>
 <li class="ageing-post is-outdated" style="--x:73%;--y:128px"><span class="dot" aria-hidden="true"></span><span class="title">Seed starting calendar</span><span class="age">3 years ago · outdated</span></li>
 <li class="ageing-post is-outdated" style="--x:82%;--y:44px"><span class="dot" aria-hidden="true"></span><span class="title">How to prune tomato plants</span><span class="age">3 years ago · outdated</span></li>
-<li class="ageing-post is-outdated" style="--x:92%;--y:128px"><span class="dot" aria-hidden="true"></span><span class="title">Building a raised bed from reclaimed timber</span><span class="age">5 years ago · outdated</span></li>
+<li class="ageing-post is-outdated" style="--x:92%;--y:112px"><span class="dot" aria-hidden="true"></span><span class="title">Building a raised bed from reclaimed timber</span><span class="age">5 years ago · outdated</span></li>
 </ol>
 </div>
 <figcaption id="ageing-caption" class="caption">Six posts by the time since their last update. Everything past the limit gets the notice, the mark in the Posts list, and a line in the digest. The default limit is 365 days.</figcaption>
@@ -481,7 +502,7 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <article class="card card-readers">
 <span class="pill"><span class="dot" aria-hidden="true"></span>For readers</span>
 <h3>A notice on the post</h3>
-<p>A one-line paragraph at the top of outdated single posts. Pages, custom post types, archives and lists are left alone. It ships with the default style shown here; restyle it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle and bring your own.</p>
+<p>A one-line paragraph at the top of outdated single posts. Pages, custom post types, archives and lists are left alone. It comes in the default style shown here, which <a href="#changing-the-notice">your theme can change</a>.</p>
 <div class="mocks">
 <div class="mock-browser">
 <div class="mock-chrome" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -573,22 +594,28 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 </div>
 </div>
 <ol class="steps">
-<li><p>Download <a href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><code>content-freshness.zip</code></a> from the latest release.</p></li>
+<li><p>Download <a class="ext" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><code>content-freshness.zip</code></a> from the latest release.</p></li>
 <li><p>Upload it under <strong>Plugins › Add New › Upload Plugin</strong> and activate it.</p></li>
 <li><p>Optionally change the limit under <strong>Settings › Reading</strong>. The first digest goes out a week later.</p></li>
 </ol>
-<pre class="cli" tabindex="0" aria-label="Installing with WP-CLI"><span class="c"># or, instead of steps 1 and 2, with WP-CLI</span>
-<span class="p">$</span> wp plugin install https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip --activate</pre>
+<pre class="cli" tabindex="0" aria-label="Installing with WP-CLI"><span class="c"># or, instead of steps 1 and 2,
+# with WP-CLI</span>
+<span class="p">$</span> wp plugin install \
+  https://github.com/\
+mwpd/content-freshness/releases/\
+latest/download/\
+content-freshness.zip \
+  --activate</pre>
 
 <div class="followups">
-<div><h3>Changing the notice</h3><p>It comes with a default style. Override it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle. To change the markup, copy any template from the plugin’s <code>views/</code> into <code>content-freshness/views/</code> in your theme.</p></div>
+<div id="changing-the-notice"><h3>Changing the notice</h3><p>It comes with a default style. Restyle it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle and bring your own. To change the markup, copy any template from the plugin’s <code>views/</code> into <code>content-freshness/views/</code> in your theme.</p></div>
 <div><h3>No digest arriving?</h3><p>It’s sent by WP-Cron through <code>wp_mail()</code>. On quiet sites, add a real cron job; if no site email arrives, add an SMTP plugin.</p></div>
 <div><h3>On multisite</h3><p>Activate it per site, or for the whole network: that sets the digest up in every site, and in sites created later. Each site keeps its own setting. Updating a network-active 1.0.0 to 1.0.1? Deactivate and activate it for the network once more.</p></div>
 <div><h3>Removing it</h3><p>Deactivating keeps your setting. Deleting removes it and the weekly event, the only two things the plugin stores, from every site of a network.</p></div>
 </div>
 
 <div class="install-cta">
-<a class="btn btn-ink" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download content-freshness.zip</a>
+<a class="btn btn-ink ext" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download content-freshness.zip</a>
 <span class="note">Latest release, from GitHub. <a class="ext" href="https://github.com/mwpd/content-freshness/releases/latest">Release notes</a></span>
 </div>
 </section>
@@ -599,17 +626,17 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <div class="section-head" style="gap:20px;max-width:760px">
 <span class="kicker-pill">How it is built</span>
 <h2 id="built-title">A simple plugin, built to show an approach.</h2>
-<p class="lede">Content Freshness is the worked example for the <a href="https://mwpd.github.io/basic-scaffold/" style="color:#fff">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/" style="color:#fff">Modern WordPress Plugin Development</a>. The features are deliberately modest. They touch four different parts of WordPress, which makes them useful for showing how the scaffold keeps each part separate.</p>
+<p class="lede">Content Freshness is the worked example for <a href="../basic-scaffold/" style="color:#fff">mwpd/basic-scaffold</a>, a template for WordPress plugins whose complexity grows one service at a time. The features are deliberately modest. They touch four different parts of WordPress, which makes them useful for showing how the scaffold keeps each part separate.</p>
 </div>
 
 <ul class="trust" aria-label="Checked facts about the codebase">
 <li><span class="label">Runs on</span><span class="value">WordPress 6.0+, PHP 7.4+</span></li>
 <li><span class="label">Static analysis</span><span class="value">PHPStan level max, Psalm level 2</span></li>
-<li><span class="label">Tests in CI</span><span class="value">PHP 7.4 and 8.3, end-to-end on WordPress 6.0 and latest</span></li>
+<li><span class="label">Tests in CI</span><span class="value">PHP 7.4 and 8.3, end-to-end on WordPress 6.0 and latest</span><a class="more ext" href="https://github.com/mwpd/content-freshness/actions/workflows/ci.yml">On every push</a></li>
 <li><span class="label">Runtime dependencies</span><span class="value">None. No Composer packages, no build step</span></li>
-<li><span class="label">Every push</span><span class="value"><a class="ext" href="https://github.com/mwpd/content-freshness/actions/workflows/ci.yml">CI workflow</a></span></li>
 </ul>
 
+<div class="step-stack">
 <div class="step">
 <div class="step-copy">
 <span class="num" aria-hidden="true">1</span>
@@ -630,6 +657,16 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <figcaption><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/ContentFreshnessPlugin.php"><code>src/ContentFreshnessPlugin.php</code></a>, trimmed</figcaption>
 </figure>
 </div>
+<figure>
+<ol class="commits" aria-label="The four feature commits">
+<li class="commit"><span class="subject">Add the outdated post notice</span><a class="sha ext" href="https://github.com/mwpd/content-freshness/commit/22eeb3e" aria-label="Commit 22eeb3e, on GitHub">22eeb3e</a><span class="diff"><span class="add">+764</span> / <span class="del">−297</span></span><span class="touched">The first feature. <strong>Replaces a sample service of the scaffold</strong> and reworks the composition root.</span></li>
+<li class="commit"><span class="subject">Add the post age column</span><a class="sha ext" href="https://github.com/mwpd/content-freshness/commit/b79fd37" aria-label="Commit b79fd37, on GitHub">b79fd37</a><span class="diff"><span class="add">+534</span> / <span class="del">−194</span></span><span class="touched"><strong>Replaces the scaffold’s other sample service</strong>; swaps its entry in the composition root for its own.</span></li>
+<li class="commit"><span class="subject">Add the freshness setting</span><a class="sha ext" href="https://github.com/mwpd/content-freshness/commit/3b845e6" aria-label="Commit 3b845e6, on GitHub">3b845e6</a><span class="diff"><span class="add">+447</span> / <span class="del">−0</span></span><span class="touched"><strong>Touches no existing service.</strong> Adds its entry to the composition root, and three stubs to the column’s test.</span></li>
+<li class="commit"><span class="subject">Add the stale content digest</span><a class="sha ext" href="https://github.com/mwpd/content-freshness/commit/4f6b654" aria-label="Commit 4f6b654, on GitHub">4f6b654</a><span class="diff"><span class="add">+1,005</span> / <span class="del">−4</span></span><span class="touched"><strong>Touches no existing service.</strong> Adds its entry and one binding to the composition root; extends shared test fixtures.</span></li>
+</ol>
+<figcaption>Every feature after the first was added without editing a service that already existed. The numbers are the commits’ own diff stats, tests included; the rule the setting needed to join Settings › Reading came in a <a class="ext" href="https://github.com/mwpd/content-freshness/commit/4b7d5bc">commit of its own</a>.</figcaption>
+</figure>
+</div>
 
 <div class="step-stack">
 <div class="step-copy">
@@ -638,11 +675,20 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <p>Each service implements small capability interfaces. A service that isn’t needed for a request is never constructed, and nothing branches on multisite: the scaffold visits each site for services that ask for it.</p>
 </div>
 <div class="service-table">
-<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php">OutdatedPostNotice</a><span class="where">Single posts, once the query has run</span><span class="caps">Conditional · Delayed · Registerable</span></div>
-<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/PostsList/PostAgeColumn.php">PostAgeColumn</a><span class="where">The Posts list screen only</span><span class="caps">Conditional · Delayed · Registerable</span></div>
-<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php">FreshnessSetting</a><span class="where">Admin requests; cleans up on uninstall</span><span class="caps">Delayed · Registerable · SiteUninstallable</span></div>
-<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php">StaleContentDigest</a><span class="where">Every request; schedules per site</span><span class="caps">Registerable · SiteActivateable · SiteDeactivateable · SiteInitializable · SiteUninstallable</span></div>
+<div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php">OutdatedPostNotice</a><span class="where">Single posts, once the query has run</span><span class="caps">Conditional · Delayed · Registerable · HasAssets</span></div>
+<div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/PostsList/PostAgeColumn.php">PostAgeColumn</a><span class="where">The Posts list screen only</span><span class="caps">Conditional · Delayed · Registerable</span></div>
+<div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php">FreshnessSetting</a><span class="where">Admin requests; cleans up on uninstall</span><span class="caps">Delayed · Registerable · SiteUninstallable</span></div>
+<div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php">StaleContentDigest</a><span class="where">Every request; schedules per site</span><span class="caps">Registerable · SiteActivateable · SiteDeactivateable · SiteInitializable · SiteUninstallable</span></div>
 </div>
+<dl class="caps-key" aria-label="What each capability interface does">
+<div><dt>Conditional</dt><dd>Built only in requests that need it.</dd></div>
+<div><dt>Delayed</dt><dd>Registers at a later hook, once WordPress knows enough.</dd></div>
+<div><dt>Registerable</dt><dd>Adds its hooks in <code>register()</code>, never in the constructor.</dd></div>
+<div><dt>HasAssets</dt><dd>Names its styles; the plugin enqueues them where it runs.</dd></div>
+<div><dt>SiteActivateable · SiteDeactivateable</dt><dd>Set up and cleaned up in each site an activation reaches.</dd></div>
+<div><dt>SiteInitializable</dt><dd>Set up in sites created later on a network.</dd></div>
+<div><dt>SiteUninstallable</dt><dd>Removes its data from each site on uninstall.</dd></div>
+</dl>
 </div>
 
 <div id="rule" class="step">
@@ -652,11 +698,15 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <p>No feature reads the setting itself. They all ask a <code>FreshnessPolicy</code> interface. Bind your own class, for example to leave an evergreen category alone, and the notice, column and digest all follow it unchanged.</p>
 </div>
 <figure>
-<pre class="code" tabindex="0" aria-label="Binding your own FreshnessPolicy through the bindings filter"><span class="fn">add_filter</span>(
+<pre class="code" tabindex="0" aria-label="Binding your own FreshnessPolicy through the bindings filter"><span class="kw">use</span> <span class="cls">MWPD\ContentFreshness\Freshness</span>\{
+	<span class="cls">FreshnessPolicy</span>
+};
+
+<span class="fn">add_filter</span>(
 	<span class="str">'mwpd.content_freshness.bindings'</span>,
 	<span class="kw">static function</span> ( <span class="kw">array</span> $bindings ): <span class="kw">array</span> {
 		$bindings[
-			<span class="cls">\MWPD\ContentFreshness\Freshness\FreshnessPolicy</span>::class
+			<span class="cls">FreshnessPolicy</span>::class
 		] = <span class="cls">My_Freshness_Policy</span>::class;
 
 		<span class="kw">return</span> $bindings;
@@ -709,17 +759,15 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 <span class="p">$</span> npm ci &amp;&amp; npm run e2e</pre>
 </div>
 
-<div class="origins">
-<div class="book">
-<span class="label">The book</span>
-<span class="title">Modern WordPress Plugin <em>Development</em></span>
-<p>The scaffold is the book’s companion code: a way of structuring a plugin so that complexity grows one service at a time. This plugin is where that structure meets real WordPress.</p>
-<div class="actions"><a class="btn btn-ink btn-sm" href="https://www.mwpd.io/">About the book</a></div>
+<div class="start">
+<div class="start-head">
+<span class="label">The scaffold</span>
+<h3 class="title">Start your plugin from the same scaffold</h3>
 </div>
-<div class="walk">
-<span class="title">The full walkthrough</span>
-<p>The scaffold’s page goes through this plugin commit by commit, and explains the architecture checks that keep it this way.</p>
-<div class="actions"><a class="btn btn-ink btn-sm" href="https://mwpd.github.io/basic-scaffold/">MWPD Basic Scaffold</a><a class="btn btn-paper btn-sm ext" href="https://github.com/mwpd/content-freshness/blob/main/docs/design-principles.md">Design principles</a></div>
+<div class="start-body">
+<p><a href="https://github.com/mwpd/basic-scaffold" class="ext">mwpd/basic-scaffold</a> is everything above without the features: a service container, an injector, the capability interfaces, and architecture rules that explain their own failures. No runtime Composer dependencies; it runs on PHP and WordPress alone.</p>
+<p>Its own page walks through this plugin commit by commit.</p>
+<div class="actions"><a class="btn btn-ink btn-sm ext" href="https://github.com/new?template_name=basic-scaffold&amp;template_owner=mwpd">Use the template</a><a class="btn btn-paper btn-sm" href="../basic-scaffold/">Read the walkthrough</a></div>
 </div>
 </div>
 
@@ -729,8 +777,8 @@ main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
 </main>
 
 <footer class="site-footer">
-<p>Content Freshness by Alain Schlesser, the worked example of the <a href="https://mwpd.github.io/basic-scaffold/">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/">Modern WordPress Plugin Development</a>. MIT licence.</p>
-<nav aria-label="Footer"><a href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download>Download</a><a class="ext" href="https://github.com/mwpd/content-freshness">Source</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/readme.txt">readme.txt</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/CHANGELOG.md">Changelog</a></nav>
+<p>Content Freshness by Alain Schlesser, the worked example of <a href="../basic-scaffold/">mwpd/basic-scaffold</a>. MIT licence.</p>
+<nav aria-label="Footer"><a class="ext" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download>Download</a><a class="ext" href="https://github.com/mwpd/content-freshness">Source</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/readme.txt">readme.txt</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/CHANGELOG.md">Changelog</a></nav>
 </footer>
 
 </body>
