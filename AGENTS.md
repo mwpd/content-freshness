@@ -18,7 +18,7 @@ tested and readable on its own.
 | `src/ContentFreshnessPlugin.php` | Composition root: services, injector bindings, shared instances, prefixes. |
 | `src/Freshness/` | The domain: `FreshnessPolicy` and its option-backed implementation, the `MaxAge` and `PostAge` value objects, the `Clock`. |
 | `src/Notice/`, `src/PostsList/`, `src/Settings/`, `src/Digest/` | The four features, one service each, with their WordPress adapters. |
-| `src/Infrastructure/` | The scaffold's infrastructure, as of `mwpd/basic-scaffold@61a9b00` plus the asset capability of [mwpd/basic-scaffold#37](https://github.com/mwpd/basic-scaffold/issues/37): service container, injector, views, autoloader, capability interfaces, multisite and uninstall lifecycle, scripts and styles, the optional Query Monitor panel. |
+| `src/Infrastructure/` | The scaffold's infrastructure, as of `mwpd/basic-scaffold@61a9b00` plus the asset capability merged in [mwpd/basic-scaffold#177](https://github.com/mwpd/basic-scaffold/pull/177) (`15cac4c`): service container, injector, views, autoloader, capability interfaces, multisite and uninstall lifecycle, scripts and styles, the optional Query Monitor panel. |
 | `src/Exception/` | The plugin's exception types. |
 | `views/` | Templates the services render, and `views/query-monitor-registration.php`, the template of the scaffold's optional Query Monitor panel. |
 | `assets/` | The notice's stylesheet, shipped as it is, without a build step. |
