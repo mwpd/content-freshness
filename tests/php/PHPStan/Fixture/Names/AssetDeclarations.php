@@ -1,0 +1,21 @@
+<?php
+
+declare( strict_types=1 );
+
+namespace MWPD\ContentFreshness\Tests\PHPStan\Fixture\Names;
+
+use MWPD\ContentFreshness\Infrastructure\Asset\Script;
+use MWPD\ContentFreshness\Infrastructure\Asset\Style;
+
+final class AssetDeclarations {
+	public function declare( string $handle ): array {
+		return [
+			Style::file( 'acme-plugin-notice', 'assets/notice.css' ),
+			Style::file( 'notice', 'assets/notice.css' ),
+			Style::inline( 'inline-notice', 'p {}' ),
+			Script::file( 'copy', 'assets/copy.js' ),
+			Script::file( $handle, 'assets/copy.js' ),
+			\MWPD\ContentFreshness\Infrastructure\Asset\STYLE::FILE( 'shouting', 'a.css' ),
+		];
+	}
+}

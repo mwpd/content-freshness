@@ -58,8 +58,10 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\SiteUninstallable
                 - MWPD\ContentFreshness\Infrastructure\NetworkUninstallable
                 - MWPD\ContentFreshness\Infrastructure\Registration\ObservesRegistration
+                - MWPD\ContentFreshness\Infrastructure\HasAssets
             delayed: MWPD\ContentFreshness\Infrastructure\Delayed
             registerable: MWPD\ContentFreshness\Infrastructure\Registerable
+            hasAssets: MWPD\ContentFreshness\Infrastructure\HasAssets
         finalByDefault:
             # Classes designed to be extended (design principle 6).
             baseClasses:
@@ -165,6 +167,11 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\SiteSelection
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkSelection
                 - MWPD\ContentFreshness\Infrastructure\Registration\RegistrationRecord
+                - MWPD\ContentFreshness\Infrastructure\Asset\AssetContext
+                - MWPD\ContentFreshness\Infrastructure\Asset\AssetLocation
+                - MWPD\ContentFreshness\Infrastructure\Asset\AssetPath
+                - MWPD\ContentFreshness\Infrastructure\Asset\Script
+                - MWPD\ContentFreshness\Infrastructure\Asset\Style
                 # A read-only wrapper around the registration log, like the
                 # lazy service wrapper above.
                 - MWPD\ContentFreshness\Infrastructure\Registration\ReadOnlyRegistrationReport
@@ -332,3 +339,18 @@ parameters:
                 constants: []
                 allowed: []
                 managed: []
+        # Static methods that create a name of a kind, checked like the
+        # WordPress functions above, and the classes that only pass such names
+        # on to WordPress (design principle 13).
+        prefixedDeclarations:
+            methods:
+                # The asset declarations create the handle, so it is checked
+                # where a service declares an asset.
+                assets:
+                    - MWPD\ContentFreshness\Infrastructure\Asset\Style::file
+                    - MWPD\ContentFreshness\Infrastructure\Asset\Style::inline
+                    - MWPD\ContentFreshness\Infrastructure\Asset\Script::file
+            forwarders:
+                # Registers and enqueues the handles declared above.
+                assets:
+                    - MWPD\ContentFreshness\Infrastructure\Asset\WordPressAssets
