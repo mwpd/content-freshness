@@ -672,7 +672,7 @@ content-freshness.zip \
 <div class="step-copy">
 <span class="num" aria-hidden="true">2</span>
 <h3>Services say where and when, the scaffold does the rest</h3>
-<p>Each service implements small capability interfaces. A service that isn’t needed for a request is never constructed, and nothing branches on multisite: the scaffold visits each site for services that ask for it.</p>
+<p>Each service implements small capability interfaces. A service that isn’t needed for a request is never instantiated, and nothing branches on multisite: the scaffold visits each site for services that ask for it.</p>
 </div>
 <div class="service-table">
 <div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php">OutdatedPostNotice</a><span class="where">Single posts, once the query has run</span><span class="caps">Conditional · Delayed · Registerable · HasAssets</span></div>
@@ -681,7 +681,7 @@ content-freshness.zip \
 <div class="service-row"><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php">StaleContentDigest</a><span class="where">Every request; schedules per site</span><span class="caps">Registerable · SiteActivateable · SiteDeactivateable · SiteInitializable · SiteUninstallable</span></div>
 </div>
 <dl class="caps-key" aria-label="What each capability interface does">
-<div><dt>Conditional</dt><dd>Built only in requests that need it.</dd></div>
+<div><dt>Conditional</dt><dd>Instantiated only in requests that need it.</dd></div>
 <div><dt>Delayed</dt><dd>Registers at a later hook, once WordPress knows enough.</dd></div>
 <div><dt>Registerable</dt><dd>Adds its hooks in <code>register()</code>, never in the constructor.</dd></div>
 <div><dt>HasAssets</dt><dd>Names its styles; the plugin enqueues them where it runs.</dd></div>
