@@ -16,7 +16,7 @@
  * Plugin Name:       Content Freshness
  * Plugin URI:        https://github.com/mwpd/content-freshness
  * Description:       Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Alain Schlesser

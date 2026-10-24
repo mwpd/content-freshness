@@ -4,7 +4,7 @@ Tags: outdated content, content audit, editorial, posts, email digest
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -67,6 +67,10 @@ Deactivating stops the digest and hides the notice and the column, and keeps you
 
 == Changelog ==
 
+= 1.0.2 =
+* The outdated post notice now has a soft amber box that follows your theme's font size. Its stylesheet loads only on posts that show the notice.
+* Themes can adjust the notice's style through the `mwpd-content-freshness-notice` class, or dequeue the `mwpd-content-freshness-notice` style handle to replace it.
+
 = 1.0.1 =
 * Multisite: network activation sets the weekly digest up in every site of the network, and in sites created on it later. Deactivating clears it in every site it reaches.
 * Deleting the plugin removes the setting, and any weekly digest left behind, from every site of every network, not only the current site.
@@ -76,6 +80,9 @@ Deactivating stops the digest and hides the notice and the column, and keeps you
 * First release: the outdated post notice, the "Last updated" column in the Posts list, the "Posts become outdated after" setting under Settings › Reading, and the weekly digest of stale posts.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+The outdated post notice now comes with a default style. Nothing is needed after updating; the style loads automatically, without reactivating the plugin.
 
 = 1.0.1 =
 Deleting the plugin now cleans up every site of a network. If the plugin is network-active, deactivate it for the network and activate it again after updating, so every site gets its digest. Theme overrides of the plugin's templates move into a `content-freshness/` directory of the theme.
