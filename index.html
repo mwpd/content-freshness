@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="top">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,267 +7,720 @@
 <title>Content Freshness: tell readers when a post may be out of date</title>
 <meta name="description" content="A WordPress plugin that warns readers about outdated posts, shows editors what is going stale in the Posts list, and emails a weekly digest. The worked example of the MWPD Basic Scaffold.">
 <meta property="og:title" content="Content Freshness for WordPress">
-<meta property="og:description" content="Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest.">
+<meta property="og:description" content="Warns readers about outdated posts, shows editors what is going stale, and emails a weekly digest. The worked example of the MWPD Basic Scaffold.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mwpd.github.io/content-freshness/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-html{scroll-behavior:smooth}
-body{margin:0;background:#fbf8f3;color:#1d2433;font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-a{color:inherit}a:hover{opacity:.8}
+/* ---------------------------------------------------------------------------
+   Tokens
+   --------------------------------------------------------------------------- */
+:root{
+	--bg:#fbf8f3;
+	--ink:#1d2433;
+	--ink-2:#3a4256;
+	--ink-3:#4b5468;
+	--muted:#5a6276;
+	--line:#eee6d8;
+	--paper-2:#f0ebe2;
+	--accent:oklch(0.72 0.14 50);
+	--accent-deep:#c25e1f;
+	--accent-text:#944411;
+	--green:oklch(0.93 0.05 140);
+	--green-deep:oklch(0.45 0.09 140);
+	--amber:#fbefd6;
+	--amber-ink:#3d2e12;
+	--blue:oklch(0.95 0.04 230);
+	--blue-deep:oklch(0.45 0.08 230);
+	--dark:#1d2433;
+	--dark-2:#151b28;
+	--dark-3:#252d3f;
+	--dark-line:#2d3548;
+	--dark-text:#e9ecf3;
+	--dark-muted:#c3c9d8;
+	--dark-faint:#a9b1c4;
+	--gold:oklch(0.8 0.12 50);
+	--display:'Bricolage Grotesque',sans-serif;
+	--text:'DM Sans',sans-serif;
+	--mono:'JetBrains Mono',ui-monospace,monospace;
+	--radius-xl:36px;
+	--radius-l:28px;
+	--radius-m:20px;
+	--radius-s:14px;
+	--measure:62ch;
+	--nav-offset:96px;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+*,*::before,*::after{box-sizing:border-box}
 img{display:block;max-width:100%;height:auto}
-.nav-link:hover{background:#f0ebe2;opacity:1}
-.skip{position:absolute;left:-9999px;top:8px;z-index:20;background:#1d2433;color:#fff;padding:10px 16px;border-radius:999px;text-decoration:none}
+h1,h2,h3,.display{font-family:var(--display);font-weight:800;margin:0;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:clamp(34px,4.2vw,52px);line-height:1.02;letter-spacing:-.03em;text-wrap:balance}
+h3{font-size:26px}
+p{margin:0}
+code,pre,kbd{font-family:var(--mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{font-size:.85em}
+.lede{font-size:18px;line-height:1.55;color:var(--ink-2);text-wrap:pretty;max-width:var(--measure)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+[id]{scroll-margin-top:var(--nav-offset)}
+
+/* Links: a real hover and focus state everywhere. */
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.16em;transition:color .15s ease,background-color .15s ease,text-decoration-color .15s ease,box-shadow .15s ease}
+a:hover{text-decoration-color:var(--accent-deep);text-decoration-thickness:2px}
+a:focus-visible{outline:2px solid var(--accent-deep);outline-offset:3px;border-radius:4px}
+.on-dark a:focus-visible,.on-dark .btn:focus-visible{outline-color:var(--gold)}
+.on-dark a:hover{text-decoration-color:var(--gold)}
+/* Links that leave for GitHub say so. */
+.ext::after{content:" \2197" / " (GitHub)";font-weight:600}
+
+.skip{position:absolute;left:-9999px;top:8px;z-index:20;background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;text-decoration:none}
 .skip:focus{left:16px}
-a:focus-visible{outline:2px solid oklch(0.62 0.15 45);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.wrap{max-width:1120px;width:100%;margin:0 auto;padding:0 24px}
+
+/* ---------------------------------------------------------------------------
+   Buttons and pills
+   --------------------------------------------------------------------------- */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600;font-size:17px;line-height:1.2;padding:16px 26px;border-radius:999px;text-decoration:none;transition:background-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}
+.btn:hover{text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink:hover{background:#2f3a52;box-shadow:0 6px 18px rgba(29,36,51,.22)}
+.btn-paper{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(29,36,51,.06)}
+.btn-paper:hover{background:var(--paper-2);box-shadow:inset 0 0 0 1px rgba(29,36,51,.12)}
+.btn-sm{font-size:16px;padding:14px 22px}
+.btn svg{width:1em;height:1em;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;font-size:13px;line-height:1.3;background:#fff;border-radius:999px;padding:6px 12px}
+.pill-outline{border:1px solid var(--line);font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+/* ---------------------------------------------------------------------------
+   Header and navigation
+   --------------------------------------------------------------------------- */
+.site-header{position:sticky;top:0;z-index:10;background:rgba(251,248,243,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nav{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"brand links github";align-items:center;gap:16px;padding:14px 24px}
+.brand{grid-area:brand;display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;line-height:1;text-decoration:none;white-space:nowrap}
+.brand:hover{text-decoration:none}
+.brand .dot{width:24px;height:24px;background:var(--accent)}
+.nav-links{grid-area:links;display:flex;justify-content:flex-end;gap:4px;font-family:var(--display);font-size:15px;font-weight:600}
+.nav-link{padding:10px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
+.nav-link:hover{background:var(--paper-2);text-decoration:none}
+.nav-github{grid-area:github;font-size:15px;padding:10px 18px}
+
+/* ---------------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------------- */
+main{display:flex;flex-direction:column;gap:112px;padding-bottom:48px}
+.section-head{display:flex;flex-direction:column;gap:14px;max-width:720px}
+.section-head .lede{max-width:none}
+
+/* ---------------------------------------------------------------------------
+   Hero
+   --------------------------------------------------------------------------- */
+.hero{margin-top:8px}
+.hero-tile{background:var(--green);border-radius:var(--radius-xl);padding:clamp(32px,6vw,72px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:48px;align-items:center}
+.hero-copy{display:flex;flex-direction:column;gap:24px}
+.hero-copy .pill{align-self:flex-start;font-size:14px;padding:7px 14px}
+.hero h1{font-size:clamp(48px,6.5vw,84px);line-height:.95;letter-spacing:-.035em;text-wrap:balance}
+.hero-copy .lede{font-size:20px;line-height:1.5;max-width:500px}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-figure{margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+.post-card{background:#fff;border-radius:var(--radius-m);box-shadow:0 24px 48px rgba(29,36,51,.12);padding:clamp(24px,3.5vw,40px);display:flex;flex-direction:column;gap:18px}
+.post-card .kicker{font-size:13px;color:var(--muted)}
+.post-card .post-title{font-family:var(--display);font-weight:800;font-size:clamp(26px,2.6vw,32px);line-height:1.1;letter-spacing:-.015em}
+.post-card .body{font-size:16px;line-height:1.65;color:var(--ink-3)}
+/* Mock-ups only size the font; the notice draws itself in em. */
+.post-card .mwpd-content-freshness-notice{margin:0}
+.caption{font-size:14px;line-height:1.5;color:var(--ink-2);max-width:60ch;text-wrap:pretty}
+.caption code{font-size:12px}
+
+/* The lead message: this is a scaffold showcase that also ships a plugin. */
+.lead{margin-top:16px;display:grid;grid-template-columns:1fr auto;gap:12px 32px;align-items:center;text-decoration:none;background:var(--dark);color:var(--dark-text);border-radius:var(--radius-m);padding:22px 28px;transition:background-color .15s ease,box-shadow .15s ease}
+.lead:hover{background:#242d41;text-decoration:none;box-shadow:0 10px 30px rgba(29,36,51,.18)}
+.lead:focus-visible{outline-color:var(--gold)}
+.lead p{font-size:17px;line-height:1.5;max-width:70ch;text-wrap:pretty}
+.lead strong{font-family:var(--display);font-weight:800;color:#fff;letter-spacing:-.01em}
+.lead-cta{font-family:var(--display);font-weight:600;font-size:16px;color:var(--gold);white-space:nowrap;justify-self:end}
+
+/* ---------------------------------------------------------------------------
+   Features
+   --------------------------------------------------------------------------- */
+.features{display:flex;flex-direction:column;gap:40px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}
+.card{border-radius:var(--radius-l);padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .pill{align-self:flex-start}
+.card .pill .dot{width:8px;height:8px}
+.card p{font-size:16px;line-height:1.6;color:var(--ink-2);text-wrap:pretty;max-width:var(--measure)}
+.card code{background:#fff;padding:2px 6px;border-radius:6px;font-size:13px}
+/* Colour names the audience: amber for readers (the notice's own colour),
+   blue for editors, green for site owners (the hero's colour). */
+.card-readers{background:var(--amber)}
+.card-readers .pill .dot{background:var(--accent-deep)}
+.card-editors{background:var(--blue)}
+.card-editors .pill .dot{background:var(--blue-deep)}
+.card-owners{background:var(--green)}
+.card-owners .pill .dot{background:var(--green-deep)}
+.card-wide{grid-column:1 / -1}
+.card-wide .card-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px 40px;align-items:end}
+.card-wide .card-head p{max-width:none}
+.card-head h3{margin-top:12px}
+.card .figure{margin:8px 0 0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.shot{display:block;border-radius:var(--radius-s);box-shadow:0 10px 24px rgba(29,36,51,.10);background:#fff;overflow:hidden}
+.shot img{width:100%}
+.shot-mobile{display:none}
+.figure-meta{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;align-items:baseline}
+.figure-meta .caption{color:var(--ink-3)}
+.view-full{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap}
+
+/* Notice mock-ups: a browser and a phone, both drawn with the plugin's CSS. */
+.mocks{margin-top:8px;display:grid;grid-template-columns:2.2fr 1fr;gap:12px;align-items:end}
+.mock-browser{background:#fff;border-radius:var(--radius-s);box-shadow:0 10px 24px rgba(29,36,51,.10);overflow:hidden;display:flex;flex-direction:column}
+.mock-chrome{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--paper-2)}
+.mock-chrome span{width:8px;height:8px;border-radius:50%;background:#e4ddd0}
+.mock-page{padding:20px 22px 24px;display:flex;flex-direction:column;gap:12px;font-size:12.8px}
+.mock-page .post-title{font-family:var(--display);font-weight:800;font-size:19px;line-height:1.15;letter-spacing:-.01em}
+.mock-page .body{font-size:12px;line-height:1.5;color:var(--ink-3)}
+.mock-page .mwpd-content-freshness-notice{margin:0}
+.mock-phone{font-size:9.6px;background:#fff;border:5px solid var(--ink);border-radius:22px;box-shadow:0 10px 24px rgba(29,36,51,.10);padding:18px 12px 22px;display:flex;flex-direction:column;gap:9px}
+.mock-phone .notch{align-self:center;width:32px;height:4px;border-radius:2px;background:var(--ink);margin-bottom:4px}
+.mock-phone .post-title{font-family:var(--display);font-weight:800;font-size:13px;line-height:1.15}
+.mock-phone .body{font-size:9px;line-height:1.45;color:var(--ink-3)}
+.mock-phone .mwpd-content-freshness-notice{margin:0}
+
+/* Digest mock-up: a plain email, like the one the plugin sends. */
+.mail{margin-top:8px;background:#fff;border-radius:var(--radius-s);box-shadow:0 10px 24px rgba(29,36,51,.10);padding:18px 20px;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5}
+.mail .subject{font-weight:600;font-size:15px}
+.mail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.mail li{display:flex;justify-content:space-between;gap:12px}
+.mail li span:first-child{text-decoration:underline}
+.mail li span:last-child{color:var(--muted);white-space:nowrap}
+
+/* ---------------------------------------------------------------------------
+   Ageing: where the line falls
+   One authored picture of the product's idea: the same six posts as the
+   Posts-list screenshot, placed by how long ago they were updated.
+   --------------------------------------------------------------------------- */
+.ageing{margin:0;display:flex;flex-direction:column;gap:14px}
+.ageing-track{position:relative;height:230px;border-radius:var(--radius-m);background:linear-gradient(90deg,var(--green) 0%,#f3f1dd 46%,var(--amber) 58%,#f6dfb9 100%);overflow:hidden}
+.ageing-list{list-style:none;margin:0;padding:0}
+.ageing-post{position:absolute;left:clamp(80px,var(--x),calc(100% - 80px));top:var(--y);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:max-content;max-width:140px;text-align:center}
+.ageing-post .dot{width:12px;height:12px;background:var(--green-deep);box-shadow:0 0 0 3px rgba(255,255,255,.7)}
+.ageing-post .title{font-family:var(--display);font-weight:600;font-size:13px;line-height:1.2;text-wrap:balance}
+.ageing-post .age{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.ageing-post.is-outdated .dot{background:var(--accent-deep)}
+.ageing-post.is-outdated .age{color:var(--accent-text);font-weight:600}
+.ageing-limit{position:absolute;top:0;bottom:0;left:54%;width:0;border-left:2px dashed var(--accent-deep)}
+.ageing-limit span{position:absolute;right:10px;top:40px;width:max-content;max-width:170px;text-align:right;font-family:var(--mono);font-size:11px;line-height:1.4;color:var(--amber-ink);background:rgba(255,255,255,.75);padding:4px 8px;border-radius:8px}
+.ageing-axis{position:absolute;left:0;right:0;top:12px;display:flex;justify-content:space-between;padding:0 16px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* ---------------------------------------------------------------------------
+   Install
+   --------------------------------------------------------------------------- */
+.install{display:flex;flex-direction:column;gap:32px}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.steps li{counter-increment:step;background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+.steps li::before{content:counter(step);width:36px;height:36px;border-radius:50%;background:var(--accent);color:var(--ink);font-family:var(--display);font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center}
+.steps strong,.steps code{color:var(--ink)}
+.steps code{font-size:13px}
+.cli{margin:0;background:var(--dark);color:var(--dark-text);border-radius:var(--radius-m);padding:20px 24px;font-size:14px;line-height:1.7;overflow-x:auto;white-space:pre}
+.cli .c{color:var(--dark-faint)}
+.cli .p{color:var(--gold)}
+.followups{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:24px 40px;padding-top:24px;border-top:1px solid var(--line)}
+.followups h3{font-size:18px;margin-bottom:8px}
+.followups p{font-size:15px;line-height:1.6;color:var(--ink-2);text-wrap:pretty}
+.followups code{font-size:12px}
+.install-cta{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding-top:8px}
+.install-cta .note{font-size:14px;color:var(--ink-3)}
+
+/* ---------------------------------------------------------------------------
+   How it is built
+   --------------------------------------------------------------------------- */
+.built-tile{background:var(--dark);color:var(--dark-text);border-radius:var(--radius-xl);padding:clamp(28px,6vw,72px);display:flex;flex-direction:column;gap:64px}
+.built-tile h2,.built-tile h3{color:#fff}
+.built-tile .lede,.built-tile p{color:var(--dark-muted)}
+.kicker-pill{align-self:flex-start;background:var(--accent);color:var(--ink);border-radius:999px;padding:6px 12px;font-family:var(--display);font-size:13px;font-weight:600;line-height:1.3}
+.trust{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1px;background:var(--dark-line);border:1px solid var(--dark-line);border-radius:var(--radius-m);overflow:hidden}
+.trust li{background:var(--dark-2);padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.trust .label{font-size:13px;color:var(--dark-faint)}
+.trust .value{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.3;color:#fff}
+.trust .value a{color:#fff}
+.step{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:start}
+.step-stack{display:flex;flex-direction:column;gap:24px}
+.step-copy{display:flex;flex-direction:column;gap:12px;max-width:720px}
+.step-copy h3{font-size:28px}
+.step-copy p{font-size:16px;line-height:1.65;max-width:var(--measure)}
+.step-copy code{color:#fff;font-size:14px}
+.num{font-family:var(--mono);font-size:13px;color:var(--gold)}
+.built-tile figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.code{margin:0;background:var(--dark-2);border:1px solid var(--dark-line);border-radius:var(--radius-m);padding:22px 24px;font-size:13px;line-height:1.8;overflow-x:auto;color:var(--dark-text);tab-size:4}
+.code:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.code .kw{color:#c792ea}
+.code .fn{color:#82aaff}
+.code .str{color:#c3e88d}
+.code .cls{color:var(--gold)}
+.code .p{color:var(--gold)}
+.code .hl-bad{display:block;background:rgba(255,120,100,.12);border-radius:4px;padding:0 6px;margin:0 -6px}
+.code .hl-good{display:block;background:rgba(140,220,140,.12);border-radius:4px;padding:0 6px;margin:0 -6px}
+.built-tile figcaption{font-size:14px;color:var(--dark-faint);max-width:60ch;text-wrap:pretty}
+.built-tile figcaption code,.built-tile figcaption a code{font-size:12px}
+.built-tile figcaption a{color:var(--dark-text)}
+.service-table{border:1px solid var(--dark-line);border-radius:var(--radius-m);overflow:hidden}
+.service-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px 24px;padding:18px 24px;border-bottom:1px solid var(--dark-line);align-items:center}
+.service-row:last-child{border-bottom:0}
+.service-row a{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--gold);text-decoration:none}
+.service-row a:hover{text-decoration:underline}
+.service-row .where{font-size:15px;color:var(--dark-muted)}
+.service-row .caps{font-family:var(--mono);font-size:12px;color:var(--dark-faint)}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
+.rule{background:var(--dark-3);border-radius:var(--radius-m);padding:22px;display:flex;flex-direction:column;gap:8px}
+.rule h4{margin:0;font-family:var(--display);font-weight:800;font-size:17px;color:#fff;letter-spacing:-.01em}
+.rule h4 a{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--gold);text-decoration:none}
+.rule h4 a:hover{text-decoration:underline}
+.rule p{font-size:15px;line-height:1.55}
+.rule p a{color:#fff}
+.lint{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));border:1px solid var(--dark-line);border-radius:var(--radius-m);overflow:hidden;background:var(--dark-2)}
+.lint > div{padding:20px 22px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--dark-line);min-width:0}
+.lint > div:last-child{border-right:0}
+.lint .label{font-size:13px;font-weight:600;color:var(--dark-faint);text-transform:uppercase;letter-spacing:.06em}
+.lint .code{background:none;border:0;border-radius:0;padding:0;font-size:12px}
+.lint .msg{font-family:var(--mono);font-size:12.5px;line-height:1.7}
+.lint .msg .x{color:oklch(0.75 0.15 30)}
+.lint .msg p{margin-top:6px;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+.contrib{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:center;padding-top:40px;border-top:1px solid var(--dark-line)}
+.contrib h3{font-size:22px}
+.contrib p{font-size:15px;line-height:1.65;margin-top:12px}
+.contrib .code{font-size:13px;border-radius:16px;padding:18px 22px}
+
+/* The book, the scaffold: two deliberate blocks. */
+.origins{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px}
+.book{background:var(--amber);color:var(--amber-ink);border-radius:var(--radius-l);padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:20px;min-height:100%}
+.book .label{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-text)}
+.book .title{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.2vw,40px);line-height:.98;letter-spacing:-.03em;color:var(--amber-ink);text-wrap:balance;max-width:11ch}
+.book .title em{font-style:normal;color:var(--accent-deep)}
+.book p{font-size:16px;line-height:1.55;color:var(--amber-ink)}
+.book .actions{margin-top:auto}
+.book .btn-ink{background:var(--amber-ink)}
+.book .btn-ink:hover{background:#5a4420}
+.book .btn:focus-visible{outline-color:var(--accent-deep)}
+.walk{background:var(--green);color:var(--ink);border-radius:var(--radius-l);padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:20px}
+.walk .title{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.02em}
+.walk p{font-size:16px;line-height:1.55;color:var(--ink-2)}
+.walk .actions{margin-top:auto}
+.walk a:focus-visible{outline-color:var(--accent-deep)}
+
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+.site-footer{max-width:1120px;margin:0 auto;padding:24px 24px 48px;display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;font-size:14px;line-height:1.6;color:var(--ink-3)}
+.site-footer p{max-width:620px}
+.site-footer nav{display:flex;flex-wrap:wrap;gap:20px;font-weight:600}
+
+/* ---------------------------------------------------------------------------
+   The notice, as the plugin ships it.
+   Verbatim from the plugin's default stylesheet; the mock-ups above only set
+   a font-size on their container, everything else is this.
+   --------------------------------------------------------------------------- */
+.mwpd-content-freshness-notice {
+	display: flex;
+	gap: 0.75em;
+	align-items: baseline;
+	box-sizing: border-box;
+	margin: 0 0 1.5em;
+	padding: 0.875em 1em;
+	border-radius: 0.875em;
+	background: #fbefd6;
+	color: #3d2e12;
+	font-size: 0.9375em;
+	line-height: 1.5;
+}
+
+.mwpd-content-freshness-notice::before {
+	content: "";
+	flex: none;
+	width: 0.625em;
+	height: 0.625em;
+	border-radius: 50%;
+	background: #c25e1f;
+}
+
+@media (forced-colors: active) {
+	.mwpd-content-freshness-notice {
+		border: 1px solid CanvasText;
+	}
+
+	.mwpd-content-freshness-notice::before {
+		background: CanvasText;
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 899px){
+	.mocks{grid-template-columns:1fr}
+	.mock-phone{display:none}
+}
+@media (max-width: 699px){
+	.shot-desktop{display:none}
+	.shot-mobile{display:block}
+	.shot-mobile img{max-width:360px;margin:0 auto}
+	.ageing-track{height:auto;background:none;border-radius:0;overflow:visible}
+	.ageing-list{display:flex;flex-direction:column;gap:8px}
+	.ageing-post{position:static;transform:none;flex-direction:row;align-items:center;justify-content:space-between;width:auto;max-width:none;text-align:left;gap:12px;padding:12px 16px;border-radius:var(--radius-s);background:var(--green)}
+	.ageing-post.is-outdated{background:var(--amber)}
+	.ageing-post .dot{display:none}
+	.ageing-post .title{font-size:14px;text-wrap:pretty}
+	.ageing-post .age{font-size:12px;white-space:nowrap}
+	.ageing-limit{position:static;width:auto;border-left:0;border-top:2px dashed var(--accent-deep);padding:10px 0 4px;margin:4px 0}
+	.ageing-limit span{position:static;background:none;padding:0;max-width:none;text-align:left}
+	.ageing-limit br{display:none}
+	.ageing-axis{display:none}
+}
+@media (max-width: 639px){
+	:root{--nav-offset:16px}
+	/* One row of brand and GitHub; the section links become a strip that
+	   scrolls sideways, and the header no longer sticks. */
+	.wrap{padding:0 16px}
+	.site-header{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}
+	.nav{grid-template-columns:1fr auto;grid-template-areas:"brand github" "links links";gap:8px 12px;padding:12px 16px 8px}
+	.brand{font-size:17px}
+	.brand .dot{width:20px;height:20px}
+	.nav-links{justify-content:flex-start;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 12px 6px;-webkit-overflow-scrolling:touch}
+	.nav-links::-webkit-scrollbar{display:none}
+	.nav-github{font-size:14px;padding:9px 14px}
+	main{gap:80px}
+	.hero-tile{border-radius:var(--radius-l)}
+	.lead{grid-template-columns:1fr;padding:20px 22px}
+	.lead-cta{justify-self:start}
+	.built-tile{border-radius:var(--radius-l)}
+	.btn{font-size:16px;padding:14px 22px}
+	.code,.cli{font-size:12px;padding:16px 18px}
+	.lint .code{padding:0}
+}
+@media (prefers-reduced-motion: reduce){
+	html{scroll-behavior:auto}
+	*,*::before,*::after{transition-duration:0s !important}
+}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div style="min-height:100vh;background:#fbf8f3;font-family:'Bricolage Grotesque',sans-serif">
 
-<nav style="position:sticky;top:0;z-index:10;background:rgba(251,248,243,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
-<div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
-<a href="#" style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;text-decoration:none"><span style="width:24px;height:24px;border-radius:50%;background:oklch(0.72 0.14 50)"></span>Content Freshness</a>
-<div style="display:flex;flex-wrap:wrap;gap:4px;font-size:15px;font-weight:600">
-<a href="#features" style="padding:10px 14px;border-radius:999px;text-decoration:none" class="nav-link">What it does</a>
-<a href="#install" style="padding:10px 14px;border-radius:999px;text-decoration:none" class="nav-link">Install</a>
-<a href="#built" style="padding:10px 14px;border-radius:999px;text-decoration:none" class="nav-link">How it is built</a>
-<a href="https://github.com/mwpd/content-freshness" style="padding:10px 18px;border-radius:999px;background:#1d2433;color:#fff;text-decoration:none">GitHub</a>
+<header class="site-header">
+<nav class="nav wrap" aria-label="Primary">
+<a class="brand" href="#top"><span class="dot" aria-hidden="true"></span>Content Freshness</a>
+<div class="nav-links">
+<a class="nav-link" href="#features">What it does</a>
+<a class="nav-link" href="#install">Install</a>
+<a class="nav-link" href="#built">How it is built</a>
 </div>
-</div>
+<a class="btn btn-ink nav-github" href="https://github.com/mwpd/content-freshness">GitHub</a>
 </nav>
-
-<main id="main" style="display:flex;flex-direction:column;gap:112px;padding-bottom:48px">
-
-<header style="max-width:1120px;width:100%;margin:8px auto 0;padding:0 24px;box-sizing:border-box">
-<div style="background:oklch(0.93 0.05 140);border-radius:36px;padding:clamp(32px,6vw,72px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:48px;align-items:center">
-<div style="display:flex;flex-direction:column;gap:24px">
-<span style="align-self:flex-start;background:#fff;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600">A WordPress plugin · v1.0.1 · MIT</span>
-<h1 style="margin:0;font-weight:800;font-size:clamp(48px,6.5vw,84px);line-height:.95;letter-spacing:-.035em;text-wrap:balance">Old posts, honestly labelled.</h1>
-<p style="margin:0;font-family:'DM Sans';font-size:20px;line-height:1.5;color:#3a4256;max-width:500px;text-wrap:pretty">Tells your readers when a post may be out of date, and tells your editors which posts need a refresh.</p>
-<div style="display:flex;flex-wrap:wrap;gap:12px"><a href="https://github.com/mwpd/content-freshness/releases/latest" style="background:#1d2433;color:#fff;text-decoration:none;font-weight:600;font-size:17px;padding:16px 26px;border-radius:999px">Download the plugin</a><a href="#install" style="background:#fff;text-decoration:none;font-weight:600;font-size:17px;padding:16px 26px;border-radius:999px">Installation</a></div>
-</div>
-<figure style="margin:0;display:flex;flex-direction:column;gap:10px">
-<div style="background:#fff;border-radius:20px;box-shadow:0 24px 48px rgba(29,36,51,.12);padding:clamp(24px,3.5vw,40px);display:flex;flex-direction:column;gap:18px">
-<div style="font-family:'DM Sans';font-size:13px;color:#5a6276">Field Notes · Gardening</div>
-<div style="font-weight:800;font-size:clamp(26px,2.6vw,32px);line-height:1.1;letter-spacing:-.015em">How to prune tomato plants</div>
-<p style="margin:0;display:flex;gap:12px;align-items:flex-start;background:oklch(0.95 0.06 80);border-radius:14px;padding:14px 16px;font-family:'DM Sans';font-size:16px;line-height:1.5;color:#3d2e12"><span style="flex:none;width:10px;height:10px;margin-top:7px;border-radius:50%;background:oklch(0.62 0.15 45)"></span><span>This post was last updated 3 years ago; some information may be out of date.</span></p>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.65;color:#4b5468">Pruning keeps a tomato plant’s energy where you want it: in the fruit. Start when the first flowers appear, and work from the bottom up.</p>
-<div style="display:flex;flex-direction:column;gap:10px"><div style="height:10px;border-radius:5px;background:#eee9e0;width:92%"></div><div style="height:10px;border-radius:5px;background:#eee9e0;width:78%"></div></div>
-</div>
-<figcaption style="font-family:'DM Sans';font-size:14px;line-height:1.5;color:#3a4256">A post nobody has touched for three years, with the notice styled through <code style="font-family:'JetBrains Mono';font-size:12px">.mwpd-content-freshness-notice</code>.</figcaption>
-</figure>
-</div>
-<a href="#built" style="margin:16px 0 0;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;text-decoration:none;background:#1d2433;color:#e9ecf3;border-radius:20px;padding:18px 24px">
-<span style="font-family:'DM Sans';font-size:16px;line-height:1.5"><strong style="font-family:'Bricolage Grotesque';color:#fff">Small on purpose.</strong> This plugin is the worked example for the MWPD Basic Scaffold, a way of structuring WordPress plugins.</span>
-<span style="font-weight:700;font-size:15px;color:oklch(0.8 0.12 50);white-space:nowrap">How it is built →</span>
-</a>
 </header>
 
-<section id="features" style="max-width:1120px;width:100%;margin:0 auto;padding:0 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:40px;scroll-margin-top:96px">
-<div style="display:flex;flex-direction:column;gap:14px;max-width:720px">
-<h2 style="margin:0;font-weight:800;font-size:clamp(34px,4.2vw,52px);line-height:1.02;letter-spacing:-.03em;text-wrap:balance">Four small things, one question: is this post outdated?</h2>
-<p style="margin:0;font-family:'DM Sans';font-size:18px;line-height:1.55;color:#3a4256;text-wrap:pretty">Old tutorials keep ranking and getting shared long after they stop being right. A post counts as outdated when its last update is older than the limit you set.</p>
-</div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px">
+<main id="main">
 
-<article style="background:oklch(0.95 0.05 80);border-radius:28px;padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px">
-<span style="align-self:flex-start;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">For readers</span>
-<h3 style="margin:0;font-weight:800;font-size:26px;letter-spacing:-.02em">A notice on the post</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.6;color:#3a4256">A one-line paragraph at the top of outdated single posts. Pages, archives and post lists are left alone. Style it with <code style="font-family:'JetBrains Mono';font-size:13px;background:#fff;padding:2px 6px;border-radius:6px">.mwpd-content-freshness-notice</code>.</p>
-<div style="margin-top:8px;display:grid;grid-template-columns:2.2fr 1fr;gap:12px;align-items:end">
-<div style="background:#fff;border-radius:14px;box-shadow:0 10px 24px rgba(29,36,51,.10);overflow:hidden;display:flex;flex-direction:column">
-<div style="display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid #f0ebe2"><span style="width:8px;height:8px;border-radius:50%;background:#e4ddd0"></span><span style="width:8px;height:8px;border-radius:50%;background:#e4ddd0"></span><span style="width:8px;height:8px;border-radius:50%;background:#e4ddd0"></span></div>
-<div style="padding:20px 22px 24px;display:flex;flex-direction:column;gap:12px">
-<div style="font-weight:800;font-size:19px;line-height:1.15;letter-spacing:-.01em">How to prune tomato plants</div>
-<p style="margin:0;display:flex;gap:8px;align-items:flex-start;background:oklch(0.95 0.06 80);border-radius:10px;padding:9px 11px;font-family:'DM Sans';font-size:12px;line-height:1.45;color:#3d2e12"><span style="flex:none;width:7px;height:7px;margin-top:5px;border-radius:50%;background:oklch(0.62 0.15 45)"></span><span>This post was last updated 3 years ago; some information may be out of date.</span></p>
-<div style="display:flex;flex-direction:column;gap:7px"><div style="height:7px;border-radius:4px;background:#eee9e0;width:95%"></div><div style="height:7px;border-radius:4px;background:#eee9e0;width:88%"></div><div style="height:7px;border-radius:4px;background:#eee9e0;width:70%"></div></div>
+<section class="hero wrap" aria-labelledby="hero-title">
+<div class="hero-tile">
+<div class="hero-copy">
+<span class="pill">A WordPress plugin · v1.0.1 · MIT</span>
+<h1 id="hero-title">Old posts, honestly labelled.</h1>
+<p class="lede">Tells your readers when a post may be out of date, and tells your editors which posts need a refresh.</p>
+<div class="actions">
+<a class="btn btn-ink" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download the plugin</a>
+<a class="btn btn-paper" href="#install">Install</a>
 </div>
 </div>
-<div style="background:#fff;border:5px solid #1d2433;border-radius:22px;box-shadow:0 10px 24px rgba(29,36,51,.10);padding:18px 12px 22px;display:flex;flex-direction:column;gap:9px">
-<div style="align-self:center;width:32px;height:4px;border-radius:2px;background:#1d2433;margin-bottom:4px"></div>
-<div style="font-weight:800;font-size:13px;line-height:1.15">How to prune tomato plants</div>
-<p style="margin:0;display:flex;gap:6px;align-items:flex-start;background:oklch(0.95 0.06 80);border-radius:8px;padding:7px 8px;font-family:'DM Sans';font-size:10px;line-height:1.4;color:#3d2e12"><span style="flex:none;width:6px;height:6px;margin-top:4px;border-radius:50%;background:oklch(0.62 0.15 45)"></span><span>This post was last updated 3 years ago; some information may be out of date.</span></p>
-<div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;border-radius:3px;background:#eee9e0;width:95%"></div><div style="height:6px;border-radius:3px;background:#eee9e0;width:80%"></div><div style="height:6px;border-radius:3px;background:#eee9e0;width:88%"></div></div>
+<figure class="hero-figure">
+<div class="post-card">
+<div class="kicker">Field Notes · Gardening</div>
+<div class="post-title">How to prune tomato plants</div>
+<p class="mwpd-content-freshness-notice">This post was last updated 3 years ago; some information may be out of date.</p>
+<p class="body">Pruning keeps a tomato plant’s energy where you want it: in the fruit. Start when the first flowers appear, and work from the bottom up.</p>
+</div>
+<figcaption class="caption">A post nobody has touched for three years, with the notice in the plugin’s default style. Themes restyle it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle and bring their own.</figcaption>
+</figure>
+</div>
+<a class="lead on-dark" href="#built">
+<p><strong>The worked example of the MWPD Basic Scaffold.</strong> Four features in four parts of WordPress, one service each, none of them aware of the others. Read it as a plugin, or as a way of structuring one.</p>
+<span class="lead-cta">How it is built →</span>
+</a>
+</section>
+
+<section id="features" class="features wrap" aria-labelledby="features-title">
+<div class="section-head">
+<h2 id="features-title">Four small things, one question: is this post outdated?</h2>
+<p class="lede">Old tutorials keep ranking and getting shared long after they stop being right. A post counts as outdated when its last update is older than the limit you set. Publishing counts as the first update; any later save counts as a new one.</p>
+</div>
+
+<figure class="ageing" aria-labelledby="ageing-caption">
+<div class="ageing-track">
+<div class="ageing-axis" aria-hidden="true"><span>updated this month</span><span>years ago</span></div>
+<ol class="ageing-list">
+<li class="ageing-post" style="--x:12%;--y:52px"><span class="dot" aria-hidden="true"></span><span class="title">Autumn bulb planting checklist</span><span class="age">3 weeks ago</span></li>
+<li class="ageing-post" style="--x:36%;--y:122px"><span class="dot" aria-hidden="true"></span><span class="title">Composting through the winter</span><span class="age">5 months ago</span></li>
+<li class="ageing-limit"><span>365 days<br>the limit you set</span></li>
+<li class="ageing-post is-outdated" style="--x:62%;--y:48px"><span class="dot" aria-hidden="true"></span><span class="title">Choosing a rain barrel</span><span class="age">1 year ago · outdated</span></li>
+<li class="ageing-post is-outdated" style="--x:73%;--y:128px"><span class="dot" aria-hidden="true"></span><span class="title">Seed starting calendar</span><span class="age">3 years ago · outdated</span></li>
+<li class="ageing-post is-outdated" style="--x:82%;--y:44px"><span class="dot" aria-hidden="true"></span><span class="title">How to prune tomato plants</span><span class="age">3 years ago · outdated</span></li>
+<li class="ageing-post is-outdated" style="--x:92%;--y:128px"><span class="dot" aria-hidden="true"></span><span class="title">Building a raised bed from reclaimed timber</span><span class="age">5 years ago · outdated</span></li>
+</ol>
+</div>
+<figcaption id="ageing-caption" class="caption">Six posts by the time since their last update. Everything past the limit gets the notice, the mark in the Posts list, and a line in the digest. The default limit is 365 days.</figcaption>
+</figure>
+
+<div class="cards">
+
+<article class="card card-readers">
+<span class="pill"><span class="dot" aria-hidden="true"></span>For readers</span>
+<h3>A notice on the post</h3>
+<p>A one-line paragraph at the top of outdated single posts. Pages, custom post types, archives and lists are left alone. It ships with the default style shown here; restyle it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle and bring your own.</p>
+<div class="mocks">
+<div class="mock-browser">
+<div class="mock-chrome" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="mock-page">
+<div class="post-title">How to prune tomato plants</div>
+<p class="mwpd-content-freshness-notice">This post was last updated 3 years ago; some information may be out of date.</p>
+<p class="body">Pruning keeps a tomato plant’s energy where you want it: in the fruit. Start when the first flowers appear.</p>
+</div>
+</div>
+<div class="mock-phone" aria-hidden="true">
+<div class="notch"></div>
+<div class="post-title">How to prune tomato plants</div>
+<p class="mwpd-content-freshness-notice">This post was last updated 3 years ago; some information may be out of date.</p>
+<p class="body">Pruning keeps a tomato plant’s energy where you want it: in the fruit.</p>
 </div>
 </div>
 </article>
 
-<article style="background:oklch(0.95 0.04 230);border-radius:28px;padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px">
-<span style="align-self:flex-start;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">For editors</span>
-<h3 style="margin:0;font-weight:800;font-size:26px;letter-spacing:-.02em">A “Last updated” column</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.6;color:#3a4256">In the Posts list, sortable, with outdated posts marked.</p>
-<a href="img/column.webp" style="margin-top:8px"><img src="img/column.webp" alt="The Posts list with a sortable “Last updated” column; four of six posts are marked “Outdated”." style="width:100%;border-radius:14px;box-shadow:0 10px 24px rgba(29,36,51,.10)"></a>
-</article>
-
-<article style="background:oklch(0.95 0.04 320);border-radius:28px;padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px">
-<span style="align-self:flex-start;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">For editors</span>
-<h3 style="margin:0;font-weight:800;font-size:26px;letter-spacing:-.02em">A weekly digest</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.6;color:#3a4256">Editors and Administrators each get an email with up to 20 of the stalest posts. When nothing is stale, nothing is sent.</p>
-<div style="margin-top:8px;background:#fff;border-radius:14px;box-shadow:0 10px 24px rgba(29,36,51,.10);padding:18px 20px;display:flex;flex-direction:column;gap:10px;font-family:'DM Sans';font-size:14px;line-height:1.5">
-<span style="font-weight:700;font-size:15px">[Field Notes] Posts that need a refresh</span>
-<div style="display:flex;justify-content:space-between;gap:12px"><span style="text-decoration:underline">Building a raised bed from reclaimed timber</span><span style="color:#5a6276;white-space:nowrap">5 years</span></div>
-<div style="display:flex;justify-content:space-between;gap:12px"><span style="text-decoration:underline">How to prune tomato plants</span><span style="color:#5a6276;white-space:nowrap">3 years</span></div>
-<div style="display:flex;justify-content:space-between;gap:12px"><span style="text-decoration:underline">Choosing a rain barrel</span><span style="color:#5a6276;white-space:nowrap">1 year</span></div>
+<article class="card card-editors">
+<span class="pill"><span class="dot" aria-hidden="true"></span>For editors</span>
+<h3>A weekly digest</h3>
+<p>Editors and Administrators each get an email with up to 20 of the stalest posts, each linked to its editor. When nothing is stale, nothing is sent.</p>
+<div class="mail">
+<span class="subject">[Field Notes] Posts that need a refresh</span>
+<ul>
+<li><span>Building a raised bed from reclaimed timber</span><span>5 years</span></li>
+<li><span>Seed starting calendar</span><span>3 years</span></li>
+<li><span>How to prune tomato plants</span><span>3 years</span></li>
+<li><span>Choosing a rain barrel</span><span>1 year</span></li>
+</ul>
 </div>
 </article>
 
-<article style="background:oklch(0.94 0.05 140);border-radius:28px;padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px">
-<span style="align-self:flex-start;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">For site owners</span>
-<h3 style="margin:0;font-weight:800;font-size:26px;letter-spacing:-.02em">One setting</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.6;color:#3a4256">Under Settings › Reading: after how many days a post counts as outdated. The default is 365.</p>
-<a href="img/setting.webp" style="margin-top:8px"><img src="img/setting.webp" alt="Settings › Reading: “Posts become outdated after” set to 365 days." style="width:100%;border-radius:14px;box-shadow:0 10px 24px rgba(29,36,51,.10)"></a>
+<article class="card card-editors card-wide">
+<div class="card-head">
+<div>
+<span class="pill"><span class="dot" aria-hidden="true"></span>For editors</span>
+<h3>A “Last updated” column</h3>
+</div>
+<p>In the Posts list, sortable, with outdated posts marked. Nothing to configure: it appears on the Posts screen and nowhere else.</p>
+</div>
+<figure class="figure">
+<picture class="shot shot-desktop">
+<img src="img/column.webp" srcset="img/column.webp 1640w" sizes="(min-width: 1120px) 1008px, calc(100vw - 96px)" width="1640" height="972" loading="lazy" decoding="async" alt="The Posts list with a sortable “Last updated” column; four of six posts are marked “Outdated”.">
+</picture>
+<picture class="shot shot-mobile">
+<img src="img/column-mobile.webp" srcset="img/column-mobile.webp 560w" sizes="min(360px, calc(100vw - 80px))" width="560" height="972" loading="lazy" decoding="async" alt="The “Last updated” column of the Posts list, cropped from the full screenshot: four of six posts are marked “Outdated”.">
+</picture>
+<div class="figure-meta">
+<figcaption class="caption">The Posts list of a test site. On narrow screens this shows the “Last updated” column alone.</figcaption>
+<a class="view-full" href="img/column.webp">View full size</a>
+</div>
+</figure>
+</article>
+
+<article class="card card-owners card-wide">
+<div class="card-head">
+<div>
+<span class="pill"><span class="dot" aria-hidden="true"></span>For site owners</span>
+<h3>One setting</h3>
+</div>
+<p>Under Settings › Reading: after how many days a post counts as outdated, from 1 to 36500. The default is 365.</p>
+</div>
+<figure class="figure">
+<picture class="shot shot-desktop">
+<img src="img/setting.webp" srcset="img/setting.webp 1620w" sizes="(min-width: 1120px) 1008px, calc(100vw - 96px)" width="1620" height="272" loading="lazy" decoding="async" alt="Settings › Reading: “Posts become outdated after” set to 365 days, with a line of help text below.">
+</picture>
+<picture class="shot shot-mobile">
+<img src="img/setting-mobile.webp" srcset="img/setting-mobile.webp 720w" sizes="min(360px, calc(100vw - 80px))" width="720" height="126" loading="lazy" decoding="async" alt="Settings › Reading: “Posts become outdated after” set to 365 days, cropped from the full screenshot.">
+</picture>
+<div class="figure-meta">
+<figcaption class="caption">The field in Settings › Reading. On narrow screens the help text is cropped away.</figcaption>
+<a class="view-full" href="img/setting.webp">View full size</a>
+</div>
+</figure>
 </article>
 
 </div>
 </section>
 
-<section id="install" style="max-width:1120px;width:100%;margin:0 auto;padding:0 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px;scroll-margin-top:96px">
-<div style="display:flex;flex-direction:column;gap:14px;max-width:720px">
-<h2 style="margin:0;font-weight:800;font-size:clamp(34px,4.2vw,52px);line-height:1.02;letter-spacing:-.03em">Install, activate, done.</h2>
-<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:14px;font-weight:600"><span style="background:#fff;border:1px solid #eee6d8;border-radius:999px;padding:6px 12px">WordPress 6.0+</span><span style="background:#fff;border:1px solid #eee6d8;border-radius:999px;padding:6px 12px">PHP 7.4+</span><span style="background:#fff;border:1px solid #eee6d8;border-radius:999px;padding:6px 12px">No account or external service</span></div>
+<section id="install" class="install wrap" aria-labelledby="install-title">
+<div class="section-head">
+<h2 id="install-title">Install, activate, done.</h2>
+<div class="facts">
+<span class="pill pill-outline">WordPress 6.0+, tested up to 7.1</span>
+<span class="pill pill-outline">PHP 7.4+</span>
+<span class="pill pill-outline">No account or external service</span>
+<span class="pill pill-outline">MIT licence</span>
 </div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px">
-<div style="background:#fff;border:1px solid #eee6d8;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:12px"><span style="width:36px;height:36px;border-radius:50%;background:oklch(0.62 0.15 45);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center">1</span><span style="font-family:'DM Sans';font-size:16px;line-height:1.55;color:#3a4256">Download <code style="font-family:'JetBrains Mono';font-size:13px;color:#1d2433">content-freshness.zip</code> from the <a href="https://github.com/mwpd/content-freshness/releases/latest">latest release</a>.</span></div>
-<div style="background:#fff;border:1px solid #eee6d8;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:12px"><span style="width:36px;height:36px;border-radius:50%;background:oklch(0.62 0.15 45);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center">2</span><span style="font-family:'DM Sans';font-size:16px;line-height:1.55;color:#3a4256">Upload it under <strong style="color:#1d2433">Plugins › Add New › Upload Plugin</strong> and activate it.</span></div>
-<div style="background:#fff;border:1px solid #eee6d8;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:12px"><span style="width:36px;height:36px;border-radius:50%;background:oklch(0.62 0.15 45);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center">3</span><span style="font-family:'DM Sans';font-size:16px;line-height:1.55;color:#3a4256">Optionally change the limit under <strong style="color:#1d2433">Settings › Reading</strong>. The first digest goes out a week later.</span></div>
 </div>
-<div style="background:#1d2433;color:#e9ecf3;border-radius:20px;padding:20px 24px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.7;overflow-x:auto"><div style="white-space:pre;color:#a9b1c4"># or with WP-CLI</div><div style="white-space:pre"><span style="color:oklch(0.78 0.13 50)">$</span> wp plugin install content-freshness.zip --activate</div></div>
+<ol class="steps">
+<li><p>Download <a href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><code>content-freshness.zip</code></a> from the latest release.</p></li>
+<li><p>Upload it under <strong>Plugins › Add New › Upload Plugin</strong> and activate it.</p></li>
+<li><p>Optionally change the limit under <strong>Settings › Reading</strong>. The first digest goes out a week later.</p></li>
+</ol>
+<pre class="cli" tabindex="0" aria-label="Installing with WP-CLI"><span class="c"># or, instead of steps 1 and 2, with WP-CLI</span>
+<span class="p">$</span> wp plugin install https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip --activate</pre>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px 40px;padding-top:16px;border-top:1px solid #eee6d8">
-<div style="display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:18px">Changing the notice</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.6;color:#3a4256">Style <code style="font-family:'JetBrains Mono';font-size:12px">.mwpd-content-freshness-notice</code>, or copy any template from the plugin’s <code style="font-family:'JetBrains Mono';font-size:12px">views/</code> into <code style="font-family:'JetBrains Mono';font-size:12px">content-freshness/views/</code> in your theme.</span></div>
-<div style="display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:18px">No digest arriving?</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.6;color:#3a4256">It’s sent by WP-Cron through <code style="font-family:'JetBrains Mono';font-size:12px">wp_mail()</code>. On quiet sites, add a real cron job; if no site email arrives, add an SMTP plugin.</span></div>
-<div style="display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:18px">Removing it</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.6;color:#3a4256">Deactivating keeps your setting. Deleting removes it and the weekly event, the only two things the plugin stores.</span></div>
+<div class="followups">
+<div><h3>Changing the notice</h3><p>It comes with a default style. Override it through <code>.mwpd-content-freshness-notice</code>, or dequeue the <code>mwpd-content-freshness-notice</code> style handle. To change the markup, copy any template from the plugin’s <code>views/</code> into <code>content-freshness/views/</code> in your theme.</p></div>
+<div><h3>No digest arriving?</h3><p>It’s sent by WP-Cron through <code>wp_mail()</code>. On quiet sites, add a real cron job; if no site email arrives, add an SMTP plugin.</p></div>
+<div><h3>On multisite</h3><p>Activate it per site, or for the whole network: that sets the digest up in every site, and in sites created later. Each site keeps its own setting. Updating a network-active 1.0.0 to 1.0.1? Deactivate and activate it for the network once more.</p></div>
+<div><h3>Removing it</h3><p>Deactivating keeps your setting. Deleting removes it and the weekly event, the only two things the plugin stores, from every site of a network.</p></div>
+</div>
+
+<div class="install-cta">
+<a class="btn btn-ink" href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m0 0l3-3m-3 3L5 7M3 12v1.5h10V12"/></svg>Download content-freshness.zip</a>
+<span class="note">Latest release, from GitHub. <a class="ext" href="https://github.com/mwpd/content-freshness/releases/latest">Release notes</a></span>
 </div>
 </section>
 
-<section id="built" style="max-width:1120px;width:100%;margin:0 auto;padding:0 24px;box-sizing:border-box;scroll-margin-top:80px">
-<div style="background:#1d2433;color:#e9ecf3;border-radius:36px;padding:clamp(28px,6vw,72px);display:flex;flex-direction:column;gap:64px">
+<section id="built" class="wrap" aria-labelledby="built-title">
+<div class="built-tile on-dark">
 
-<div style="display:flex;flex-direction:column;gap:20px;max-width:760px">
-<span style="align-self:flex-start;background:oklch(0.72 0.14 50);color:#1d2433;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700">How it is built</span>
-<h2 style="margin:0;font-weight:800;font-size:clamp(34px,4.4vw,56px);line-height:1.02;letter-spacing:-.03em;color:#fff;text-wrap:balance">A simple plugin, built to show an approach.</h2>
-<p style="margin:0;font-family:'DM Sans';font-size:18px;line-height:1.6;color:#c3c9d8;text-wrap:pretty">Content Freshness is the worked example for the <a href="https://mwpd.github.io/basic-scaffold/" style="color:#fff">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/" style="color:#fff">Modern WordPress Plugin Development</a>. The features are deliberately modest. They touch four different parts of WordPress, which makes them useful for showing how the scaffold keeps each part separate.</p>
+<div class="section-head" style="gap:20px;max-width:760px">
+<span class="kicker-pill">How it is built</span>
+<h2 id="built-title">A simple plugin, built to show an approach.</h2>
+<p class="lede">Content Freshness is the worked example for the <a href="https://mwpd.github.io/basic-scaffold/" style="color:#fff">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/" style="color:#fff">Modern WordPress Plugin Development</a>. The features are deliberately modest. They touch four different parts of WordPress, which makes them useful for showing how the scaffold keeps each part separate.</p>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:start">
-<div style="display:flex;flex-direction:column;gap:12px">
-<span style="font-family:'JetBrains Mono';font-size:13px;color:oklch(0.8 0.12 50)">1</span>
-<h3 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-.02em;color:#fff">One feature, one service</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.65;color:#c3c9d8">The composition root lists the four services. None of them knows the others exist. The notice came first; each later feature was its own commit, adding a service and a line here without changing the ones before it.</p>
+<ul class="trust" aria-label="Checked facts about the codebase">
+<li><span class="label">Runs on</span><span class="value">WordPress 6.0+, PHP 7.4+</span></li>
+<li><span class="label">Static analysis</span><span class="value">PHPStan level max, Psalm level 2</span></li>
+<li><span class="label">Tests in CI</span><span class="value">PHP 7.4 and 8.3, end-to-end on WordPress 6.0 and latest</span></li>
+<li><span class="label">Runtime dependencies</span><span class="value">None. No Composer packages, no build step</span></li>
+<li><span class="label">Every push</span><span class="value"><a class="ext" href="https://github.com/mwpd/content-freshness/actions/workflows/ci.yml">CI workflow</a></span></li>
+</ul>
+
+<div class="step">
+<div class="step-copy">
+<span class="num" aria-hidden="true">1</span>
+<h3>One feature, one service</h3>
+<p>The composition root lists the four services. None of them knows the others exist. The notice came first; each later feature was its own commit, adding a service and a line here without changing the ones before it.</p>
 </div>
-<figure style="margin:0;display:flex;flex-direction:column;gap:10px;min-width:0">
-<div style="background:#151b28;border:1px solid #2d3548;border-radius:20px;padding:22px 24px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;overflow-x:auto">
-<div style="white-space:pre"><span style="color:#c792ea">return</span> [</div>
-<div style="white-space:pre;padding-left:2ch">self::OUTDATED_POST_NOTICE_ID</div>
-<div style="white-space:pre;padding-left:4ch">=&gt; <span style="color:oklch(0.8 0.12 50)">OutdatedPostNotice</span>::class,</div>
-<div style="white-space:pre;padding-left:2ch">self::POST_AGE_COLUMN_ID</div>
-<div style="white-space:pre;padding-left:4ch">=&gt; <span style="color:oklch(0.8 0.12 50)">PostAgeColumn</span>::class,</div>
-<div style="white-space:pre;padding-left:2ch">self::FRESHNESS_SETTING_ID</div>
-<div style="white-space:pre;padding-left:4ch">=&gt; <span style="color:oklch(0.8 0.12 50)">FreshnessSetting</span>::class,</div>
-<div style="white-space:pre;padding-left:2ch">self::STALE_CONTENT_DIGEST_ID</div>
-<div style="white-space:pre;padding-left:4ch">=&gt; <span style="color:oklch(0.8 0.12 50)">StaleContentDigest</span>::class,</div>
-<div style="white-space:pre">];</div>
-</div>
-<figcaption style="font-family:'DM Sans';font-size:14px;color:#a9b1c4"><a href="https://github.com/mwpd/content-freshness/blob/main/src/ContentFreshnessPlugin.php" style="font-family:'JetBrains Mono';font-size:13px">src/ContentFreshnessPlugin.php</a>, trimmed</figcaption>
+<figure>
+<pre class="code" tabindex="0" aria-label="The composition root's list of services"><span class="kw">return</span> [
+	self::OUTDATED_POST_NOTICE_ID
+		=&gt; <span class="cls">OutdatedPostNotice</span>::class,
+	self::POST_AGE_COLUMN_ID
+		=&gt; <span class="cls">PostAgeColumn</span>::class,
+	self::FRESHNESS_SETTING_ID
+		=&gt; <span class="cls">FreshnessSetting</span>::class,
+	self::STALE_CONTENT_DIGEST_ID
+		=&gt; <span class="cls">StaleContentDigest</span>::class,
+];</pre>
+<figcaption><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/src/ContentFreshnessPlugin.php"><code>src/ContentFreshnessPlugin.php</code></a>, trimmed</figcaption>
 </figure>
 </div>
 
-<div style="display:flex;flex-direction:column;gap:24px">
-<div style="display:flex;flex-direction:column;gap:12px;max-width:720px">
-<span style="font-family:'JetBrains Mono';font-size:13px;color:oklch(0.8 0.12 50)">2</span>
-<h3 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-.02em;color:#fff">Services say where and when, the scaffold does the rest</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.65;color:#c3c9d8">Each service implements small capability interfaces. A service that isn’t needed for a request is never constructed, and nothing branches on multisite: the scaffold visits each site for services that ask for it.</p>
+<div class="step-stack">
+<div class="step-copy">
+<span class="num" aria-hidden="true">2</span>
+<h3>Services say where and when, the scaffold does the rest</h3>
+<p>Each service implements small capability interfaces. A service that isn’t needed for a request is never constructed, and nothing branches on multisite: the scaffold visits each site for services that ask for it.</p>
 </div>
-<div style="border:1px solid #2d3548;border-radius:20px;overflow:hidden">
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px 24px;padding:18px 24px;border-bottom:1px solid #2d3548;align-items:center"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php" style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:oklch(0.8 0.12 50);text-decoration:none">OutdatedPostNotice</a><span style="font-family:'DM Sans';font-size:15px;color:#c3c9d8">Single posts, once the query has run</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#a9b1c4">Conditional · Delayed · Registerable</span></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px 24px;padding:18px 24px;border-bottom:1px solid #2d3548;align-items:center"><a href="https://github.com/mwpd/content-freshness/blob/main/src/PostsList/PostAgeColumn.php" style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:oklch(0.8 0.12 50);text-decoration:none">PostAgeColumn</a><span style="font-family:'DM Sans';font-size:15px;color:#c3c9d8">The Posts list screen only</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#a9b1c4">Conditional · Delayed · Registerable</span></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px 24px;padding:18px 24px;border-bottom:1px solid #2d3548;align-items:center"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php" style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:oklch(0.8 0.12 50);text-decoration:none">FreshnessSetting</a><span style="font-family:'DM Sans';font-size:15px;color:#c3c9d8">Admin requests; cleans up on uninstall</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#a9b1c4">Delayed · Registerable · SiteUninstallable</span></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px 24px;padding:18px 24px;align-items:center"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php" style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:oklch(0.8 0.12 50);text-decoration:none">StaleContentDigest</a><span style="font-family:'DM Sans';font-size:15px;color:#c3c9d8">Every request; schedules per site</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#a9b1c4">Registerable · SiteActivateable · SiteDeactivateable · SiteInitializable · SiteUninstallable</span></div>
+<div class="service-table">
+<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Notice/OutdatedPostNotice.php">OutdatedPostNotice</a><span class="where">Single posts, once the query has run</span><span class="caps">Conditional · Delayed · Registerable</span></div>
+<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/PostsList/PostAgeColumn.php">PostAgeColumn</a><span class="where">The Posts list screen only</span><span class="caps">Conditional · Delayed · Registerable</span></div>
+<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Settings/FreshnessSetting.php">FreshnessSetting</a><span class="where">Admin requests; cleans up on uninstall</span><span class="caps">Delayed · Registerable · SiteUninstallable</span></div>
+<div class="service-row"><a href="https://github.com/mwpd/content-freshness/blob/main/src/Digest/StaleContentDigest.php">StaleContentDigest</a><span class="where">Every request; schedules per site</span><span class="caps">Registerable · SiteActivateable · SiteDeactivateable · SiteInitializable · SiteUninstallable</span></div>
 </div>
 </div>
 
-<div id="rule" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:start;scroll-margin-top:96px">
-<div style="display:flex;flex-direction:column;gap:12px">
-<span style="font-family:'JetBrains Mono';font-size:13px;color:oklch(0.8 0.12 50)">3</span>
-<h3 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-.02em;color:#fff">One rule, swappable</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.65;color:#c3c9d8">No feature reads the setting itself. They all ask a <code style="font-family:'JetBrains Mono';font-size:14px;color:#fff">FreshnessPolicy</code> interface. Bind your own class, for example to leave an evergreen category alone, and the notice, column and digest all follow it unchanged.</p>
+<div id="rule" class="step">
+<div class="step-copy">
+<span class="num" aria-hidden="true">3</span>
+<h3>One rule, swappable</h3>
+<p>No feature reads the setting itself. They all ask a <code>FreshnessPolicy</code> interface. Bind your own class, for example to leave an evergreen category alone, and the notice, column and digest all follow it unchanged.</p>
 </div>
-<figure style="margin:0;display:flex;flex-direction:column;gap:10px;min-width:0">
-<div style="background:#151b28;border:1px solid #2d3548;border-radius:20px;padding:22px 24px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;overflow-x:auto">
-<div style="white-space:pre"><span style="color:#82aaff">add_filter</span>(</div>
-<div style="white-space:pre;padding-left:2ch"><span style="color:#c3e88d">'mwpd.content_freshness.bindings'</span>,</div>
-<div style="white-space:pre;padding-left:2ch"><span style="color:#c792ea">static function</span> ( <span style="color:#c792ea">array</span> $bindings ): <span style="color:#c792ea">array</span> {</div>
-<div style="white-space:pre;padding-left:4ch">$bindings[ <span style="color:oklch(0.8 0.12 50)">FreshnessPolicy</span>::class ]</div>
-<div style="white-space:pre;padding-left:6ch">= <span style="color:oklch(0.8 0.12 50)">My_Freshness_Policy</span>::class;</div>
-<div style="white-space:pre;padding-left:4ch"><span style="color:#c792ea">return</span> $bindings;</div>
-<div style="white-space:pre;padding-left:2ch">}</div>
-<div style="white-space:pre">);</div>
-</div>
-<figcaption style="font-family:'DM Sans';font-size:14px;color:#a9b1c4">From the README. <code style="font-family:'JetBrains Mono';font-size:12px">My_Freshness_Policy</code> is your class.</figcaption>
+<figure>
+<pre class="code" tabindex="0" aria-label="Binding your own FreshnessPolicy through the bindings filter"><span class="fn">add_filter</span>(
+	<span class="str">'mwpd.content_freshness.bindings'</span>,
+	<span class="kw">static function</span> ( <span class="kw">array</span> $bindings ): <span class="kw">array</span> {
+		$bindings[
+			<span class="cls">\MWPD\ContentFreshness\Freshness\FreshnessPolicy</span>::class
+		] = <span class="cls">My_Freshness_Policy</span>::class;
+
+		<span class="kw">return</span> $bindings;
+	}
+);</pre>
+<figcaption>From the <a class="ext" href="https://github.com/mwpd/content-freshness#changing-the-rule">README</a>, reflowed. <code>My_Freshness_Policy</code> is your class.</figcaption>
 </figure>
 </div>
 
-<div style="display:flex;flex-direction:column;gap:24px">
-<div style="display:flex;flex-direction:column;gap:12px;max-width:720px">
-<span style="font-family:'JetBrains Mono';font-size:13px;color:oklch(0.8 0.12 50)">4</span>
-<h3 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-.02em;color:#fff">Rules a coding agent can follow</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:16px;line-height:1.65;color:#c3c9d8">The architecture is written down and checked by tools, so a coding agent gets the same guidance as a person, and finds out right away when it strays.</p>
+<div class="step-stack">
+<div class="step-copy">
+<span class="num" aria-hidden="true">4</span>
+<h3>Rules a coding agent can follow</h3>
+<p>The architecture is written down and checked by tools, so a coding agent gets the same guidance as a person, and finds out right away when it strays.</p>
 </div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px">
-<div style="background:#252d3f;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:8px"><a href="https://github.com/mwpd/content-freshness/blob/main/AGENTS.md" style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:oklch(0.8 0.12 50);text-decoration:none">AGENTS.md</a><span style="font-family:'DM Sans';font-size:15px;line-height:1.55;color:#c3c9d8">The repository map, the commands, the design principles in short, and the hard rules.</span></div>
-<div style="background:#252d3f;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:17px;color:#fff">Failures that explain</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.55;color:#c3c9d8">Architecture rules run in the tests and in PHPStan. Every failure says what to do instead.</span></div>
-<div style="background:#252d3f;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:17px;color:#fff">The need before the workaround</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.55;color:#c3c9d8">Before reaching for a singleton or a global, an agent looks up the plugin’s way in <a href="https://github.com/mwpd/content-freshness/blob/main/docs/patterns.md" style="font-family:'JetBrains Mono';font-size:13px;color:#fff">docs/patterns.md</a>.</span></div>
-<div style="background:#252d3f;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:8px"><span style="font-weight:800;font-size:17px;color:#fff">No shortcuts to green</span><span style="font-family:'DM Sans';font-size:15px;line-height:1.55;color:#c3c9d8">No lowered analysis levels, baselines or deleted tests. Claims are verified against the source, not memory.</span></div>
+<div class="rules">
+<div class="rule"><h4><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/AGENTS.md">AGENTS.md</a></h4><p>The repository map, the commands, the design principles in short, and the hard rules.</p></div>
+<div class="rule"><h4>Failures that explain</h4><p>Architecture rules run in the tests and in PHPStan. Every failure says what to do instead.</p></div>
+<div class="rule"><h4>The need before the workaround</h4><p>Before reaching for a singleton or a global, an agent looks up the plugin’s way in <a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/docs/patterns.md"><code>docs/patterns.md</code></a>.</p></div>
+<div class="rule"><h4>No shortcuts to green</h4><p>No lowered analysis levels, baselines or deleted tests. Claims are verified against the source, not memory.</p></div>
 </div>
-<figure style="margin:0;display:flex;flex-direction:column;gap:10px;min-width:0">
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));border:1px solid #2d3548;border-radius:20px;overflow:hidden;background:#151b28">
-<div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #2d3548;min-width:0">
-<span style="font-family:'DM Sans';font-size:13px;font-weight:700;color:#a9b1c4;text-transform:uppercase;letter-spacing:.06em">1 · The agent writes</span>
-<div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.8;overflow-x:auto">
-<div style="white-space:pre"><span style="color:#c792ea">public function</span> <span style="color:#82aaff">__construct</span>() {</div>
-<div style="white-space:pre;padding-left:2ch;background:rgba(255,120,100,.12);border-radius:4px"><span style="color:#82aaff">add_filter</span>( <span style="color:#c3e88d">'the_content'</span>, … );</div>
-<div style="white-space:pre">}</div>
+<figure>
+<div class="lint">
+<div>
+<span class="label">1 · The agent writes</span>
+<pre class="code" tabindex="0" aria-label="Code an agent might write: a hook added in a constructor"><span class="kw">public function</span> <span class="fn">__construct</span>() {
+<span class="hl-bad">	<span class="fn">add_filter</span>( <span class="str">'the_content'</span>, … );</span>}</pre>
 </div>
+<div>
+<span class="label">2 · composer lint says</span>
+<div class="msg"><span class="x" aria-hidden="true">✗</span> Hooks are added in a constructor.<p>Implement <span class="cls">Registerable</span> and add them in <span class="fn">register()</span>. See docs/patterns.md.</p></div>
 </div>
-<div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #2d3548;min-width:0">
-<span style="font-family:'DM Sans';font-size:13px;font-weight:700;color:#a9b1c4;text-transform:uppercase;letter-spacing:.06em">2 · composer lint says</span>
-<div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:#e9ecf3">
-<div><span style="color:oklch(0.75 0.15 30)">✗</span> Hooks are added in a constructor.</div>
-<div style="color:#c3c9d8;margin-top:6px">Implement <span style="color:oklch(0.8 0.12 50)">Registerable</span> and add them in <span style="color:#82aaff">register()</span>. See docs/patterns.md.</div>
-</div>
-</div>
-<div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px;min-width:0">
-<span style="font-family:'DM Sans';font-size:13px;font-weight:700;color:#a9b1c4;text-transform:uppercase;letter-spacing:.06em">3 · The agent fixes</span>
-<div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.8;overflow-x:auto">
-<div style="white-space:pre"><span style="color:#c792ea">public function</span> <span style="color:#82aaff">register</span>(): <span style="color:#c792ea">void</span> {</div>
-<div style="white-space:pre;padding-left:2ch;background:rgba(140,220,140,.12);border-radius:4px"><span style="color:#82aaff">add_filter</span>( <span style="color:#c3e88d">'the_content'</span>, … );</div>
-<div style="white-space:pre">}</div>
+<div>
+<span class="label">3 · The agent fixes</span>
+<pre class="code" tabindex="0" aria-label="The fix: the hook moves into register()"><span class="kw">public function</span> <span class="fn">register</span>(): <span class="kw">void</span> {
+<span class="hl-good">	<span class="fn">add_filter</span>( <span class="str">'the_content'</span>, … );</span>}</pre>
 </div>
 </div>
-</div>
-<figcaption style="font-family:'DM Sans';font-size:14px;color:#a9b1c4">Simplified. The real rules and their messages are listed in <a href="https://github.com/mwpd/content-freshness/blob/main/docs/architecture-rules.md" style="font-family:'JetBrains Mono';font-size:13px">docs/architecture-rules.md</a>.</figcaption>
+<figcaption>Simplified. The real rules and their messages are listed in <a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/docs/architecture-rules.md"><code>docs/architecture-rules.md</code></a>.</figcaption>
 </figure>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px 56px;align-items:center;padding-top:40px;border-top:1px solid #2d3548">
-<div style="display:flex;flex-direction:column;gap:12px">
-<h3 style="margin:0;font-weight:800;font-size:22px;color:#fff">Working on it</h3>
-<p style="margin:0;font-family:'DM Sans';font-size:15px;line-height:1.65;color:#c3c9d8">Unit, integration, architecture and end-to-end tests, plus PHPCS, PHPStan (level max) and Psalm. CI runs them on PHP 7.4 and 8.3.</p>
+<div class="contrib">
+<div>
+<h3>Contributing</h3>
+<p>Unit, integration, architecture and end-to-end tests, plus PHPCS, PHPStan (level max) and Psalm. CI runs them on PHP 7.4 and 8.3, and the end-to-end suite on WordPress 6.0 and the latest release.</p>
 </div>
-<div style="background:#151b28;border:1px solid #2d3548;border-radius:16px;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;overflow-x:auto;min-width:0">
-<div style="white-space:pre"><span style="color:oklch(0.78 0.13 50)">$</span> composer install &amp;&amp; composer test &amp;&amp; composer lint</div>
-<div style="white-space:pre"><span style="color:oklch(0.78 0.13 50)">$</span> npm ci &amp;&amp; npm run e2e</div>
-</div>
+<pre class="code" tabindex="0" aria-label="Commands to run the checks locally"><span class="p">$</span> composer install
+<span class="p">$</span> composer test &amp;&amp; composer lint
+<span class="p">$</span> npm ci &amp;&amp; npm run e2e</pre>
 </div>
 
-<div style="background:oklch(0.93 0.05 140);color:#1d2433;border-radius:28px;padding:clamp(24px,4vw,40px);display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center">
-<div style="display:flex;flex-direction:column;gap:8px;max-width:600px"><span style="font-weight:800;font-size:26px;letter-spacing:-.02em">The full walkthrough</span><span style="font-family:'DM Sans';font-size:16px;line-height:1.55;color:#3a4256">The scaffold’s page goes through this plugin commit by commit, and explains the architecture checks that keep it this way.</span></div>
-<div style="display:flex;flex-wrap:wrap;gap:10px"><a href="https://mwpd.github.io/basic-scaffold/" style="background:#1d2433;color:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 22px;border-radius:999px">MWPD Basic Scaffold</a><a href="https://github.com/mwpd/content-freshness/blob/main/docs/design-principles.md" style="background:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 22px;border-radius:999px">Design principles</a></div>
+<div class="origins">
+<div class="book">
+<span class="label">The book</span>
+<span class="title">Modern WordPress Plugin <em>Development</em></span>
+<p>The scaffold is the book’s companion code: a way of structuring a plugin so that complexity grows one service at a time. This plugin is where that structure meets real WordPress.</p>
+<div class="actions"><a class="btn btn-ink btn-sm" href="https://www.mwpd.io/">About the book</a></div>
+</div>
+<div class="walk">
+<span class="title">The full walkthrough</span>
+<p>The scaffold’s page goes through this plugin commit by commit, and explains the architecture checks that keep it this way.</p>
+<div class="actions"><a class="btn btn-ink btn-sm" href="https://mwpd.github.io/basic-scaffold/">MWPD Basic Scaffold</a><a class="btn btn-paper btn-sm ext" href="https://github.com/mwpd/content-freshness/blob/main/docs/design-principles.md">Design principles</a></div>
+</div>
 </div>
 
 </div>
@@ -275,11 +728,10 @@ a:focus-visible{outline:2px solid oklch(0.62 0.15 45);outline-offset:3px}
 
 </main>
 
-<footer style="max-width:1120px;margin:0 auto;padding:24px 24px 48px;display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;font-family:'DM Sans';font-size:14px;line-height:1.6;color:#4b5468">
-<p style="margin:0;max-width:620px">Content Freshness by Alain Schlesser, the worked example of the <a href="https://mwpd.github.io/basic-scaffold/">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/">Modern WordPress Plugin Development</a>. MIT licence.</p>
-<div style="display:flex;flex-wrap:wrap;gap:20px;font-weight:500"><a href="https://github.com/mwpd/content-freshness/releases/latest">Download</a><a href="https://github.com/mwpd/content-freshness">GitHub</a><a href="https://github.com/mwpd/content-freshness/blob/main/readme.txt">readme.txt</a><a href="https://github.com/mwpd/content-freshness/blob/main/CHANGELOG.md">Changelog</a></div>
+<footer class="site-footer">
+<p>Content Freshness by Alain Schlesser, the worked example of the <a href="https://mwpd.github.io/basic-scaffold/">MWPD Basic Scaffold</a> from <a href="https://www.mwpd.io/">Modern WordPress Plugin Development</a>. MIT licence.</p>
+<nav aria-label="Footer"><a href="https://github.com/mwpd/content-freshness/releases/latest/download/content-freshness.zip" download>Download</a><a class="ext" href="https://github.com/mwpd/content-freshness">Source</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/readme.txt">readme.txt</a><a class="ext" href="https://github.com/mwpd/content-freshness/blob/main/CHANGELOG.md">Changelog</a></nav>
 </footer>
 
-</div>
 </body>
 </html>
