@@ -168,6 +168,7 @@ parameters:
                 - MWPD\ContentFreshness\Infrastructure\Lifecycle\NetworkSelection
                 - MWPD\ContentFreshness\Infrastructure\Registration\RegistrationRecord
                 - MWPD\ContentFreshness\Infrastructure\Asset\AssetContext
+                - MWPD\ContentFreshness\Infrastructure\Asset\AssetHandle
                 - MWPD\ContentFreshness\Infrastructure\Asset\AssetLocation
                 - MWPD\ContentFreshness\Infrastructure\Asset\AssetPath
                 - MWPD\ContentFreshness\Infrastructure\Asset\Script

@@ -21,7 +21,7 @@ use MWPD\ContentFreshness\Exception\InvalidAsset;
  * A script is an immutable value. Each method that changes an option returns
  * a changed copy, so declare a script in one chained expression:
  *
- *     Script::file( 'mwpd-basic-scaffold-copy', 'assets/js/copy.js' )
+ *     Script::file( 'mwpd-content-freshness-copy', 'assets/js/copy.js' )
  *         ->depends_on( 'wp-i18n' )
  *         ->deferred();
  *
@@ -97,13 +97,12 @@ final class Script implements Asset {
 	 *                       prefix.
 	 * @param string $path   Path of the script, relative to the plugin root.
 	 *
-	 * @throws InvalidAsset If the handle is empty or the path is not a plain
-	 *                      path inside the plugin.
+	 * @throws InvalidAsset If the handle is empty or one WordPress could not
+	 *                      enqueue, or the path is not a plain path inside the
+	 *                      plugin.
 	 */
 	public static function file( string $handle, string $path ): self {
-		if ( '' === $handle ) {
-			throw InvalidAsset::for_empty_handle();
-		}
+		$handle = AssetHandle::from_string( $handle )->to_string();
 
 		return new self( $handle, AssetPath::for_asset( $handle, $path ) );
 	}

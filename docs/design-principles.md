@@ -508,7 +508,13 @@ Views already work this way on their own. A view that cannot be created or
 rendered is handled inside the view system: in debug mode the view factories
 rethrow the original exception, and in production a factory returns an
 `EmptyView` and a failing template renders an empty string
-(`src/Infrastructure/View/TemplatedViewFactory.php:90-111`).
+(`src/Infrastructure/View/TemplatedViewFactory.php:90-111`). Loading assets
+has the same boundary: a failure in a service's `get_assets()` or while
+enqueueing is rethrown unchanged in debug mode, and in production skips that
+service's remaining assets for the enqueue point while the other services
+still load theirs (`ServiceBasedPlugin::enqueue_assets_of()`). The debug mode
+it checks is the one this plugin binds for its services
+(`src/ContentFreshnessPlugin.php:311-319`).
 
 The scaffold does not yet catch an exception from a service's own code
 ([mwpd/basic-scaffold#143](https://github.com/mwpd/basic-scaffold/issues/143)),
